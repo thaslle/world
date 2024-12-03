@@ -17,14 +17,21 @@ import { useStore } from "../../hooks/useStore";
 import { Maria } from "./Maria";
 
 export const Player = () => {
-  const { WALK_SPEED, RUN_SPEED, ROTATION_SPEED, JUMP_FORCE, WAITING_TIME } =
-    useControls("Character", {
-      WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
-      RUN_SPEED: { value: 5.0, min: 0.2, max: 12, step: 0.1 },
-      ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
-      JUMP_FORCE: { value: 8.0, min: 0.2, max: 12, step: 0.1 },
-      WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    });
+  const {
+    WALK_SPEED,
+    RUN_SPEED,
+    ROTATION_SPEED,
+    JUMP_FORCE,
+    WAITING_TIME,
+    GRAVITY_SCALE,
+  } = useControls("Character", {
+    WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
+    RUN_SPEED: { value: 5.0, min: 0.2, max: 12, step: 0.1 },
+    ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
+    JUMP_FORCE: { value: 6.0, min: 0.2, max: 12, step: 0.1 },
+    GRAVITY_SCALE: { value: 2.3, min: 0.2, max: 12, step: 0.1 },
+    WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
+  });
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls("Camera", {
     CAMERA_DISTANCE: { value: 4.6, min: 0.1, max: 20.0, step: 0.1 },
@@ -157,7 +164,7 @@ export const Player = () => {
       vel.y = curVel.y;
     }
 
-    if (Math.abs(vel.y) > 1) {
+    if (Math.abs(vel.y) > 0.01) {
       inTheAir.current = true;
       landed.current = false;
     } else {
@@ -168,7 +175,9 @@ export const Player = () => {
     playerRef.current.setLinvel(vel);
 
     //Player animations
-    if (
+    if (inTheAir.current === true) {
+      if (characterState !== "Jump") setCharacterState("Jump");
+    } else if (
       (Math.abs(vel.x) > WALK_SPEED || Math.abs(vel.z) > WALK_SPEED) &&
       movement.current.w === 1
     ) {
@@ -212,11 +221,20 @@ export const Player = () => {
 
       <RigidBody
         colliders={false}
-        gravityScale={2.5}
+        gravityScale={GRAVITY_SCALE}
         canSleep={false}
         enabledRotations={[false, true, false]}
         ref={playerRef}
         position={[0, 1.5, 0]}
+        onCollisionEnter={(e) => {
+          if (e.other.rigidBodyObject.name === "terrain") {
+            inTheAir.current = false;
+            landed.current = true;
+            const curVel = playerRef.current.linvel();
+            curVel.y = 0;
+            playerRef.current.setLinvel(curVel);
+          }
+        }}
       >
         <group
           ref={cameraPosition}

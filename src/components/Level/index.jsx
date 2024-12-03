@@ -7,8 +7,8 @@ export const Level = () => {
   });
 
   return (
-    <RigidBody type="fixed" name="floor" friction={2}>
-      <mesh position={[0, -0.2, 0]}>
+    <RigidBody type="fixed" name="terrain" friction={2}>
+      <mesh position={[0, -0.1, 0]}>
         <boxGeometry args={[200, 0.2, 200]} />
         <meshStandardMaterial color={COLOR} />
       </mesh>

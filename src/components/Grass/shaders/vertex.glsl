@@ -98,10 +98,10 @@ float remap(float v, float inMin, float inMax, float outMin, float outMax)
 float getGrassAttenuation(vec2 position)
 {
     // Calculate the distance attenuation based on distance from the player to the position
-    float distanceAttenuation = distance(uPlayerPosition.xz, position) / uGrassDistance * 2.0;
+    float distanceAttenuation = distance(uPlayerPosition.xz, position) / uGrassDistance * 1.9;
     
     // Attenuation near the center (player position) with a scale factor
-    float factor = 0.05;
+    float factor = 0.04;
     float centerAttenuation = smoothstep(0.0, factor, distance(uPlayerPosition.xz, position) / uGrassDistance);
 
     // Combine both attenuations: distance-based and center-based

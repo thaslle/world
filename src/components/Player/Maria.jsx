@@ -9,7 +9,7 @@ import { useGraph } from "@react-three/fiber";
 import { useGLTF, useAnimations } from "@react-three/drei";
 import { SkeletonUtils } from "three-stdlib";
 import { useStore } from "../../hooks/useStore";
-import { MeshStandardMaterial } from "three";
+import { MeshStandardMaterial, LoopOnce, LoopRepeat } from "three";
 
 export function Maria(props) {
   const group = useRef();
@@ -25,10 +25,25 @@ export function Maria(props) {
   const characterState = useStore((state) => state.characterState);
 
   useEffect(() => {
-    actions[characterState].reset().fadeIn(0.3).play();
+    const action = actions[characterState];
+    if (action) {
+      action.reset().fadeIn(0.3);
+
+      if (characterState === "Jump") {
+        action.setLoop(LoopOnce, 0); // Play the animation once
+        action.clampWhenFinished = true; // Keep the last frame when finished
+      } else {
+        action.setLoop(LoopRepeat, Infinity); // Default to infinite loop for other states
+        action.clampWhenFinished = false; // Reset this behavior for other animations
+      }
+
+      action.play(); // Start the animation
+    }
 
     return () => {
-      actions[characterState].fadeOut(0.3);
+      if (action) {
+        action.fadeOut(0.3); // Fade out the animation on cleanup
+      }
     };
   }, [characterState]);
 

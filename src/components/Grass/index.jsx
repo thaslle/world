@@ -31,9 +31,9 @@ export const Grass = () => {
     POSITION_RANDOMNESS,
   } = useControls("Grass", {
     DETAILS: { value: 95, min: 10, max: 200, step: 1 },
-    SIZE: { value: 9.0, min: 0.1, max: 50.0, step: 0.1 },
+    SIZE: { value: 9.0, min: 0.1, max: 100.0, step: 0.1 },
     COUNT: { value: 9500, min: 100, max: 15000, step: 10 },
-    BLADE_WIDTH_RATIO: { value: 0.8, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_WIDTH_RATIO: { value: 1.9, min: 0.1, max: 10.0, step: 0.1 },
     BLADE_HEIGHT_RATIO: { value: 3.2, min: 0.1, max: 10.0, step: 0.1 },
     BLADE_HEIGHT_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
     POSITION_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
