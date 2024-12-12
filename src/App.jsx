@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Grid, Stats, KeyboardControls, Environment } from "@react-three/drei";
+import { Grid, Stats, KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Leva } from "leva";
@@ -35,15 +35,13 @@ function App() {
         <Canvas camera={{ position: [3, 3, 3], fov: 50 }} shadows>
           {showDebug && <Stats />}
 
-          <Environment preset="forest" />
-          <ambientLight intensity={1.5} />
-          <fog attach="fog" args={["#eeeeee", 7, 50]} />
           <Physics debug={showPhysics}>
             <Experience />
           </Physics>
 
           {showPhysics && (
             <Grid
+              position={[0, 0.1, 0]}
               sectionSize={1}
               sectionColor={"purple"}
               sectionThickness={1}

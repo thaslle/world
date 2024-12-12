@@ -9,17 +9,12 @@ import { useStore } from "../../hooks/useStore";
 import vertexShader from "./shaders/vertex.glsl";
 import fragmentShader from "./shaders/fragment.glsl";
 
-// const DETAILS = 50;
-// const SIZE = 1;
-// const COUNT = 2500;
-// const FRAGMENT_SIZE = SIZE / DETAILS;
-// const BLADE_WIDTH_RATIO = 1;
-// const BLADE_HEIGHT_RATIO = 2;
-// const BLADE_HEIGHT_RANDOMNESS = 0.5;
-// const POSITION_RANDOMNESS = 0.5;
-
 export const Grass = () => {
   const playerPosition = useStore((state) => state.playerPosition);
+  const terrainSize = useStore((state) => state.terrainSize);
+  const terrainHeights = useStore((state) => state.terrainHeights);
+  const terrainHeightsMinMax = useStore((state) => state.terrainHeightsMinMax);
+  const terrainSegments = useStore((state) => state.terrainSegments);
 
   const {
     DETAILS,
@@ -29,14 +24,16 @@ export const Grass = () => {
     BLADE_HEIGHT_RATIO,
     BLADE_HEIGHT_RANDOMNESS,
     POSITION_RANDOMNESS,
+    TERRAIN_OFFSET,
   } = useControls("Grass", {
-    DETAILS: { value: 95, min: 10, max: 200, step: 1 },
-    SIZE: { value: 9.0, min: 0.1, max: 100.0, step: 0.1 },
-    COUNT: { value: 9500, min: 100, max: 15000, step: 10 },
-    BLADE_WIDTH_RATIO: { value: 1.9, min: 0.1, max: 10.0, step: 0.1 },
-    BLADE_HEIGHT_RATIO: { value: 3.2, min: 0.1, max: 10.0, step: 0.1 },
+    DETAILS: { value: 300, min: 10, max: 2000, step: 1 },
+    SIZE: { value: 60.0, min: 0.1, max: 100.0, step: 0.1 },
+    COUNT: { value: 150000, min: 100, max: 150000, step: 10 },
+    BLADE_WIDTH_RATIO: { value: 1.4, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_HEIGHT_RATIO: { value: 2.2, min: 0.1, max: 10.0, step: 0.1 },
     BLADE_HEIGHT_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
     POSITION_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
+    TERRAIN_OFFSET: { value: 1000.0, min: -1000.0, max: 1000.0, step: 10.0 },
   });
 
   const { centers, positions } = useMemo(() => {
@@ -50,20 +47,12 @@ export const Grass = () => {
         uTime: 0,
         uGrassDistance: SIZE,
         uPlayerPosition: new THREE.Vector3(0.0, 0.0, 0.0),
-        uTerrainSize: SIZE,
-        uTerrainTextureSize: SIZE,
-        uTerrainATexture: null,
-        uTerrainAOffset: new THREE.Vector2(),
-        uTerrainBTexture: null,
-        uTerrainBOffset: new THREE.Vector2(),
-        uTerrainCTexture: null,
-        uTerrainCOffset: new THREE.Vector2(),
-        uTerrainDTexture: null,
-        uTerrainDOffset: new THREE.Vector2(),
-        uFresnelOffset: 0,
-        uFresnelScale: 0.5,
-        uFresnelPower: 2,
-        uSunPosition: new THREE.Vector3(-0.5, -0.5, -0.5),
+        uTerrainSize: 0,
+        uTerrainTextureSize: 0,
+        uTerrainTexture: null,
+        uTerrainOffset: new THREE.Vector3(TERRAIN_OFFSET, 0.0, TERRAIN_OFFSET),
+        uTerrainHeightMin: 0,
+        uTerrainHeightMax: 0,
       },
       vertexShader,
       fragmentShader,
@@ -124,13 +113,14 @@ export const Grass = () => {
 
     return { centers, positions };
   }, [
-    DETAILS,
-    SIZE,
     COUNT,
+    SIZE,
+    DETAILS,
+    TERRAIN_OFFSET,
+    POSITION_RANDOMNESS,
     BLADE_WIDTH_RATIO,
     BLADE_HEIGHT_RATIO,
     BLADE_HEIGHT_RANDOMNESS,
-    POSITION_RANDOMNESS,
   ]);
 
   const geometryRef = useRef(new THREE.BufferGeometry());
@@ -149,6 +139,38 @@ export const Grass = () => {
       new THREE.Float32BufferAttribute(positions, 3),
     );
   }, [centers, positions]);
+
+  useEffect(() => {
+    if (
+      terrainHeights &&
+      terrainSize &&
+      terrainHeightsMinMax &&
+      materialRef.current
+    ) {
+      const dataTexture = new THREE.DataTexture(
+        terrainHeights,
+        terrainSegments,
+        terrainSegments,
+        THREE.RGBAFormat,
+        THREE.FloatType,
+        THREE.UVMapping,
+        THREE.ClampToEdgeWrapping,
+        THREE.ClampToEdgeWrapping,
+        THREE.LinearFilter,
+        THREE.LinearFilter,
+      );
+      dataTexture.needsUpdate = true;
+      dataTexture.flipY = false;
+
+      materialRef.current.uniforms.uTerrainTexture.value = dataTexture;
+      materialRef.current.uniforms.uTerrainSize.value = terrainSize;
+      materialRef.current.uniforms.uTerrainTextureSize.value = terrainSize;
+      materialRef.current.uniforms.uTerrainHeightMin.value =
+        terrainHeightsMinMax[0];
+      materialRef.current.uniforms.uTerrainHeightMax.value =
+        terrainHeightsMinMax[1];
+    }
+  }, [terrainHeights, terrainHeightsMinMax, terrainSegments, terrainSize]);
 
   //Update Positions
   useFrame(({ clock }) => {

@@ -55,7 +55,6 @@ export function Maria(props) {
           <skinnedMesh
             name="Body"
             geometry={nodes.Body.geometry}
-            // material={materials.m_char}
             material={customMaterial}
             skeleton={nodes.Body.skeleton}
           />

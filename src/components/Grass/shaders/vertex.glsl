@@ -5,33 +5,15 @@ uniform float uGrassDistance;
 uniform vec3 uPlayerPosition;
 uniform float uTerrainSize;
 uniform float uTerrainTextureSize;
-uniform sampler2D uTerrainATexture;
-uniform vec2 uTerrainAOffset;
-uniform sampler2D uTerrainBTexture;
-uniform vec2 uTerrainBOffset;
-uniform sampler2D uTerrainCTexture;
-uniform vec2 uTerrainCOffset;
-uniform sampler2D uTerrainDTexture;
-uniform vec2 uTerrainDOffset;
-uniform float uFresnelOffset;
-uniform float uFresnelScale;
-uniform float uFresnelPower;
-uniform vec3 uSunPosition;
+uniform sampler2D uTerrainTexture;
+uniform float uTerrainHeightMin;
+uniform float uTerrainHeightMax;
 uniform vec3 uColor;
 
 attribute vec2 center;
 
 varying vec3 vColor;
 varying vec2 vUv;
-
-//#include ../partials/inverseLerp.glsl
-//#include ../partials/remap.glsl
-//#include ../partials/getSunShade.glsl;
-//#include ../partials/getSunShadeColor.glsl;
-//#include ../partials/getSunReflection.glsl;
-//#include ../partials/getSunReflectionColor.glsl;
-//#include ../partials/getGrassAttenuation.glsl;
-//#include ../partials/getRotatePivot2d.glsl;
 
 // Classic Perlin 2D noise
 vec2 mod289(vec2 x) {
@@ -101,7 +83,7 @@ float getGrassAttenuation(vec2 position)
     float distanceAttenuation = distance(uPlayerPosition.xz, position) / uGrassDistance * 1.9;
     
     // Attenuation near the center (player position) with a scale factor
-    float factor = 0.04;
+    float factor = 0.006;
     float centerAttenuation = smoothstep(0.0, factor, distance(uPlayerPosition.xz, position) / uGrassDistance);
 
     // Combine both attenuations: distance-based and center-based
@@ -141,35 +123,30 @@ void main()
     float angleToCamera = atan((modelCenter.x - cameraPosition.x) * 2.0, (modelCenter.z - cameraPosition.z) * 2.0);
     modelPosition.xz = getRotatePivot2d(modelPosition.xz, angleToCamera, modelCenter.xz);
 
-    // Terrains data
-    // vec2 terrainAUv = (modelPosition.xz - uTerrainAOffset.xy) / uTerrainSize;
-    // vec2 terrainBUv = (modelPosition.xz - uTerrainBOffset.xy) / uTerrainSize;
-    // vec2 terrainCUv = (modelPosition.xz - uTerrainCOffset.xy) / uTerrainSize;
-    // vec2 terrainDUv = (modelPosition.xz - uTerrainDOffset.xy) / uTerrainSize;
+    // Apply Heightmap
+    // Normalize model position to terrain space (world space to terrain space)
+    vec2 terrainUv = (modelPosition.xz + (uTerrainSize * 0.5)) / uTerrainSize;
 
-    // float fragmentSize = 1.0 / uTerrainTextureSize;
-    // vec4 terrainAColor = texture2D(uTerrainATexture, terrainAUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
-    // vec4 terrainBColor = texture2D(uTerrainBTexture, terrainBUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
-    // vec4 terrainCColor = texture2D(uTerrainCTexture, terrainCUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
-    // vec4 terrainDColor = texture2D(uTerrainDTexture, terrainDUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
+    // Sample the terrain texture using the adjusted UVs
+    float fragmentSize = 1.0 / uTerrainTextureSize;
+    vec4 terrainColor = texture2D(uTerrainTexture, terrainUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
+    //vec4 terrainColor = texture2D(uTerrainTexture, terrainUv);
 
-    // vec4 terrainData = vec4(0);
-    // terrainData += step(0.0, terrainAUv.x) * step(terrainAUv.x, 1.0) * step(0.0, terrainAUv.y) * step(terrainAUv.y, 1.0) * terrainAColor;
-    // terrainData += step(0.0, terrainBUv.x) * step(terrainBUv.x, 1.0) * step(0.0, terrainBUv.y) * step(terrainBUv.y, 1.0) * terrainBColor;
-    // terrainData += step(0.0, terrainCUv.x) * step(terrainCUv.x, 1.0) * step(0.0, terrainCUv.y) * step(terrainCUv.y, 1.0) * terrainCColor;
-    // terrainData += step(0.0, terrainDUv.x) * step(terrainDUv.x, 1.0) * step(0.0, terrainDUv.y) * step(terrainDUv.y, 1.0) * terrainDColor;
+    // Normalize the height using the min and max height values
+    float height = (terrainColor.a * (uTerrainHeightMax - uTerrainHeightMin)) - uTerrainHeightMin;
+    
+    // Apply the height to the model's position
+    modelPosition.y += height;  // Adjust the model's y-coordinate based on the heightmap
 
-    // vec3 normal = terrainData.rgb;
+    // Update the model center's y position for correct rendering
+    modelCenter.y += height;
 
-    //modelPosition.y += terrainData.a;
-    //modelCenter.y += terrainData.a;
-
-     vec3 normal = vec3(1.0, 1.0, 1.0);
+    vec3 normal = vec3(1.0, 1.0, 1.0);
 
     // Slope
     float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), normal));
 
-    // Attenuation
+    // // Attenuation
     float distanceScale = getGrassAttenuation(modelCenter.xz);
     float slopeScale = smoothstep(remap(slope, 0.4, 0.5, 1.0, 0.0), 0.0, 1.0);
     float scale = distanceScale * slopeScale;
@@ -180,36 +157,23 @@ void main()
     // Tipness
     float tipness = step(2.0, mod(float(gl_VertexID) + 1.0, 3.0));
 
-    // Wind
-    vec2 noiseUv = modelPosition.xz * 0.02 + uTime * 0.1;
-    //vec4 noiseColor = texture2D(uNoiseTexture, noiseUv);
+    // // Wind
+    vec2 noiseUv = modelPosition.xz * 0.08 + uTime * 0.2;
     vec4 noiseColor = vec4(perlinNoise(noiseUv));
-    modelPosition.x += (noiseColor.x - 0.5) * tipness * scale * 0.05;
-    modelPosition.z += (noiseColor.y - 0.5) * tipness * scale * 0.05;
+    modelPosition.x += (noiseColor.x - 0.2) * tipness * scale * 0.1;
+    modelPosition.z += (noiseColor.y - 0.2) * tipness * scale * 0.1;
 
     // Final position
     vec4 viewPosition = viewMatrix * modelPosition;
     gl_Position = projectionMatrix * viewPosition;
 
-    //vec3 viewDirection = normalize(modelPosition.xyz - cameraPosition);
-    //vec3 worldNormal = normalize(mat3(modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz) * normal);
-    //vec3 viewNormal = normalize(normalMatrix * normal);
-
     // Grass color
-    vec3 uGrassDefaultColor = vec3(0.72, 0.90, 0.35);
-    vec3 uGrassShadedColor = vec3(0.72 / 1.15, 0.90 / 1.15, 0.35 / 1.15);
+    vec3 uGrassDefaultColor = vec3(0.69, 0.83, 0.38);
+    vec3 uGrassShadedColor = vec3(0.69 / 1.18, 0.83 / 1.18, 0.38 / 1.18);
 
     
     vec3 lowColor = mix(uGrassShadedColor, uGrassDefaultColor, 1.0 - scale); // Match the terrain
     vec3 color = mix(lowColor, uGrassDefaultColor, tipness);
-
-    // Sun shade
-    //float sunShade = getSunShade(normal);
-    //color = getSunShadeColor(color, sunShade);
-
-    // Sun reflection
-    //float sunReflection = getSunReflection(viewDirection, worldNormal, viewNormal);
-    //color = getSunReflectionColor(color, sunReflection);
 
     vColor = color;
 }

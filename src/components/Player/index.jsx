@@ -24,13 +24,19 @@ export const Player = () => {
     JUMP_FORCE,
     WAITING_TIME,
     GRAVITY_SCALE,
+    POSITION_X,
+    POSITION_Y,
+    POSITION_Z,
   } = useControls("Character", {
     WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
-    RUN_SPEED: { value: 5.0, min: 0.2, max: 12, step: 0.1 },
+    RUN_SPEED: { value: 5.0, min: 0.2, max: 30, step: 0.1 },
     ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
-    JUMP_FORCE: { value: 6.0, min: 0.2, max: 12, step: 0.1 },
-    GRAVITY_SCALE: { value: 2.3, min: 0.2, max: 12, step: 0.1 },
+    JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
+    GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
+    POSITION_X: { value: 20, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 11, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 50, min: -1000, max: 1000, step: 0.5 },
   });
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls("Camera", {
@@ -41,8 +47,9 @@ export const Player = () => {
   const customClock = useRef(new Clock());
 
   const vel = new Vector3();
-  const inTheAir = useRef(true);
-  const landed = useRef(false);
+  const playerinTheAir = useRef(true);
+  const playerLanded = useRef(false);
+  const playerLastJump = useRef(0);
 
   const playerRef = useRef();
   const characterRef = useRef();
@@ -62,7 +69,7 @@ export const Player = () => {
 
   const [, get] = useKeyboardControls();
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (
       !cameraRef.current ||
       !playerRef.current ||
@@ -75,11 +82,12 @@ export const Player = () => {
 
     // Clock functions
     const elapsedTime = customClock.current.getElapsedTime();
+    const generalElapsedTime = clock.getElapsedTime();
 
     cameraTarget.current = vec3(playerRef.current.translation());
     cameraPosition.current.getWorldPosition(positionWorldPosition);
 
-    // When player is Sit, you can rotate the camera around
+    //When player is Sit, you can rotate the camera around
     if (characterState !== "Sit") {
       cameraRef.current.setLookAt(
         positionWorldPosition.x,
@@ -112,7 +120,6 @@ export const Player = () => {
       movement.current.r = 0;
       movement.current.w = 1;
 
-      //characterRef.current.rotation.set(0, 0, 0);
       characterRef.current.rotation.y = MathUtils.lerp(
         characterRef.current.rotation.y,
         0,
@@ -124,7 +131,6 @@ export const Player = () => {
       movement.current.x = -1;
       movement.current.w = 1;
 
-      //characterRef.current.rotation.set(0, Math.PI, 0);
       characterRef.current.rotation.y = MathUtils.lerp(
         characterRef.current.rotation.y,
         Math.PI,
@@ -133,7 +139,6 @@ export const Player = () => {
     }
 
     const isMovingZ = Math.abs(vel.z) >= MOVEMENT_SPEED;
-    //const increaseRotation = isMovingZ ? 1 : 3;
 
     if (get()[Controls.left]) {
       if (!isMovingZ) vel.z += MOVEMENT_SPEED * 0.5 * movement.current.x;
@@ -155,27 +160,26 @@ export const Player = () => {
 
     vel.applyEuler(eulerRot);
 
-    // Make the character jump (I'm not using it yet, but it'll be applied in the future)
-    if (get()[Controls.jump] && !inTheAir.current && landed.current) {
+    // Make the character jump
+    if (
+      get()[Controls.jump] &&
+      !playerinTheAir.current &&
+      playerLanded.current &&
+      generalElapsedTime - playerLastJump.current > 0.8
+    ) {
       vel.y += JUMP_FORCE;
-      inTheAir.current = true;
-      landed.current = false;
+      playerinTheAir.current = true;
+      playerLanded.current = false;
+      playerLastJump.current = generalElapsedTime;
     } else {
       vel.y = curVel.y;
-    }
-
-    if (Math.abs(vel.y) > 0.01) {
-      inTheAir.current = true;
-      landed.current = false;
-    } else {
-      inTheAir.current = false;
     }
 
     // Apply Velocity
     playerRef.current.setLinvel(vel);
 
     //Player animations
-    if (inTheAir.current === true) {
+    if (playerinTheAir.current === true) {
       if (characterState !== "Jump") setCharacterState("Jump");
     } else if (
       (Math.abs(vel.x) > WALK_SPEED || Math.abs(vel.z) > WALK_SPEED) &&
@@ -225,11 +229,11 @@ export const Player = () => {
         canSleep={false}
         enabledRotations={[false, true, false]}
         ref={playerRef}
-        position={[0, 1.5, 0]}
+        position={[POSITION_X, POSITION_Y, POSITION_Z]}
         onCollisionEnter={(e) => {
           if (e.other.rigidBodyObject.name === "terrain") {
-            inTheAir.current = false;
-            landed.current = true;
+            playerinTheAir.current = false;
+            playerLanded.current = true;
             const curVel = playerRef.current.linvel();
             curVel.y = 0;
             playerRef.current.setLinvel(curVel);
