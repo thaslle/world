@@ -4,9 +4,7 @@ A work-in-progress open-world exploration game made with React Three Fiber.
 
 ![world-snapshot](https://github.com/user-attachments/assets/e312e77e-58bd-46ca-9963-b8f78fc879a6)
 
-You can try a live demo [here](https://thaslle-world.netlify.app).
-
-_Use "." and "," to open the debug options._
+You can try a live demo [here](https://thaslle-world.netlify.app). (_use "." and "," to access the debug options._)
 
 ## Technologies
 - [Three.js](https://threejs.org/)
