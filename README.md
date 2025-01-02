@@ -1,6 +1,7 @@
 # Open World Exploration
 
-A work-in-progress open-world exploration game made with React Three Fiber. Use "." and "," to open the debug options.
+A work-in-progress open-world exploration game made with React Three Fiber. 
+Use "." and "," to open the debug options.
 
 ![world-snapshot](https://github.com/user-attachments/assets/e312e77e-58bd-46ca-9963-b8f78fc879a6)
 
