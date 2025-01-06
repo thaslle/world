@@ -58,7 +58,7 @@ export const Player = () => {
   const movement = useRef({
     x: 1,
     z: 0,
-    w: 0,
+    w: 0, // used to store whether the player is moving forwards or backwards
   })
 
   const cameraTarget = useRef(new Vector3(0, 0, 0))
@@ -117,14 +117,14 @@ export const Player = () => {
     const curVel = playerRef.current.linvel()
 
     // If the player is running
-    const MOVEMENT_SPEED = get().run ? RUN_SPEED : WALK_SPEED
+    const MOVEMENT_SPEED = get()[Controls.run] ? RUN_SPEED : WALK_SPEED
 
     // Moving forward
     if (get()[Controls.forward]) {
       vel.z += MOVEMENT_SPEED
 
       movement.current.x = 1
-      movement.current.w = 1
+      movement.current.w = 1 // Moving forwards or backwards
 
       // Player is facing away from the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -137,7 +137,7 @@ export const Player = () => {
       vel.z -= MOVEMENT_SPEED
 
       movement.current.x = -1
-      movement.current.w = 1
+      movement.current.w = 1 // Moving forwards or backwards
 
       // Player facing the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -188,25 +188,30 @@ export const Player = () => {
     // Apply Velocity
     playerRef.current.setLinvel(vel, true)
 
-    //Player animations
+    // Player animations
     if (playerinTheAir.current === true) {
+      // If the player is in the air, it means the player is jumping
       if (characterState !== 'Jump') setCharacterState('Jump')
     } else if (
       (Math.abs(vel.x) > WALK_SPEED || Math.abs(vel.z) > WALK_SPEED) &&
       movement.current.w === 1
     ) {
+      // Player is walking if it has a high horizontal velocity and the movement w is 1
       customClock.current.start() // Reset counting
       if (characterState !== 'Run') setCharacterState('Run')
     } else if (Math.abs(vel.x) > 0.05 || Math.abs(vel.z) > 0.05) {
+      // Player needs to have a minimum horizontal speed to start walking
       customClock.current.start() // Reset counting
       if (characterState !== 'Walk') setCharacterState('Walk')
     } else {
+      // Logics for when the player is not moving
       if (
         characterState !== 'Idle' &&
         characterState !== 'Sit' &&
         characterState !== 'StandUp' &&
         characterState !== 'SitDown'
       ) {
+        // Set a default Idle state if player doesn't have any state
         customClock.current.start()
         setCharacterState('Idle')
       } else if (
@@ -220,7 +225,7 @@ export const Player = () => {
         elapsedTime > WAITING_TIME + 6 &&
         characterState === 'SitDown'
       ) {
-        // After sitting animation is complete
+        // After sitting animation is complete plays a sort of sitting idle animation
         setCharacterState('Sit')
       }
     }
