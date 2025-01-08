@@ -1,23 +1,28 @@
-import { Environment } from '@react-three/drei'
-
 import { useControls } from 'leva'
 
 import { Grass } from './grass'
 import { Level } from './level'
 import { Player } from './player'
 
+import { settings } from '~/config/settings'
+
 export const Experience = () => {
   const { BACKGROUND } = useControls('Sky', {
-    BACKGROUND: '#d9ffe8',
+    BACKGROUND: '#79fffa', //#d9ffe8
   })
 
   return (
     <>
-      <Environment preset="dawn" />
-      <ambientLight intensity={1.8} />
+      <ambientLight intensity={settings.ambientLight.intensity} />
+
+      <directionalLight
+        intensity={settings.directionalLight.intensity}
+        position={settings.directionalLight.position}
+        color={settings.directionalLight.color}
+      />
 
       <color attach="background" args={[BACKGROUND]} />
-      <fog attach="fog" args={[BACKGROUND, 65, 90]} />
+      <fog attach="fog" args={[BACKGROUND, 250, 512]} />
 
       <Player />
       <Grass />

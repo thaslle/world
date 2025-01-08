@@ -20,7 +20,7 @@ export const useStore = create<Store>((set) => ({
   playerPosition: null,
   debug: false,
   physics: false,
-  terrainSize: 500,
+  terrainSize: 512,
   terrainHeights: new Float32Array(),
   terrainHeightsMinMax: [0, 0],
   terrainSegments: 0,

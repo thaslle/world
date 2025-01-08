@@ -7,10 +7,10 @@ import { extend, ReactThreeFiber, useFrame } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
 import { useControls } from 'leva'
 
-import { useStore } from '../../hooks/use-store'
+import { useStore } from '~/hooks/use-store'
 
-import vertexShader from './shaders/vertex.glsl?raw'
-import fragmentShader from './shaders/fragment.glsl?raw'
+import vertexShader from './shaders/vertex.glsl'
+import fragmentShader from './shaders/fragment.glsl'
 
 declare global {
   namespace JSX {
@@ -79,24 +79,6 @@ export const Grass = () => {
     const positions = new Float32Array(COUNT * 3 * 3)
 
     const FRAGMENT_SIZE = SIZE / DETAILS
-
-    // const GrassMaterial = shaderMaterial(
-    //   {
-    //     uTime: 0,
-    //     uGrassDistance: SIZE,
-    //     uPlayerPosition: new THREE.Vector3(0.0, 0.0, 0.0),
-    //     uTerrainSize: 0,
-    //     uTerrainTextureSize: 0,
-    //     uTerrainTexture: null,
-    //     uTerrainOffset: new THREE.Vector3(TERRAIN_OFFSET, 0.0, TERRAIN_OFFSET),
-    //     uTerrainHeightMin: 0,
-    //     uTerrainHeightMax: 0,
-    //   },
-    //   vertexShader,
-    //   fragmentShader,
-    // )
-
-    //extend({ GrassMaterial })
 
     for (let iX = 0; iX < DETAILS; iX++) {
       const fragmentX = (iX / DETAILS - 0.5) * SIZE + FRAGMENT_SIZE * 0.5
@@ -232,7 +214,7 @@ export const Grass = () => {
   })
 
   return (
-    <mesh frustumCulled={false} ref={meshRef}>
+    <mesh frustumCulled={false} ref={meshRef} receiveShadow>
       <bufferGeometry ref={geometryRef} />
       <grassMaterial ref={materialRef} />
     </mesh>

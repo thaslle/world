@@ -18,6 +18,8 @@ import { Maria } from './maria'
 
 export const Player = () => {
   const {
+    FIXED,
+    ROTATE,
     WALK_SPEED,
     RUN_SPEED,
     ROTATION_SPEED,
@@ -28,15 +30,17 @@ export const Player = () => {
     POSITION_Y,
     POSITION_Z,
   } = useControls('Character', {
+    FIXED: { value: false },
+    ROTATE: { value: false },
     WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
     RUN_SPEED: { value: 5.0, min: 0.2, max: 30, step: 0.1 },
     ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    POSITION_X: { value: 20, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 11, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 50, min: -1000, max: 1000, step: 0.5 },
+    POSITION_X: { value: 25.41, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 3.3, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 205.88, min: -1000, max: 1000, step: 0.5 },
   })
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls('Camera', {
@@ -89,7 +93,7 @@ export const Player = () => {
 
     // Set camera to follow the player when it's moving,
     // But, when character is Sit, you can rotate the camera around
-    if (characterState !== 'Sit') {
+    if (characterState !== 'Sit' && !ROTATE) {
       cameraRef.current.setLookAt(
         positionWorldPosition.x,
         positionWorldPosition.y,
@@ -245,6 +249,7 @@ export const Player = () => {
         enabledRotations={[false, true, false]}
         ref={playerRef}
         position={[POSITION_X, POSITION_Y, POSITION_Z]}
+        type={FIXED ? 'fixed' : 'dynamic'}
         onCollisionEnter={(e) => {
           // Check if player is on the ground
           if (

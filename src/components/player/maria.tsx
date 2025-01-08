@@ -14,7 +14,7 @@ import { useStore } from '~/hooks/use-store'
 
 export function Maria(props: GroupProps) {
   const group = useRef<Group>(null)
-  const { scene, animations } = useGLTF('/models/maria.gltf')
+  const { scene, animations } = useGLTF('/models/maria.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
 
   const { nodes, materials } = useGraph(clone)
@@ -66,4 +66,4 @@ export function Maria(props: GroupProps) {
   )
 }
 
-useGLTF.preload('/models/maria.gltf')
+useGLTF.preload('/models/maria.glb')
