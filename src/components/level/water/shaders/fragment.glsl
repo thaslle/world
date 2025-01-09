@@ -5,17 +5,26 @@ precision mediump float;
 varying vec2 vUv;
 
 uniform float uTime;
+uniform sampler2D uDepth;
+uniform float uMaxDepth;
+uniform vec2 uResolution;
+uniform float uCameraNear;
+uniform float uCameraFar;
+
+#include <packing>
 
 #include "../../../../utils/shaders/functions.glsl"
 #include "../../../../utils/shaders/snoise.glsl"
 
-void main() {
-    // Normalize the coordinates for the fragment
-    //vec2 st = gl_FragCoord.xy / u_resolution.xy;
-    //st.x *= u_resolution.x / u_resolution.y;
+float getViewZ(const in float depth) {
+    return perspectiveDepthToViewZ(depth, uCameraNear, uCameraFar);
+}
 
-    //vec2 st = gl_FragCoord.xy / vec2(gl_FragCoord.z, gl_FragCoord.z);  // automatically derived resolution
-    
+float getDepth(const in vec2 screenPosition ) {
+    return unpackRGBAToDepth(texture2D(uDepth, screenPosition));
+}
+
+void main() {
     // Generate noise for the base texture
     float noiseBase = snoise(vUv * 2000.0 + sin(uTime * 0.3));
     noiseBase = noiseBase * 0.5 + 0.5;
@@ -41,8 +50,37 @@ void main() {
 
     // Final color adjustment with a blue tint
     vec3 blueTint = vec3(0.179, 0.971, 1.000);
-    vec3 finalColor = (1.0 - combinedEffect) * blueTint + combinedEffect;
+    vec3 distantBlueTint = vec3(0.112,0.885,1.000);
+    
+    // Applying a gradient based on distance
+    float vignette = length(vUv - 0.5) * 1.5;
+    vec3 baseColor = smoothstep(0.3, 0.9, vec3(vignette));
+    baseColor = mix(blueTint, distantBlueTint, baseColor);
+
+    vec3 finalColor = (1.0 - combinedEffect) * baseColor + combinedEffect;
+
+    
+    // Depth
+    vec2 screenUV = gl_FragCoord.xy / uResolution;
+    float fragmentLinearEyeDepth = getViewZ(gl_FragCoord.z);
+    float linearEyeDepth = getViewZ(getDepth(screenUV));
+
+    float depth = fragmentLinearEyeDepth - linearEyeDepth;
+    float border = step(0.2, step(0.05, depth));
+    
+    // Smooth gradient near the edges
+    if(vignette < 0.5) {
+        finalColor += smoothstep(uMaxDepth, 0.0, depth);
+        
+        if (depth < uMaxDepth * 0.2 && vignette < 0.5) {
+            finalColor = vec3(1.0);
+        }
+    }
+
+    
+    // Managing the alpha based on the distance
+    float alpha = min(vignette + 0.4, 1.0);
 
     // Output the final color
-    gl_FragColor = vec4(finalColor, 0.6);
+    gl_FragColor = vec4(finalColor, alpha);
 }

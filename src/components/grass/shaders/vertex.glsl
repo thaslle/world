@@ -11,7 +11,6 @@ uniform float uTerrainHeightMax;
 uniform vec3 uColor;
 
 attribute vec2 center;
-attribute vec3 a_normal;  
 
 varying vec3 vColor;
 varying vec2 vUv;
@@ -74,11 +73,11 @@ void main()
     // Update the model center's y position for correct rendering
     modelCenter.y += height + 0.1;
 
-    // modelPosition.y *= step(0.5, terrainColor.g);
-    // modelCenter.y *= step(0.5, terrainColor.g);
+    modelPosition.y *= smoothstep(0.0, 0.5, terrainColor.g);
+    modelCenter.y *= smoothstep(0.0, 0.5, terrainColor.g);
 
     // Slope
-    float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), a_normal));
+    float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), normal));
 
     // Attenuation
     float distanceScale = getGrassAttenuation(modelCenter.xz);

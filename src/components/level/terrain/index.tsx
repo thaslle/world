@@ -74,8 +74,10 @@ export function Terrain(props: GroupProps) {
   useEffect(() => {
     const positions = plane.geometry.attributes.position.array
     const colors = plane.geometry.attributes.color.array
+    const normals = plane.geometry.attributes.normal.array
+
     const vertexCount = positions.length / 3
-    const heightMapSize = Math.ceil(Math.sqrt(vertexCount) * 0.7) // Multiply a factor to hide holes
+    const heightMapSize = Math.ceil(Math.sqrt(vertexCount))
 
     // Initialize heightData for a DataTexture (RGBA format)
     const heightData = new Float32Array(heightMapSize * heightMapSize * 4)
@@ -95,9 +97,9 @@ export function Terrain(props: GroupProps) {
       const y = positions[i * 3 + 1] // Height
       const z = positions[i * 3 + 2] // Z-coordinate
 
-      const r = colors[i * 3]
-      const g = colors[i * 3 + 1]
-      const b = colors[i * 3 + 2]
+      const r = colors[i * 4]
+      const g = colors[i * 4 + 1]
+      const b = colors[i * 4 + 2]
 
       // Normalize X and Z to [0, 1] for grid mapping
       const normalizedX =

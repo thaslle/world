@@ -21,12 +21,13 @@ varying vec3 vNormalW;
 #include "../../../../utils/shaders/snoise.glsl"
 #include "../../../../utils/shaders/fbm.glsl"
 #include "../../../../utils/shaders/grass.glsl"
+#include "../../../../utils/shaders/sand.glsl"
 
 void main()
 {
 
     // Base color of the material (e.g., grass)
-    vec3 baseColor = uGroundColor;
+    vec3 baseColor = sand(vUv, uGroundColor);
 
     // Read the vertex color
     vec3 color = vColor.rgb;
@@ -34,8 +35,15 @@ void main()
     // Apply custom color rules based on vertex color
     if (color.g > 0.1) {
         // Green color (apply Grass Texture)
-        //baseColor = uGrassColor;
-        baseColor = grass(vUv, uGrassColor);
+        vec3 mixColor = grass(vUv, uGrassColor);
+        float th = smoothstep(0.0, 0.6, color.g);
+
+        // Noise edges
+        float vNoise = snoise(vUv * 100.0);
+        float baseEdge = mix(0.0, mix(vNoise, 1.0, th), th);
+        baseEdge = smoothstep(0.3, 0.7, baseEdge);
+        
+        baseColor = mix(baseColor, mixColor, baseEdge);
     } else if (color.r > 0.1) {
         // Red color (apply Rock Texture)
         baseColor = uRockColor;
