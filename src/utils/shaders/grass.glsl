@@ -1,31 +1,33 @@
-vec3 grass (in vec2 vUv, in vec3 greenTint) {
-    float noiseBase = noise(vUv * 50.0);
-    
-    vec3 colorBase = vec3(noiseBase);
-    colorBase = colorBase + 0.5;
-    colorBase = pow(colorBase, vec3(0.10));
-    
-    // Generate noise for the base texture
-    float snoiseBase = snoise(vUv * 3000.0);
-    snoiseBase = snoiseBase * 0.5 + 0.5;
-    vec3 foamBase = vec3(snoiseBase);
+vec3 grass(in vec2 vUv, in vec3 baseTint) {
+    // Noise base color
+    float baseNoise = noise(vUv * 50.0);
+    vec3 baseColor = vec3(baseNoise);
+    baseColor = baseColor + 0.5;
+    baseColor = pow(baseColor, vec3(0.10)); // Apply power curve for contrast
 
-    // Calculate foam effect using smoothstep and thresholding
-    vec3 foamColor = smoothstep(0.08, 0.001, foamBase);
-    foamColor = step(0.1, foamColor);  // binary step to create foam effect
+    // Dots texture
+    float dotsNoise = snoise(vUv * 3000.0);
+    dotsNoise = dotsNoise * 0.5 + 0.5;
+    vec3 dotsBaseColor = vec3(dotsNoise);
+    vec3 dotsEffect = smoothstep(0.08, 0.001, dotsBaseColor);
     
-    float t = 0.45;
-    float grassBase = smoothstep(t, t - 0.01, fbm(vUv * 70.5));
-    vec3 grassColor = vec3(grassBase);
+    // Grass Texture
+    float grassThreshold = 0.45;
+    float grassBaseNoise = fbm(vUv * 70.0); // Generate grass noise (FBM)
+    float grassEffect = smoothstep(grassThreshold, grassThreshold - 0.01, grassBaseNoise);
+    
+    // Final Color Base
+    vec3 finalBase = baseColor * baseTint;
 
-    vec3 foamTint = greenTint - 0.08;
-    vec3 grassTint = greenTint + 0.01;
-    grassTint.b += 0.012;
+    // Tint Adjustments
+    vec3 dotsTintColor = baseTint - 0.08;   // Slightly darkened dots tint
+    vec3 grassTintColor = finalBase + vec3(0.01, 0.01, 0.016);  // Slightly lightened grassBase
     
-    vec3 finalColor = (greenTint * (colorBase - foamColor - grassColor))
-                      + (foamColor * foamTint)
-                      + (grassColor * grassTint);
-    
-    
+    // Combine finalall s together
+    vec3 finalColor = finalBase;
+
+    finalColor = mix(finalColor, dotsTintColor, dotsEffect);
+    finalColor = mix(finalColor, grassTintColor, grassEffect);
+
     return finalColor;
 }

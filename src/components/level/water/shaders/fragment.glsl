@@ -10,6 +10,8 @@ uniform float uMaxDepth;
 uniform vec2 uResolution;
 uniform float uCameraNear;
 uniform float uCameraFar;
+uniform vec3 uColorNear;
+uniform vec3 uColorFar;
 
 #include <packing>
 
@@ -48,14 +50,10 @@ void main() {
     // Combine wave and foam effects
     vec3 combinedEffect = waveEffect + (foam * 2.0);
 
-    // Final color adjustment with a blue tint
-    vec3 blueTint = vec3(0.179, 0.971, 1.000);
-    vec3 distantBlueTint = vec3(0.112,0.885,1.000);
-    
     // Applying a gradient based on distance
     float vignette = length(vUv - 0.5) * 1.5;
     vec3 baseColor = smoothstep(0.3, 0.9, vec3(vignette));
-    baseColor = mix(blueTint, distantBlueTint, baseColor);
+    baseColor = mix(uColorNear, uColorFar, baseColor);
 
     vec3 finalColor = (1.0 - combinedEffect) * baseColor + combinedEffect;
 
@@ -66,20 +64,17 @@ void main() {
     float linearEyeDepth = getViewZ(getDepth(screenUV));
 
     float depth = fragmentLinearEyeDepth - linearEyeDepth;
-    float border = step(0.2, step(0.05, depth));
     
     // Smooth gradient near the edges
-    if(vignette < 0.5) {
-        finalColor += smoothstep(uMaxDepth, 0.0, depth);
-        
-        if (depth < uMaxDepth * 0.2 && vignette < 0.5) {
-            finalColor = vec3(1.0);
-        }
-    }
+    float vignetteCondition = step(0.5, vignette);
+    finalColor += mix(0.0, smoothstep(uMaxDepth, 0.0, depth), vignetteCondition);
 
-    
+    float depthCondition = float(depth < uMaxDepth * 0.2 && vignette < 0.3);
+    finalColor = mix(finalColor, vec3(1.0), depthCondition);
+
     // Managing the alpha based on the distance
-    float alpha = min(vignette + 0.4, 1.0);
+    vec3 alpha = (foam + depthCondition) * 0.5;
+    alpha += min(vignette + 0.4, 1.0);
 
     // Output the final color
     gl_FragColor = vec4(finalColor, alpha);

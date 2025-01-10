@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { extend, ReactThreeFiber, useFrame } from '@react-three/fiber'
 import { useFBO, shaderMaterial } from '@react-three/drei'
 import * as THREE from 'three'
@@ -31,6 +31,8 @@ const WaterMaterial = shaderMaterial(
     uResolution: [0, 0],
     uCameraNear: 0,
     uCameraFar: 0,
+    uColorNear: new THREE.Vector3(),
+    uColorFar: new THREE.Vector3(),
   },
   vertexShader,
   fragmentShader,
@@ -39,13 +41,15 @@ const WaterMaterial = shaderMaterial(
 extend({ WaterMaterial })
 
 export const Water = () => {
-  const { OCEAN_BOTTOM } = useControls('Level', {
-    OCEAN_BOTTOM: '#d16841', //#03e3ff
+  const { MAX_DEPTH, COLOR_BASE_NEAR, COLOR_BASE_FAR } = useControls('Water', {
+    MAX_DEPTH: { value: 0.55, min: 0, max: 5 },
+    COLOR_BASE_NEAR: { value: '#2eF7FF', label: 'NEAR' },
+    COLOR_BASE_FAR: { value: '#1DFFE1', label: 'FAR' },
   })
 
-  const { MAX_DEPTH } = useControls('Water', {
-    MAX_DEPTH: { value: 0.55, min: 0, max: 5 },
-  })
+  // Convert color hex values to three.js Color objects
+  const COLOR_NEAR = new THREE.Color(COLOR_BASE_NEAR)
+  const COLOR_FAR = new THREE.Color(COLOR_BASE_FAR)
 
   // Render borders
   const renderTarget = useFBO({
@@ -55,6 +59,12 @@ export const Water = () => {
 
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial & typeof WaterMaterial>(null)
+
+  useEffect(() => {
+    if (!materialRef.current) return
+    materialRef.current.uniforms.uColorNear.value = COLOR_NEAR
+    materialRef.current.uniforms.uColorFar.value = COLOR_FAR
+  }, [COLOR_NEAR, COLOR_FAR])
 
   useFrame(({ gl, scene, camera, clock }) => {
     if (!materialRef.current || !meshRef.current) return
@@ -89,15 +99,11 @@ export const Water = () => {
 
   return (
     <>
-      <mesh ref={meshRef} rotation-x={-Math.PI / 2} position-y={1}>
+      <mesh ref={meshRef} rotation-x={-Math.PI / 2} position-y={1.3}>
         <planeGeometry args={[2048, 2048]} />
         <waterMaterial ref={materialRef} transparent />
-      </mesh>
-
-      <mesh rotation-x={-Math.PI / 2} position-y={-0.1}>
-        <planeGeometry args={[2048, 2048]} />
-        <meshStandardMaterial color={OCEAN_BOTTOM} />
       </mesh>
     </>
   )
 }
+

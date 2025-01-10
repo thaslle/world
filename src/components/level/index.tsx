@@ -1,6 +1,7 @@
 import { RigidBody } from '@react-three/rapier'
 import { Terrain } from './terrain'
 import { Water } from './water'
+import { Base } from './base'
 
 export const Level = () => {
   return (
@@ -10,6 +11,7 @@ export const Level = () => {
       </RigidBody>
 
       <Water />
+      <Base />
     </>
   )
 }

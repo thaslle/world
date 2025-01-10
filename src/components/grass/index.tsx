@@ -32,7 +32,6 @@ const GrassMaterial = shaderMaterial(
     uTerrainTextureSize: 0,
     uTerrainTexture: null,
     uTerrainOffset: new THREE.Vector3(),
-    uTerrainHeightMin: 0,
     uTerrainHeightMax: 0,
   },
   vertexShader,
@@ -46,7 +45,7 @@ export const Grass = () => {
     playerPosition,
     terrainSize,
     terrainHeights,
-    terrainHeightsMinMax,
+    terrainHeightsMax,
     terrainSegments,
   } = useStore()
 
@@ -168,7 +167,7 @@ export const Grass = () => {
     if (
       terrainHeights &&
       terrainSize &&
-      terrainHeightsMinMax &&
+      terrainHeightsMax &&
       materialRef.current
     ) {
       const dataTexture = new THREE.DataTexture(
@@ -189,12 +188,9 @@ export const Grass = () => {
       materialRef.current.uniforms.uTerrainTexture.value = dataTexture
       materialRef.current.uniforms.uTerrainSize.value = terrainSize
       materialRef.current.uniforms.uTerrainTextureSize.value = terrainSize
-      materialRef.current.uniforms.uTerrainHeightMin.value =
-        terrainHeightsMinMax[0]
-      materialRef.current.uniforms.uTerrainHeightMax.value =
-        terrainHeightsMinMax[1]
+      materialRef.current.uniforms.uTerrainHeightMax.value = terrainHeightsMax
     }
-  }, [terrainHeights, terrainHeightsMinMax, terrainSegments, terrainSize])
+  }, [terrainHeights, terrainHeightsMax, terrainSegments, terrainSize])
 
   //Update Positions
   useFrame(({ clock }) => {
@@ -220,3 +216,4 @@ export const Grass = () => {
     </mesh>
   )
 }
+

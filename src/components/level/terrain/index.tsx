@@ -30,6 +30,7 @@ const GroundMaterial = shaderMaterial(
     uGrassColor: new Vector3(),
     uSnowColor: new Vector3(),
     uRockColor: new Vector3(),
+    uOceanColor: new Vector3(),
   },
   vertexShader,
   fragmentShader,
@@ -43,11 +44,13 @@ export function Terrain(props: GroupProps) {
     GRASS_BASE_COLOR,
     ROCK_BASE_COLOR,
     SNOW_BASE_COLOR,
+    OCEAN_BASE_COLOR,
   } = useControls('Level', {
-    GROUND_BASE_COLOR: { value: '#ffd89e', label: 'GROUND' }, //#ff9900
-    GRASS_BASE_COLOR: { value: '#c1d19d', label: 'GRASS' }, // Default green color #5b8631
-    ROCK_BASE_COLOR: { value: '#d8c6b9', label: 'ROCK' }, // Default rock-like color #654321
-    SNOW_BASE_COLOR: { value: '#f1f1f1', label: 'SNOW' },
+    GROUND_BASE_COLOR: { value: '#fcd9a5', label: 'GROUND' },
+    GRASS_BASE_COLOR: { value: '#c6d89e', label: 'GRASS' },
+    ROCK_BASE_COLOR: { value: '#d8c6b9', label: 'ROCK' },
+    SNOW_BASE_COLOR: { value: '#e8e8e8', label: 'SNOW' },
+    OCEAN_BASE_COLOR: { value: '#badfe8', label: 'OCEAN' },
   })
 
   // Convert color hex values to three.js Color objects
@@ -55,9 +58,17 @@ export function Terrain(props: GroupProps) {
   const GRASS_COLOR = new Color(GRASS_BASE_COLOR)
   const ROCK_COLOR = new Color(ROCK_BASE_COLOR)
   const SNOW_COLOR = new Color(SNOW_BASE_COLOR)
+  const OCEAN_COLOR = new Color(OCEAN_BASE_COLOR)
 
   // Material
   const materialRef = useRef<ShaderMaterial & typeof GroundMaterial>(null)
+
+  // Update Ocean Color
+  useEffect(() => {
+    useStore.setState(() => ({
+      oceanBaseColor: OCEAN_COLOR,
+    }))
+  }, [OCEAN_COLOR])
 
   useEffect(() => {
     if (!materialRef.current) return
@@ -65,7 +76,8 @@ export function Terrain(props: GroupProps) {
     materialRef.current.uniforms.uGrassColor.value = GRASS_COLOR
     materialRef.current.uniforms.uSnowColor.value = SNOW_COLOR
     materialRef.current.uniforms.uRockColor.value = ROCK_COLOR
-  }, [GROUND_COLOR, GRASS_COLOR, ROCK_COLOR, SNOW_COLOR])
+    materialRef.current.uniforms.uOceanColor.value = OCEAN_COLOR
+  }, [GROUND_COLOR, GRASS_COLOR, ROCK_COLOR, SNOW_COLOR, OCEAN_COLOR])
 
   // Geometry
   const { nodes } = useGLTF('/models/terrain.glb')
@@ -74,7 +86,6 @@ export function Terrain(props: GroupProps) {
   useEffect(() => {
     const positions = plane.geometry.attributes.position.array
     const colors = plane.geometry.attributes.color.array
-    const normals = plane.geometry.attributes.normal.array
 
     const vertexCount = positions.length / 3
     const heightMapSize = Math.ceil(Math.sqrt(vertexCount))
@@ -87,9 +98,7 @@ export function Terrain(props: GroupProps) {
 
     if (!boundingBox) return
 
-    const minHeight = boundingBox.min.y
-    const maxHeight = boundingBox.max.y
-    const heightRange = maxHeight - minHeight
+    const maxHeight = boundingBox.min.y + boundingBox.max.y
 
     // Iterate through the geometry vertices
     for (let i = 0; i < vertexCount; i++) {
@@ -115,7 +124,7 @@ export function Terrain(props: GroupProps) {
       const index = (row * heightMapSize + col) * 4
 
       // Normalize height to [0, 1] and assign to heightData
-      const normalizedHeight = (y - minHeight) / heightRange
+      const normalizedHeight = y / maxHeight
       heightData[index] = r // R
       heightData[index + 1] = g // G
       heightData[index + 2] = b // B
@@ -124,7 +133,7 @@ export function Terrain(props: GroupProps) {
 
     useStore.setState(() => ({
       terrainHeights: heightData,
-      terrainHeightsMinMax: [minHeight, maxHeight],
+      terrainHeightsMax: maxHeight,
       terrainSegments: heightMapSize,
     }))
   }, [plane.geometry])
@@ -137,3 +146,4 @@ export function Terrain(props: GroupProps) {
     </group>
   )
 }
+

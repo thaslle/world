@@ -10,6 +10,7 @@ uniform vec3 uGroundColor;
 uniform vec3 uGrassColor;
 uniform vec3 uSnowColor;
 uniform vec3 uRockColor;
+uniform vec3 uOceanColor;
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -20,6 +21,7 @@ varying vec3 vNormalW;
 #include "../../../../utils/shaders/noise.glsl"
 #include "../../../../utils/shaders/snoise.glsl"
 #include "../../../../utils/shaders/fbm.glsl"
+#include "../../../../utils/shaders/light.glsl"
 #include "../../../../utils/shaders/grass.glsl"
 #include "../../../../utils/shaders/sand.glsl"
 
@@ -27,43 +29,52 @@ void main()
 {
 
     // Base color of the material (e.g., grass)
-    vec3 baseColor = sand(vUv, uGroundColor);
+    //Darken color by depth
+    float heightFactor = smoothstep(2.4, 1.2, vPositionW.y);
+    vec3 baseColor = mix(uGroundColor, uGroundColor * 0.8, heightFactor);
+
+    //Sand texture
+    baseColor = sand(vUv, baseColor);
 
     // Read the vertex color
     vec3 color = vColor.rgb;
     
     // Apply custom color rules based on vertex color
-    if (color.g > 0.1) {
-        // Green color (apply Grass Texture)
-        vec3 mixColor = grass(vUv, uGrassColor);
-        float th = smoothstep(0.0, 0.6, color.g);
-
-        // Noise edges
-        float vNoise = snoise(vUv * 100.0);
-        float baseEdge = mix(0.0, mix(vNoise, 1.0, th), th);
-        baseEdge = smoothstep(0.3, 0.7, baseEdge);
-        
-        baseColor = mix(baseColor, mixColor, baseEdge);
-    } else if (color.r > 0.1) {
-        // Red color (apply Rock Texture)
-        baseColor = uRockColor;
-    } else if (color.b > 0.1) {
-        // Blue color (apply Snow Texture)
-        baseColor = uSnowColor;
-    }
-
-    vec3 ambientLightColor = vec3(0.8);
-    vec3 ambient = 0.85 * ambientLightColor;
     
-    // Diffuse lighting
-    vec3 lightDir = normalize(uLightPosition - vPositionW); // Light direction
-    float diff = max(dot(vNormalW, lightDir), 0.0); // Lambertian reflection
-    vec3 diffuse = diff * uLightColor;
+    // Green Vertex Color
+    // Compute the blend factor based on the green channel (color.g)
+    float grassBlendFactor = smoothstep(0.1, 0.2, color.g);
 
-    // Combine ambient and diffuse
-    vec3 finalColor = ambient + diffuse;
+    // Grass texture
+    vec3 baseGrassColor = grass(vUv, uGrassColor);
 
-    finalColor = finalColor * baseColor;
+    // Threshold for grass texture effect
+    float grassThreshold = smoothstep(0.0, 0.6, color.g);
+
+    // Generate noise for edge effect
+    float vNoise = snoise(vUv * 100.0);
+    float baseEdge = mix(0.0, mix(vNoise, 1.0, grassThreshold), grassThreshold);
+    baseEdge = smoothstep(0.3, 0.7, baseEdge);
+
+    // Blend between base color and grass color based on the edge effect and grass blend factor
+    baseColor = mix(baseColor, baseGrassColor, baseEdge * grassBlendFactor);
+
+    // Red Vertex Color
+    float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
+    baseColor = mix(baseColor, uRockColor, rockBlendFactor);
+
+    // Blue Vertex Color
+    float snowBlendFactor = smoothstep(0.1, 0.2, color.b);
+    baseColor = mix(baseColor, uSnowColor, snowBlendFactor);
+
+    // Ocean Bottom
+    float oceanFactor = smoothstep(0.06, 0.0, vPositionW.y);
+    baseColor = mix(baseColor, uOceanColor, oceanFactor);
+    
+
+    // Lights
+    vec3 lightsColor = light(uLightPosition, vPositionW, vNormalW, uLightColor);
+    vec3 finalColor = lightsColor * baseColor;
 
     gl_FragColor = vec4(finalColor, 1.0);
 }

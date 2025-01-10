@@ -6,7 +6,6 @@ uniform vec3 uPlayerPosition;
 uniform float uTerrainSize;
 uniform float uTerrainTextureSize;
 uniform sampler2D uTerrainTexture;
-uniform float uTerrainHeightMin;
 uniform float uTerrainHeightMax;
 uniform vec3 uColor;
 
@@ -65,7 +64,7 @@ void main()
     vec4 terrainColor = texture2D(uTerrainTexture, terrainUv * (1.0 - fragmentSize) + fragmentSize * 0.5);
 
     // Normalize the height using the min and max height values
-    float height = (terrainColor.a * (uTerrainHeightMax - uTerrainHeightMin)) - uTerrainHeightMin;
+    float height = terrainColor.a * uTerrainHeightMax;
     
     // Apply the height to the model's position
     modelPosition.y += height;  // Adjust the model's y-coordinate based on the heightmap
