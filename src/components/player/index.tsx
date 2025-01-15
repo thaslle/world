@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Vector3, MathUtils, Clock, Group } from 'three'
+import { Vector3, MathUtils, Clock, Group, Color } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { CameraControls, useKeyboardControls } from '@react-three/drei'
 import {
@@ -38,9 +38,9 @@ export const Player = () => {
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    POSITION_X: { value: 25.41, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 3.3, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 205.88, min: -1000, max: 1000, step: 0.5 },
+    POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
   })
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls('Camera', {
@@ -69,7 +69,8 @@ export const Player = () => {
   const cameraPosition = useRef<Group>(null)
   const positionWorldPosition = new Vector3()
 
-  const { characterState, setCharacterState, setPlayerPosition } = useStore()
+  const characterState = useStore((state) => state.characterState)
+  const setCharacterState = useStore((state) => state.setCharacterState)
 
   const [, get] = useKeyboardControls()
 
@@ -234,8 +235,9 @@ export const Player = () => {
       }
     }
 
-    //Update state with player's position
-    setPlayerPosition(playerRef.current.translation())
+    useStore.setState(() => ({
+      playerPosition: playerRef.current?.translation(),
+    }))
   })
 
   return (

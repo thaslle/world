@@ -69,7 +69,7 @@ void main() {
     float vignetteCondition = step(0.5, vignette);
     finalColor += mix(0.0, smoothstep(uMaxDepth, 0.0, depth), vignetteCondition);
 
-    float depthCondition = float(depth < uMaxDepth * 0.2 && vignette < 0.3);
+    float depthCondition = float(depth < uMaxDepth * 0.2 && vignette < 0.2);
     finalColor = mix(finalColor, vec3(1.0), depthCondition);
 
     // Managing the alpha based on the distance

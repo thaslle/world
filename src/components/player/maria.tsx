@@ -67,3 +67,4 @@ export function Maria(props: GroupProps) {
 }
 
 useGLTF.preload('/models/maria.glb')
+

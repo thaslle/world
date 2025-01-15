@@ -99,7 +99,7 @@ export const Water = () => {
 
   return (
     <>
-      <mesh ref={meshRef} rotation-x={-Math.PI / 2} position-y={1.3}>
+      <mesh ref={meshRef} rotation-x={-Math.PI / 2} position-y={1.65}>
         <planeGeometry args={[2048, 2048]} />
         <waterMaterial ref={materialRef} transparent />
       </mesh>

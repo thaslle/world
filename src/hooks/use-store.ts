@@ -13,7 +13,6 @@ type Store = {
   characterState: string
   oceanBaseColor: Color
   setCharacterState: (characterState: string) => void
-  setPlayerPosition: (position: Vector) => void
   setDebug: () => void
   setPhysics: () => void
 }
@@ -22,7 +21,7 @@ export const useStore = create<Store>((set) => ({
   playerPosition: null,
   debug: false,
   physics: false,
-  terrainSize: 512,
+  terrainSize: 300,
   terrainHeights: new Float32Array(),
   terrainHeightsMax: 0,
   terrainSegments: 0,
@@ -32,11 +31,6 @@ export const useStore = create<Store>((set) => ({
   setCharacterState: (characterState) =>
     set({
       characterState,
-    }),
-
-  setPlayerPosition: (position) =>
-    set({
-      playerPosition: position,
     }),
 
   setDebug: () => set((state) => ({ debug: !state.debug })),

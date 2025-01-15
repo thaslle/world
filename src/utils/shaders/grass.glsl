@@ -6,7 +6,7 @@ vec3 grass(in vec2 vUv, in vec3 baseTint) {
     baseColor = pow(baseColor, vec3(0.10)); // Apply power curve for contrast
 
     // Dots texture
-    float dotsNoise = snoise(vUv * 3000.0);
+    float dotsNoise = snoise(vUv * 1100.0);
     dotsNoise = dotsNoise * 0.5 + 0.5;
     vec3 dotsBaseColor = vec3(dotsNoise);
     vec3 dotsEffect = smoothstep(0.08, 0.001, dotsBaseColor);
