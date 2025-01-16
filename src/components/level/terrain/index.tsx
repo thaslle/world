@@ -1,42 +1,16 @@
 import { useEffect, useRef } from 'react'
-import { Mesh, DoubleSide, Color, Vector3, ShaderMaterial } from 'three'
-import { extend, GroupProps, ReactThreeFiber } from '@react-three/fiber'
-import { shaderMaterial, useGLTF } from '@react-three/drei'
+import { Mesh, DoubleSide, Color, Vector3, MeshStandardMaterial } from 'three'
+import { GroupProps } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import { useControls } from 'leva'
+
+import CustomShaderMaterial from 'three-custom-shader-material'
 
 import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
 
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from './shaders/fragment.glsl'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      groundMaterial: ReactThreeFiber.Node<
-        typeof GroundMaterial & JSX.IntrinsicElements['shaderMaterial'],
-        typeof GroundMaterial
-      >
-    }
-  }
-}
-
-const GroundMaterial = shaderMaterial(
-  {
-    uLightPosition: settings.directionalLight.position,
-    uLightColor: settings.directionalLight.color,
-    uLightIntensity: settings.directionalLight.intensity,
-    uGroundColor: new Vector3(),
-    uGrassColor: new Vector3(),
-    uSnowColor: new Vector3(),
-    uRockColor: new Vector3(),
-    uOceanColor: new Vector3(),
-  },
-  vertexShader,
-  fragmentShader,
-)
-
-extend({ GroundMaterial })
 
 export function Terrain(props: GroupProps) {
   const {
@@ -46,9 +20,9 @@ export function Terrain(props: GroupProps) {
     SNOW_BASE_COLOR,
     OCEAN_BASE_COLOR,
   } = useControls('Level', {
-    GROUND_BASE_COLOR: { value: '#fcd9a5', label: 'GROUND' },
-    GRASS_BASE_COLOR: { value: '#d3e59a', label: 'GRASS' },
-    ROCK_BASE_COLOR: { value: '#d8c6b9', label: 'ROCK' },
+    GROUND_BASE_COLOR: { value: '#f5a733', label: 'GROUND' },
+    GRASS_BASE_COLOR: { value: '#92ad39', label: 'GRASS' },
+    ROCK_BASE_COLOR: { value: '#9d8371', label: 'ROCK' },
     SNOW_BASE_COLOR: { value: '#e8e8e8', label: 'SNOW' },
     OCEAN_BASE_COLOR: { value: '#badfe8', label: 'OCEAN' },
   })
@@ -61,7 +35,7 @@ export function Terrain(props: GroupProps) {
   const OCEAN_COLOR = new Color(OCEAN_BASE_COLOR)
 
   // Material
-  const materialRef = useRef<ShaderMaterial & typeof GroundMaterial>(null)
+  const materialRef = useRef<any>(null)
 
   // Update Ocean Color
   useEffect(() => {
@@ -140,8 +114,25 @@ export function Terrain(props: GroupProps) {
 
   return (
     <group {...props} dispose={null} position={[0, 0, 0]}>
-      <mesh geometry={plane.geometry}>
-        <groundMaterial ref={materialRef} side={DoubleSide} vertexColors />
+      <mesh geometry={plane.geometry} receiveShadow>
+        <CustomShaderMaterial
+          ref={materialRef}
+          side={DoubleSide}
+          vertexColors
+          baseMaterial={MeshStandardMaterial}
+          uniforms={{
+            uLightPosition: { value: settings.directionalLight.position },
+            uLightColor: { value: settings.directionalLight.color },
+            uLightIntensity: { value: settings.directionalLight.intensity },
+            uGroundColor: { value: new Vector3() },
+            uGrassColor: { value: new Vector3() },
+            uSnowColor: { value: new Vector3() },
+            uRockColor: { value: new Vector3() },
+            uOceanColor: { value: new Vector3() },
+          }}
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+        />
       </mesh>
     </group>
   )

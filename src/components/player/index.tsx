@@ -15,6 +15,7 @@ import { useControls } from 'leva'
 import { Controls } from '~/config/controls'
 import { useStore } from '~/hooks/use-store'
 import { Maria } from './maria'
+import { Shadow } from './shadow'
 
 export const Player = () => {
   const {
@@ -282,6 +283,7 @@ export const Player = () => {
 
         <CapsuleCollider args={[0.65, 0.2]} />
       </RigidBody>
+      <Shadow playerRef={characterRef} />
     </>
   )
 }

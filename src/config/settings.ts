@@ -4,7 +4,8 @@ export const settings = {
   ambientLight: { intensity: 2 },
   directionalLight: {
     intensity: 7,
-    position: new Vector3(80, 100, 40),
+    position: new Vector3(40, 100, 20),
     color: new Color('#feffe4'),
   },
 }
+

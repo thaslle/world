@@ -59,6 +59,7 @@ export function Maria(props: GroupProps) {
             geometry={(nodes.Body as SkinnedMesh).geometry}
             material={customMaterial}
             skeleton={(nodes.Body as SkinnedMesh).skeleton}
+            castShadow
           />
         </group>
       </group>

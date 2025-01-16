@@ -2,18 +2,18 @@
 precision mediump float;
 #endif
 
-varying vec2 vUv;
-varying vec3 vColor;
-varying vec3 vPositionW;
-varying vec3 vNormalW;
+varying vec2 csm_vUv;
+varying vec3 csm_vColor;
+varying vec3 csm_vPositionW;
+varying vec3 csm_vNormalW;
 
 void main() {
 
-    vUv = uv;
-    vColor = color.rgb;
+    csm_vUv = uv;
+    csm_vColor = color.rgb;
 
-    vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
-    vNormalW = normalize(mat3(modelMatrix) * normal);
+    csm_vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
+    csm_vNormalW = normalize(mat3(modelMatrix) * normal);
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    //gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }

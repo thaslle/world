@@ -1,5 +1,5 @@
 import { RigidBody } from '@react-three/rapier'
-import { Terrain } from './terrain-csm'
+import { Terrain } from './terrain'
 import { Water } from './water'
 import { Base } from './base'
 
