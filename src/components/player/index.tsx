@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Vector3, MathUtils, Clock, Group, Color } from 'three'
+import { Vector3, MathUtils, Clock, Group } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { CameraControls, useKeyboardControls } from '@react-three/drei'
 import {

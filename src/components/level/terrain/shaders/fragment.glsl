@@ -19,12 +19,16 @@ varying vec3 csm_vNormalW;
 
 #include <shadowmask_pars_fragment>
 
-#include "../../../../utils/shaders/functions.glsl"
-#include "../../../../utils/shaders/noise.glsl"
-#include "../../../../utils/shaders/snoise.glsl"
-#include "../../../../utils/shaders/fbm.glsl"
-#include "../../../../utils/shaders/grass.glsl"
-#include "../../../../utils/shaders/sand.glsl"
+#include "../../../../utils/shaders/functions/functions.glsl"
+#include "../../../../utils/shaders/functions/noise.glsl"
+#include "../../../../utils/shaders/functions/snoise.glsl"
+#include "../../../../utils/shaders/functions/fbm.glsl"
+#include "../../../../utils/shaders/functions/cloud.glsl"
+#include "../../../../utils/shaders/functions/cellular.glsl"
+
+#include "../../../../utils/shaders/materials/grass.glsl"
+#include "../../../../utils/shaders/materials/sand.glsl"
+#include "../../../../utils/shaders/materials/rock.glsl"
 
 void main()
 {
@@ -34,39 +38,49 @@ void main()
     float heightFactor = smoothstep(5.1, 1.2, csm_vPositionW.y);
     vec3 baseColor = mix(uGroundColor, uGroundColor * 0.8, heightFactor);
 
-    //Sand texture
-    baseColor = sand(csm_vUv, baseColor);
+    float vnoise = noise(csm_vUv * 50.0);
+    float vsnoise = snoise(csm_vUv * 800.0);
+    float vfbm = fbm(csm_vUv * 60.0);
 
+    // Generate noise for edge effect
+    float edgeNoise = snoise(csm_vUv * 100.0);
+
+    //Sand texture
+    //baseColor = sand(csm_vUv, baseColor);
+    baseColor = sand(baseColor, vnoise, vsnoise, vfbm);
+    
     // Read the vertex color
     vec3 color = csm_vColor.rgb;
     
     // Apply custom color rules based on vertex color
+    // Red Vertex Color
+
+    // // Rock texture
+    vec3 baseRockColor = rock(csm_vUv, uRockColor, vsnoise);
+
+    float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
+    baseColor = mix(baseColor, baseRockColor, rockBlendFactor);
+
+    // Blue Vertex Color
+    //float snowBlendFactor = smoothstep(0.1, 0.2, color.b);
+
+    float colorGB = min(color.g + color.b, 1.0);
     
     // Green Vertex Color
     // Compute the blend factor based on the green channel (color.g)
-    float grassBlendFactor = smoothstep(0.1, 0.2, color.g);
+    float grassBlendFactor = smoothstep(0.1, 0.2, colorGB);
 
     // Grass texture
-    vec3 baseGrassColor = grass(csm_vUv, uGrassColor);
+    vec3 baseGrassColor = grass(uGrassColor, vnoise, vsnoise, vfbm);
 
     // Threshold for grass texture effect
-    float grassThreshold = smoothstep(0.0, 0.6, color.g);
+    float grassThreshold = smoothstep(0.0, 0.6, colorGB);
 
-    // Generate noise for edge effect
-    float vNoise = snoise(csm_vUv * 100.0);
-    float baseEdge = mix(0.0, mix(vNoise, 1.0, grassThreshold), grassThreshold);
+    float baseEdge = mix(0.0, mix(edgeNoise, 1.0, grassThreshold), grassThreshold);
     baseEdge = smoothstep(0.3, 0.7, baseEdge);
 
     // Blend between base color and grass color based on the edge effect and grass blend factor
     baseColor = mix(baseColor, baseGrassColor, baseEdge * grassBlendFactor);
-
-    // Red Vertex Color
-    float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
-    baseColor = mix(baseColor, uRockColor, rockBlendFactor);
-
-    // Blue Vertex Color
-    float snowBlendFactor = smoothstep(0.1, 0.2, color.b);
-    baseColor = mix(baseColor, uSnowColor, snowBlendFactor);
 
     // Ocean Bottom
     float oceanFactor = smoothstep(1.5, 0.0, csm_vPositionW.y);

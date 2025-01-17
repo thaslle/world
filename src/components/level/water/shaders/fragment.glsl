@@ -15,8 +15,8 @@ uniform vec3 uColorFar;
 
 #include <packing>
 
-#include "../../../../utils/shaders/functions.glsl"
-#include "../../../../utils/shaders/snoise.glsl"
+#include "../../../../utils/shaders/functions/functions.glsl"
+#include "../../../../utils/shaders/functions/snoise.glsl"
 
 float getViewZ(const in float depth) {
     return perspectiveDepthToViewZ(depth, uCameraNear, uCameraFar);

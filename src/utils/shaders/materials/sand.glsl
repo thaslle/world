@@ -1,20 +1,17 @@
-vec3 sand(in vec2 vUv, in vec3 baseTint) {
+vec3 sand(in vec3 baseTint, in float vnoise, in float vsnoise, in float vfbm) {
     // Noise base color
-    float baseNoise = noise(vUv * 50.0);
-    vec3 baseColor = vec3(baseNoise);
+    vec3 baseColor = vec3(vnoise);
     baseColor = baseColor + 0.5;
     baseColor = pow(baseColor, vec3(0.10)); // Apply power curve for contrast
 
     // Rocks texture
-    float dotsNoise = snoise(vUv * 800.0);
-    dotsNoise = dotsNoise * 0.5 + 0.5;
+    float dotsNoise = vsnoise * 0.5 + 0.5;
     vec3 dotsBaseColor = vec3(dotsNoise);
     vec3 dotsEffect = smoothstep(0.08, 0.001, dotsBaseColor);
     
     // Sand Texture
     float sandThreshold = 0.45;
-    float sandBaseNoise = fbm(vUv * 60.0); // Generate sand noise (FBM)
-    float sandEffect = smoothstep(sandThreshold, sandThreshold - 0.01, sandBaseNoise);
+    float sandEffect = smoothstep(sandThreshold, sandThreshold - 0.01, vfbm);
     
     // Final Color Base
     vec3 finalBase = baseColor * baseTint;

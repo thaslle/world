@@ -12,11 +12,8 @@ varying vec2 vUv;
 varying vec3 vPositionW;
 varying vec3 vNormalW;
 
-#include "../../../../utils/shaders/functions.glsl"
-#include "../../../../utils/shaders/noise.glsl"
-#include "../../../../utils/shaders/snoise.glsl"
-#include "../../../../utils/shaders/fbm.glsl"
-#include "../../../../utils/shaders/light.glsl"
+#include "../../../../utils/shaders/functions/functions.glsl"
+#include "../../../../utils/shaders/functions/light.glsl"
 
 void main()
 {

@@ -33,6 +33,7 @@ const GrassMaterial = shaderMaterial(
     uTerrainTexture: null,
     uTerrainOffset: new THREE.Vector3(),
     uTerrainHeightMax: 0,
+    uColor: new THREE.Vector3(),
   },
   vertexShader,
   fragmentShader,
@@ -58,20 +59,29 @@ export const Grass = () => {
     BLADE_HEIGHT_RANDOMNESS,
     POSITION_RANDOMNESS,
     TERRAIN_OFFSET,
+    GRASS_BASE_COLOR,
   } = useControls('Grass', {
-    DETAILS: { value: 300, min: 10, max: 2000, step: 1 },
-    SIZE: { value: 60.0, min: 0.1, max: 100.0, step: 0.1 },
+    DETAILS: { value: 290, min: 10, max: 2000, step: 1 },
+    SIZE: { value: 26.0, min: 0.1, max: 100.0, step: 0.1 },
     COUNT: { value: 150000, min: 100, max: 150000, step: 10 },
-    BLADE_WIDTH_RATIO: { value: 1.4, min: 0.1, max: 10.0, step: 0.1 },
-    BLADE_HEIGHT_RATIO: { value: 2.2, min: 0.1, max: 10.0, step: 0.1 },
-    BLADE_HEIGHT_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
-    POSITION_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
-    TERRAIN_OFFSET: { value: 1000.0, min: -1000.0, max: 1000.0, step: 10.0 },
+    BLADE_WIDTH_RATIO: { value: 2.0, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_HEIGHT_RATIO: { value: 3.0, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_HEIGHT_RANDOMNESS: { value: 0.8, min: 0.1, max: 5.0, step: 0.1 },
+    POSITION_RANDOMNESS: { value: 1.1, min: 0.1, max: 5.0, step: 0.1 },
+    TERRAIN_OFFSET: { value: 820.0, min: -1000.0, max: 1000.0, step: 10.0 },
+    GRASS_BASE_COLOR: { value: '#d6e29c', label: 'GRASS' },
   })
+
+  const GRASS_COLOR = new THREE.Color(GRASS_BASE_COLOR)
 
   const geometryRef = useRef(new THREE.BufferGeometry())
   const materialRef = useRef<THREE.ShaderMaterial & typeof GrassMaterial>(null)
   const meshRef = useRef<THREE.Mesh>(null)
+
+  useEffect(() => {
+    if (!materialRef.current) return
+    materialRef.current.uniforms.uColor.value = GRASS_COLOR
+  }, [GRASS_COLOR])
 
   const { centers, positions } = useMemo(() => {
     const centers = new Float32Array(COUNT * 3 * 2)
