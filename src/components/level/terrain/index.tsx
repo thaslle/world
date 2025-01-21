@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Mesh, DoubleSide, Color, Vector3, MeshStandardMaterial } from 'three'
-import { GroupProps } from '@react-three/fiber'
+import { GroupProps, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { useControls } from 'leva'
 
@@ -36,6 +36,22 @@ export function Terrain(props: GroupProps) {
 
   // Material
   const materialRef = useRef<any>(null)
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uLightPosition: { value: settings.directionalLight.position },
+      uLightColor: { value: settings.directionalLight.color },
+      uLightIntensity: { value: settings.directionalLight.intensity },
+      uGroundColor: { value: new Vector3() },
+      uGrassColor: { value: new Vector3() },
+      uSnowColor: { value: new Vector3() },
+      uRockColor: { value: new Vector3() },
+      uOceanColor: { value: new Vector3() },
+      uWaterHeight: { value: settings.waterHeight },
+    }),
+    [],
+  )
 
   // Update Ocean Color
   useEffect(() => {
@@ -112,6 +128,11 @@ export function Terrain(props: GroupProps) {
     }))
   }, [plane.geometry])
 
+  useFrame(({ clock }) => {
+    if (!materialRef.current) return
+    materialRef.current.uniforms.uTime.value = clock.getElapsedTime()
+  })
+
   return (
     <group {...props} dispose={null} position={[0, 0, 0]}>
       <mesh geometry={plane.geometry} receiveShadow>
@@ -120,16 +141,7 @@ export function Terrain(props: GroupProps) {
           side={DoubleSide}
           vertexColors
           baseMaterial={MeshStandardMaterial}
-          uniforms={{
-            uLightPosition: { value: settings.directionalLight.position },
-            uLightColor: { value: settings.directionalLight.color },
-            uLightIntensity: { value: settings.directionalLight.intensity },
-            uGroundColor: { value: new Vector3() },
-            uGrassColor: { value: new Vector3() },
-            uSnowColor: { value: new Vector3() },
-            uRockColor: { value: new Vector3() },
-            uOceanColor: { value: new Vector3() },
-          }}
+          uniforms={uniforms}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
         />

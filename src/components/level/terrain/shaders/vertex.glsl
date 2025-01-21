@@ -14,6 +14,4 @@ void main() {
 
     csm_vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
     csm_vNormalW = normalize(mat3(modelMatrix) * normal);
-
-    //gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }

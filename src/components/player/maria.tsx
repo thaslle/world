@@ -11,18 +11,15 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
 
 import { useStore } from '~/hooks/use-store'
+import PlayerMaterial from './material'
 
-export function Maria(props: GroupProps) {
+export const Maria = (props: GroupProps) => {
   const group = useRef<Group>(null)
   const { scene, animations } = useGLTF('/models/maria.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
 
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
-
-  const customMaterial = new MeshStandardMaterial({
-    map: (materials.m_char as MeshStandardMaterial).map,
-  })
 
   const { characterState } = useStore()
 
@@ -49,6 +46,25 @@ export function Maria(props: GroupProps) {
     }
   }, [characterState])
 
+  // Creating a material to apply water level
+  const materialRef = useRef<MeshStandardMaterial>(new MeshStandardMaterial())
+
+  useEffect(() => {
+    if (materialRef.current) {
+      const customMaterial = PlayerMaterial({
+        map: (materials.m_char as MeshStandardMaterial).map,
+      })
+      materialRef.current = customMaterial
+    }
+  }, [materials.m_char]) // Recreate material when the texture changes
+
+  // Update the uTime uniform on each frame
+  // useFrame(({ clock }) => {
+  //   if (!materialRef.current) return
+  //   ;(materialRef.current as unknown as ShaderMaterial).uniforms.uTime.value =
+  //     clock.getElapsedTime()
+  // })
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
@@ -57,8 +73,8 @@ export function Maria(props: GroupProps) {
           <skinnedMesh
             name="Body"
             geometry={(nodes.Body as SkinnedMesh).geometry}
-            material={customMaterial}
             skeleton={(nodes.Body as SkinnedMesh).skeleton}
+            material={materialRef.current}
             castShadow
           />
         </group>

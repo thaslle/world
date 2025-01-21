@@ -5,11 +5,6 @@ precision mediump float;
 varying vec2 vUv;
 
 uniform float uTime;
-uniform sampler2D uDepth;
-uniform float uMaxDepth;
-uniform vec2 uResolution;
-uniform float uCameraNear;
-uniform float uCameraFar;
 uniform vec3 uColorNear;
 uniform vec3 uColorFar;
 
@@ -17,14 +12,6 @@ uniform vec3 uColorFar;
 
 #include "../../../../utils/shaders/functions/functions.glsl"
 #include "../../../../utils/shaders/functions/snoise.glsl"
-
-float getViewZ(const in float depth) {
-    return perspectiveDepthToViewZ(depth, uCameraNear, uCameraFar);
-}
-
-float getDepth(const in vec2 screenPosition ) {
-    return unpackRGBAToDepth(texture2D(uDepth, screenPosition));
-}
 
 void main() {
     // Generate noise for the base texture
@@ -57,23 +44,8 @@ void main() {
 
     vec3 finalColor = (1.0 - combinedEffect) * baseColor + combinedEffect;
 
-    
-    // Depth
-    vec2 screenUV = gl_FragCoord.xy / uResolution;
-    float fragmentLinearEyeDepth = getViewZ(gl_FragCoord.z);
-    float linearEyeDepth = getViewZ(getDepth(screenUV));
-
-    float depth = fragmentLinearEyeDepth - linearEyeDepth;
-    
-    // Smooth gradient near the edges
-    float vignetteCondition = step(0.5, vignette);
-    finalColor += mix(0.0, smoothstep(uMaxDepth, 0.0, depth), vignetteCondition);
-
-    float depthCondition = float(depth < uMaxDepth * 0.2 && vignette < 0.2);
-    finalColor = mix(finalColor, vec3(1.0), depthCondition);
-
     // Managing the alpha based on the distance
-    vec3 alpha = (foam + depthCondition) * 0.5;
+    vec3 alpha = foam * 0.5;
     alpha += min(vignette + 0.4, 1.0);
 
     // Output the final color

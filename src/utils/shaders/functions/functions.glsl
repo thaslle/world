@@ -33,3 +33,15 @@ vec2 getRotatePivot2d(vec2 uv, float rotation, vec2 pivot) {
         cos(rotation) * (uv.y - pivot.y) - sin(rotation) * (uv.x - pivot.x) + pivot.y
     );
 }
+
+mat4 rotateZ(float radians) {
+  float c = cos(radians);
+  float s = sin(radians);
+
+	return mat4(
+    c, -s, 0, 0,
+    s, c, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+  );
+}

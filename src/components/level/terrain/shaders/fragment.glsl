@@ -3,6 +3,7 @@ precision mediump float;
 #endif
 
 // Uniforms for light and camera
+uniform float uTime;
 uniform vec3 uLightPosition;
 uniform vec3 uLightColor;
 uniform float uLightIntensity;
@@ -11,6 +12,7 @@ uniform vec3 uGrassColor;
 uniform vec3 uSnowColor;
 uniform vec3 uRockColor;
 uniform vec3 uOceanColor;
+uniform float uWaterHeight;
 
 varying vec2 csm_vUv;
 varying vec3 csm_vColor;
@@ -42,9 +44,6 @@ void main()
     float vsnoise = snoise(csm_vUv * 800.0);
     float vfbm = fbm(csm_vUv * 60.0);
 
-    // Generate noise for edge effect
-    float edgeNoise = snoise(csm_vUv * 100.0);
-
     //Sand texture
     //baseColor = sand(csm_vUv, baseColor);
     baseColor = sand(baseColor, vnoise, vsnoise, vfbm);
@@ -55,15 +54,13 @@ void main()
     // Apply custom color rules based on vertex color
     // Red Vertex Color
 
-    // // Rock texture
+    // Rock texture
     vec3 baseRockColor = rock(csm_vUv, uRockColor, vsnoise);
 
     float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
     baseColor = mix(baseColor, baseRockColor, rockBlendFactor);
 
     // Blue Vertex Color
-    //float snowBlendFactor = smoothstep(0.1, 0.2, color.b);
-
     float colorGB = min(color.g + color.b, 1.0);
     
     // Green Vertex Color
@@ -76,6 +73,10 @@ void main()
     // Threshold for grass texture effect
     float grassThreshold = smoothstep(0.0, 0.6, colorGB);
 
+
+    // Generate noise for edge effect
+    float edgeNoise = snoise(csm_vUv * 100.0);
+    
     float baseEdge = mix(0.0, mix(edgeNoise, 1.0, grassThreshold), grassThreshold);
     baseEdge = smoothstep(0.3, 0.7, baseEdge);
 
@@ -90,5 +91,20 @@ void main()
     vec3 shadowedColor = baseColor * getShadowMask();
     vec3 finalColor = mix(baseColor, shadowedColor, shadowIntensity);
 
+    // Modify the y position based on sine function, oscillating up and down over time
+    float sineOffset = sin(uTime * 1.2) * 0.1;  // 1.2 controls the speed, 0.1 controls the amplitude
+
+    // The current dynamic water height
+    float waterDepth = 0.05;
+    float currentWaterHeight = uWaterHeight + sineOffset;
+    
+
+    float stripe = smoothstep(currentWaterHeight + 0.01, currentWaterHeight - 0.01, csm_vPositionW.y)
+                 - smoothstep(currentWaterHeight + waterDepth + 0.01, currentWaterHeight + waterDepth - 0.01, csm_vPositionW.y);
+
+    vec3 stripeColor = vec3(1.0, 1.0, 1.0); // White stripe
+
+    finalColor = mix(finalColor - stripe, stripeColor, stripe);
+    
     csm_FragColor = vec4(finalColor, 1.0);
 }

@@ -7,5 +7,6 @@ export const settings = {
     position: new Vector3(40, 100, 20),
     color: new Color('#feffe4'),
   },
+  waterHeight: 1.65,
 }
 
