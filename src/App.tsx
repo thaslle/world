@@ -31,7 +31,7 @@ function App() {
       <Debug />
       <Leva hidden={!showDebug} />
       <KeyboardControls map={keyboardMap}>
-        <Canvas camera={{ position: [3, 3, 3], fov: 50 }} shadows>
+        <Canvas camera={{ position: [3, 3, 3], fov: 35 }} shadows>
           {showDebug && <Stats />}
 
           <Physics debug={showPhysics}>

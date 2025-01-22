@@ -34,11 +34,11 @@ const LeafMaterial = () => {
         #include <common>
 
         uniform float uWindTime;
-        
+
         float uEffectBlend = 1.2;
         float uInflate = 1.2;
         float uScale = 1.1;
-        float uWindSpeed = 0.8;
+        float uWindSpeed = 0.1;
         
         float inverseLerp(float v, float minValue, float maxValue) {
           return (v - minValue) / (maxValue - minValue);
@@ -67,7 +67,7 @@ const LeafMaterial = () => {
           float power = uWindSpeed / 5.0 * -0.5;
 
           float topFacing = remap(sin(uWindTime + posXZ), -1.0, 1.0, 0.0, power);
-          float bottomFacing = remap(cos(uWindTime + posXZ), -1.0, 1.0, 0.0, 0.05);
+          float bottomFacing = remap(cos(uWindTime + posXZ), -1.0, 1.0, 0.0, 0.02);
           float radians = mix(bottomFacing, topFacing, boundedYNormal);
 
           return rotateZ(radians) * v;
@@ -102,7 +102,7 @@ const LeafMaterial = () => {
 
         vec3 inflatedVertexOffset = inflateOffset(vec3(vertexOffset, 0.0));
 
-        vec4 worldViewPosition = modelViewMatrix * vec4(position, 1.0);
+        vec4 worldViewPosition = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
 
         worldViewPosition += vec4(mix(vec3(0.0), inflatedVertexOffset, uEffectBlend), 0.0);
 

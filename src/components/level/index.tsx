@@ -2,7 +2,7 @@ import { RigidBody } from '@react-three/rapier'
 import { Terrain } from './terrain'
 import { Water } from './water'
 import { Base } from './base'
-import { Tree } from './tree'
+import { Trees } from './trees'
 
 export const Level = () => {
   return (
@@ -11,7 +11,7 @@ export const Level = () => {
         <Terrain />
       </RigidBody>
 
-      <Tree position={[45, 4, 90]} />
+      <Trees />
       <Water />
       <Base />
     </>
