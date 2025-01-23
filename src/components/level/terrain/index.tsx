@@ -83,6 +83,9 @@ export function Terrain(props: GroupProps) {
     // Initialize heightData for a DataTexture (RGBA format)
     const heightData = new Float32Array(heightMapSize * heightMapSize * 4)
 
+    // Initialize collectible positions array
+    const collectiblePositions = new Array()
+
     // Get bounding box and calculate height normalization
     const boundingBox = plane.geometry.boundingBox
 
@@ -119,12 +122,37 @@ export function Terrain(props: GroupProps) {
       heightData[index + 1] = g // G
       heightData[index + 2] = b // B
       heightData[index + 3] = normalizedHeight // A (We're use alpha channel to store the heightmap)
+
+      // Find suitable positions to place the collectibles
+      if (
+        y < settings.waterHeight - 0.05 &&
+        y > settings.waterHeight - 1.5 &&
+        Math.abs(x) > 70 &&
+        Math.abs(z) > 70
+      )
+        collectiblePositions.push(new Vector3(x, y, z))
     }
+
+    // Shuffle array
+    for (let i = collectiblePositions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[collectiblePositions[i], collectiblePositions[j]] = [
+        collectiblePositions[j],
+        collectiblePositions[i],
+      ] // Swap elements
+    }
+
+    // Get only a few positions to place our collectibles
+    const finalCollectiblePositions = collectiblePositions.slice(
+      0,
+      settings.collectibles,
+    )
 
     useStore.setState(() => ({
       terrainHeights: heightData,
       terrainHeightsMax: maxHeight,
       terrainSegments: heightMapSize,
+      collectiblePositions: finalCollectiblePositions,
     }))
   }, [plane.geometry])
 

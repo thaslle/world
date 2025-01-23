@@ -110,15 +110,11 @@ void main()
     // Attenuation
     float distanceScale = getGrassAttenuation(modelCenter.xz);
     float slopeScale = smoothstep(remap(slope, 0.3, 0.8, 1.0, 0.0), 0.0, 1.0);
-    float scale = distanceScale * slopeScale;
+    float scale = distanceScale * slopeScale * smoothstep(0.3, 0.8, terrainColor.g);
     modelPosition.xyz = mix(modelCenter.xyz, modelPosition.xyz, scale);
 
     // Tipness
     float tipness = step(2.0, mod(float(gl_VertexID) + 1.0, 3.0));
-
-    modelPosition.y *= smoothstep(0.0, 0.5, terrainColor.g);
-    modelCenter.y *= smoothstep(0.0, 0.5, terrainColor.g);
-
 
     // Wind
     vec2 noiseUv = modelPosition.xz * 0.09 + uTime * 0.2;

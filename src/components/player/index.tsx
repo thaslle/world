@@ -18,6 +18,8 @@ import { useStore } from '~/hooks/use-store'
 import { Maria } from './maria'
 import { Shadow } from './shadow'
 
+import { settings } from '~/config/settings'
+
 const getCameraYVelocity = (
   curVel: Vector,
   threshold = 0.2,
@@ -59,13 +61,21 @@ export const Player = () => {
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
+    POSITION_X: { value: 75.35, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 1.19, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 124.64, min: -1000, max: 1000, step: 0.5 },
   })
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls('Camera', {
-    CAMERA_DISTANCE: { value: 7.6, min: 0.1, max: 20.0, step: 0.1 },
+    CAMERA_DISTANCE: {
+      value: settings.cameraDistance,
+      min: 0.1,
+      max: 20.0,
+      step: 0.1,
+    },
     CAMERA_HEIGHT: { value: 1.0, min: 0.1, max: 20.0, step: 0.1 },
   })
 
@@ -94,6 +104,7 @@ export const Player = () => {
 
   const characterState = useStore((state) => state.characterState)
   const setCharacterState = useStore((state) => state.setCharacterState)
+  const setCollected = useStore((state) => state.setCollected)
 
   const [, get] = useKeyboardControls()
 
@@ -301,8 +312,7 @@ export const Player = () => {
           // Check if player is on the ground
           if (
             playerRef.current &&
-            e.other.rigidBodyObject &&
-            e.other.rigidBodyObject.name === 'terrain'
+            e.other.rigidBodyObject?.name === 'terrain'
           ) {
             playerinTheAir.current = false
             playerLanded.current = true
@@ -312,6 +322,12 @@ export const Player = () => {
             curVel.y = 0
 
             playerRef.current.setLinvel(curVel, true)
+          }
+
+          // Make the collectible disapear
+          if (e.other.rigidBodyObject?.name === 'collectible') {
+            const instanceId = e.other.rigidBodyObject.userData.id
+            if (instanceId) setCollected(instanceId)
           }
         }}
       >

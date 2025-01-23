@@ -8,5 +8,9 @@ export const settings = {
     color: new Color('#feffe4'),
   },
   waterHeight: 1.65,
+  cameraDistance: 7.6,
+  collectibleGrabDistance: 3,
+  collectibles: 35,
+  collectiblesNeeded: 3,
 }
 
