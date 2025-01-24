@@ -61,12 +61,13 @@ export const Player = () => {
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    // POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
-    POSITION_X: { value: 75.35, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 1.19, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 124.64, min: -1000, max: 1000, step: 0.5 },
+    POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
+
+    // POSITION_X: { value: 73.35, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Y: { value: 2.59, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Z: { value: 120.64, min: -1000, max: 1000, step: 0.5 },
   })
 
   const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls('Camera', {
@@ -290,6 +291,8 @@ export const Player = () => {
 
     //Update last elapsed time
     lastElapsedTime.current = Math.floor(generalElapsedTime * 10)
+
+    // console.log(playerRef.current.translation())
 
     useStore.setState(() => ({
       playerPosition: playerRef.current?.translation(),

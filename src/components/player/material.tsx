@@ -13,7 +13,7 @@ const PlayerMaterial = ({ map }: PlayerMaterialProps) => {
 
   playerMaterial.onBeforeCompile = (shader) => {
     // Declare the new uniform
-    shader.uniforms.uTime = { value: 1.0 }
+    shader.uniforms.uTime = { value: 0 }
     shader.uniforms.uWaterHeight = { value: settings.waterHeight }
 
     playerMaterial.userData.shader = shader
@@ -33,7 +33,7 @@ const PlayerMaterial = ({ map }: PlayerMaterialProps) => {
       `#include <begin_vertex>`,
       `
         #include <begin_vertex>
-        vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
+        vPositionW = (modelMatrix * vec4(position * 100.0, 1.0)).xyz;
         `,
     )
 
@@ -60,17 +60,18 @@ const PlayerMaterial = ({ map }: PlayerMaterialProps) => {
 
         // The current dynamic water height
         float waterDepth = 0.05;
-        // float currentWaterHeight = uWaterHeight + sineOffset;
+        float currentWaterHeight = uWaterHeight + sineOffset;
+        
+        // float stripe = smoothstep((currentWaterHeight + 0.01) * 0.01, (currentWaterHeight - 0.01) * 0.01, vPositionW.y)
+        //              - smoothstep((currentWaterHeight + waterDepth + 0.01) * 0.01, (currentWaterHeight + waterDepth - 0.01) * 0.01, vPositionW.y);
 
-        float currentWaterHeight = uWaterHeight;
-                
-
-        float stripe = smoothstep((currentWaterHeight + 0.01) * 0.01, (currentWaterHeight - 0.01) * 0.01, vPositionW.y)
-                    - smoothstep((currentWaterHeight + waterDepth + 0.01) * 0.01, (currentWaterHeight + waterDepth - 0.01) * 0.01, vPositionW.y);
+        float stripe = smoothstep((currentWaterHeight + 0.01), (currentWaterHeight - 0.01), vPositionW.x)
+                     - smoothstep((currentWaterHeight + waterDepth + 0.01), (currentWaterHeight + waterDepth - 0.01), vPositionW.x);
 
         vec3 stripeColor = vec3(1.0, 1.0, 1.0); // White stripe
 
-        vec3 finalColor = mix(baseColor.rgb - stripe, stripeColor, stripe);
+        //vec3 finalColor = mix(baseColor.rgb - stripe, stripeColor, stripe);
+        vec3 finalColor = baseColor.rgb;
 
         gl_FragColor = vec4(finalColor, baseColor.a);
 

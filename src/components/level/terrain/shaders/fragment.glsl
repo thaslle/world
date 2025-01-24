@@ -84,8 +84,11 @@ void main()
     baseColor = mix(baseColor, baseGrassColor, baseEdge * grassBlendFactor);
 
     // Ocean Bottom
-    float oceanFactor = smoothstep(1.5, 0.0, csm_vPositionW.y);
-    baseColor = mix(baseColor, uOceanColor, oceanFactor);
+    float vignette = length(csm_vUv - 0.5) * 1.5;
+    vec3 vignetteFactor = smoothstep(0.3, 0.9, vec3(vignette));
+    
+    float oceanFactor = smoothstep(0.8, 0.0, csm_vPositionW.y);
+    baseColor = mix(baseColor, uOceanColor, oceanFactor * min(vignetteFactor + 0.3, 1.0));
 
     float shadowIntensity = 0.5;
     vec3 shadowedColor = baseColor * getShadowMask();
@@ -97,7 +100,6 @@ void main()
     // The current dynamic water height
     float waterDepth = 0.05;
     float currentWaterHeight = uWaterHeight + sineOffset;
-    
 
     float stripe = smoothstep(currentWaterHeight + 0.01, currentWaterHeight - 0.01, csm_vPositionW.y)
                  - smoothstep(currentWaterHeight + waterDepth + 0.01, currentWaterHeight + waterDepth - 0.01, csm_vPositionW.y);

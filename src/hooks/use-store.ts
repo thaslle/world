@@ -1,8 +1,12 @@
-import { Color, Vector3 } from 'three'
+import { Color, Euler, Vector3 } from 'three'
 import { Vector } from 'three/examples/jsm/Addons.js'
 import { create } from 'zustand'
 import { settings } from '~/config/settings'
 
+type collectiblePositionsProps = {
+  position: Vector3
+  rotation: Euler
+}
 type Store = {
   playerPosition: Vector | null
   debug: boolean
@@ -13,8 +17,10 @@ type Store = {
   terrainSegments: number
   characterState: string
   oceanBaseColor: Color
-  collectiblePositions: Array<Vector3>
+  collectiblePositions: Array<collectiblePositionsProps>
   collected: number
+  lastCollected: number | null
+  lastCollectedPosition: collectiblePositionsProps
   showBook: boolean
   showTreasure: boolean
   openTreasure: boolean
@@ -36,6 +42,11 @@ export const useStore = create<Store>((set) => ({
   oceanBaseColor: new Color(),
   collectiblePositions: new Array(),
   collected: 0,
+  lastCollected: null,
+  lastCollectedPosition: {
+    position: new Vector3(),
+    rotation: new Euler(),
+  },
   showBook: false,
   openBook: false,
   showTreasure: false,
@@ -53,6 +64,8 @@ export const useStore = create<Store>((set) => ({
 
       return {
         collected: collected,
+        lastCollected: id,
+        lastCollectedPosition: state.collectiblePositions[id],
         showBook: showBook,
 
         // Remove collected collectible

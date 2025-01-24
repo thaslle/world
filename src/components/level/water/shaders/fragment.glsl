@@ -3,10 +3,14 @@ precision mediump float;
 #endif
 
 varying vec2 vUv;
+varying float vFogDepth;
 
 uniform float uTime;
 uniform vec3 uColorNear;
 uniform vec3 uColorFar;
+uniform float uFogNear;
+uniform float uFogFar;
+uniform vec3 uFogColor;
 
 #include <packing>
 
@@ -48,6 +52,11 @@ void main() {
     vec3 alpha = foam * 0.5;
     alpha += min(vignette + 0.4, 1.0);
 
+    // Fog
+    float fogFactor = smoothstep( uFogNear, uFogFar, vFogDepth * 0.1 );
+    finalColor = mix( finalColor, uFogColor, min(1.0, fogFactor + 0.8));
+
     // Output the final color
     gl_FragColor = vec4(finalColor, alpha);
+
 }

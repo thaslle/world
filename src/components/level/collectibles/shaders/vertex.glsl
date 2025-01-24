@@ -5,6 +5,6 @@ varying vec3 csm_vNormalW;
 
 void main() {
     csm_vUv = uv;
-    csm_vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
+    csm_vPositionW = (modelMatrix * instanceMatrix * vec4(position, 1.0)).xyz;
     csm_vNormalW = normalize(mat3(modelMatrix) * normal);
 }

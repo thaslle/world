@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { Mesh, DoubleSide, Color, Vector3, MeshStandardMaterial } from 'three'
+import {
+  Mesh,
+  DoubleSide,
+  Color,
+  Vector3,
+  MeshStandardMaterial,
+  Euler,
+} from 'three'
 import { GroupProps, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { useControls } from 'leva'
@@ -22,7 +29,7 @@ export function Terrain(props: GroupProps) {
   } = useControls('Level', {
     GROUND_BASE_COLOR: { value: '#f5a733', label: 'GROUND' },
     GRASS_BASE_COLOR: { value: '#92ad39', label: 'GRASS' },
-    ROCK_BASE_COLOR: { value: '#9d8371', label: 'ROCK' },
+    ROCK_BASE_COLOR: { value: '#b7794d', label: 'ROCK' },
     SNOW_BASE_COLOR: { value: '#e8e8e8', label: 'SNOW' },
     OCEAN_BASE_COLOR: { value: '#badfe8', label: 'OCEAN' },
   })
@@ -36,6 +43,8 @@ export function Terrain(props: GroupProps) {
 
   // Material
   const materialRef = useRef<any>(null)
+
+  const random = useMemo(() => Math.random(), [])
 
   const uniforms = useMemo(
     () => ({
@@ -129,8 +138,17 @@ export function Terrain(props: GroupProps) {
         y > settings.waterHeight - 1.5 &&
         Math.abs(x) > 70 &&
         Math.abs(z) > 70
-      )
-        collectiblePositions.push(new Vector3(x, y, z))
+      ) {
+        const position = {
+          position: new Vector3(x, y + 0.6, z),
+          rotation: new Euler(
+            random * 0.2 * x,
+            random * 0.2 * x,
+            random * 0.2 * x,
+          ),
+        }
+        collectiblePositions.push(position)
+      }
     }
 
     // Shuffle array

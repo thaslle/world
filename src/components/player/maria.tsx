@@ -6,7 +6,7 @@ import {
   Group,
   SkinnedMesh,
 } from 'three'
-import { GroupProps, useGraph } from '@react-three/fiber'
+import { GroupProps, useFrame, useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
 
@@ -60,9 +60,9 @@ export const Maria = (props: GroupProps) => {
 
   // Update the uTime uniform on each frame
   // useFrame(({ clock }) => {
-  //   if (!materialRef.current) return
-  //   ;(materialRef.current as unknown as ShaderMaterial).uniforms.uTime.value =
-  //     clock.getElapsedTime()
+  //   if (!materialRef.current || !materialRef.current.userData.uniforms.uTime)
+  //     return
+  //   materialRef.current.userData.uniforms.uTime.value = clock.getElapsedTime()
   // })
 
   return (

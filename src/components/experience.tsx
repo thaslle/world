@@ -8,7 +8,7 @@ import { settings } from '~/config/settings'
 
 export const Experience = () => {
   const { BACKGROUND } = useControls('Sky', {
-    BACKGROUND: '#79fffa', //#d9ffe8
+    BACKGROUND: settings.background, //#d9ffe8
   })
 
   return (
@@ -22,7 +22,10 @@ export const Experience = () => {
       />
 
       <color attach="background" args={[BACKGROUND]} />
-      <fog attach="fog" args={[BACKGROUND, 250, 512]} />
+      <fog
+        attach="fog"
+        args={[settings.fog.color, settings.fog.near, settings.fog.far]}
+      />
 
       <Player />
       <Grass />
