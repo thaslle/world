@@ -11,7 +11,14 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
 
 import { useStore } from '~/hooks/use-store'
-import PlayerMaterial from './material'
+import { settings } from '~/config/settings'
+
+import {
+  varyingVertexShader,
+  mainVertexShader,
+  mainFragmentShader,
+  varyingFragmentShader,
+} from './shaders/fragments.glsl'
 
 export const Maria = (props: GroupProps) => {
   const group = useRef<Group>(null)
@@ -46,24 +53,52 @@ export const Maria = (props: GroupProps) => {
     }
   }, [characterState])
 
-  // Creating a material to apply water level
-  const materialRef = useRef<MeshStandardMaterial>(new MeshStandardMaterial())
+  const playerMaterial = useRef(
+    new MeshStandardMaterial({
+      map: (materials.m_char as MeshStandardMaterial).map,
+    }),
+  )
 
-  useEffect(() => {
-    if (materialRef.current) {
-      const customMaterial = PlayerMaterial({
-        map: (materials.m_char as MeshStandardMaterial).map,
-      })
-      materialRef.current = customMaterial
-    }
-  }, [materials.m_char]) // Recreate material when the texture changes
+  playerMaterial.current.userData = playerMaterial.current.userData || {}
+
+  playerMaterial.current.onBeforeCompile = (shader) => {
+    playerMaterial.current.userData.shader = shader
+
+    // Declare the new uniform
+    shader.uniforms.uTime = { value: 0 }
+    shader.uniforms.uWaterHeight = { value: settings.waterHeight }
+
+    // Inject custom varyings into the vertex shader
+    shader.vertexShader = shader.vertexShader.replace(
+      varyingVertexShader.search,
+      varyingVertexShader.replace,
+    )
+
+    // Calculate world position and normal in the vertex shader
+    shader.vertexShader = shader.vertexShader.replace(
+      mainVertexShader.search,
+      mainVertexShader.replace,
+    )
+
+    // Inject custom varyings and Fresnel logic into the fragment shader
+    shader.fragmentShader = shader.fragmentShader.replace(
+      mainFragmentShader.search,
+      mainFragmentShader.replace,
+    )
+
+    // Add Fresnel effect logic while preserving the original texture
+    shader.fragmentShader = shader.fragmentShader.replace(
+      varyingFragmentShader.search,
+      varyingFragmentShader.replace,
+    )
+  }
 
   // Update the uTime uniform on each frame
-  // useFrame(({ clock }) => {
-  //   if (!materialRef.current || !materialRef.current.userData.uniforms.uTime)
-  //     return
-  //   materialRef.current.userData.uniforms.uTime.value = clock.getElapsedTime()
-  // })
+  useFrame(({ clock }) => {
+    if (!playerMaterial.current.userData.shader) return
+    playerMaterial.current.userData.shader.uniforms.uTime.value =
+      clock.getElapsedTime()
+  })
 
   return (
     <group ref={group} {...props} dispose={null}>
@@ -74,8 +109,9 @@ export const Maria = (props: GroupProps) => {
             name="Body"
             geometry={(nodes.Body as SkinnedMesh).geometry}
             skeleton={(nodes.Body as SkinnedMesh).skeleton}
-            material={materialRef.current}
+            material={playerMaterial.current}
             castShadow
+            receiveShadow
           />
         </group>
       </group>
@@ -84,4 +120,3 @@ export const Maria = (props: GroupProps) => {
 }
 
 useGLTF.preload('/models/maria.glb')
-

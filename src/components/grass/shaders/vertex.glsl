@@ -102,7 +102,7 @@ void main()
     modelPosition.y += height;  // Adjust the model's y-coordinate based on the heightmap
 
     // Update the model center's y position for correct rendering
-    modelCenter.y += height + 0.1;
+    modelCenter.y += height;
 
     // Slope
     float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), normal));

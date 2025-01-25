@@ -1,8 +1,7 @@
 import { useRef } from 'react'
-import { Vector } from 'three/examples/jsm/Addons.js'
 import { Vector3, MathUtils, Clock, Group } from 'three'
 import { useFrame } from '@react-three/fiber'
-import { CameraControls, useKeyboardControls } from '@react-three/drei'
+import { useKeyboardControls } from '@react-three/drei'
 import {
   RigidBody,
   CapsuleCollider,
@@ -15,34 +14,14 @@ import { useControls } from 'leva'
 
 import { Controls } from '~/config/controls'
 import { useStore } from '~/hooks/use-store'
+
 import { Maria } from './maria'
 import { Shadow } from './shadow'
-
-import { settings } from '~/config/settings'
-
-const getCameraYVelocity = (
-  curVel: Vector,
-  threshold = 0.2,
-  maxLimit = 8,
-  expFactor = 1.5,
-) => {
-  // Activated when player is moving down
-  if (curVel.y < threshold) {
-    const normalizedY = Math.min(
-      maxLimit,
-      Math.pow(Math.abs(curVel.y * 0.05) / threshold, expFactor) * maxLimit,
-    )
-    return normalizedY
-  }
-
-  // If conditions aren't met, return 0 or the original curVel.y
-  return 0
-}
+import { Camera } from './camera'
 
 export const Player = () => {
   const {
     FIXED,
-    ROTATE,
     WALK_SPEED,
     RUN_SPEED,
     ROTATION_SPEED,
@@ -54,54 +33,41 @@ export const Player = () => {
     POSITION_Z,
   } = useControls('Character', {
     FIXED: { value: false },
-    ROTATE: { value: false },
     WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
     RUN_SPEED: { value: 5.0, min: 0.2, max: 30, step: 0.1 },
     ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
 
-    // POSITION_X: { value: 73.35, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Y: { value: 2.59, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Z: { value: 120.64, min: -1000, max: 1000, step: 0.5 },
-  })
+    // POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
 
-  const { CAMERA_DISTANCE, CAMERA_HEIGHT } = useControls('Camera', {
-    CAMERA_DISTANCE: {
-      value: settings.cameraDistance,
-      min: 0.1,
-      max: 20.0,
-      step: 0.1,
-    },
-    CAMERA_HEIGHT: { value: 1.0, min: 0.1, max: 20.0, step: 0.1 },
+    POSITION_X: { value: 73.35, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 2.59, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 120.64, min: -1000, max: 1000, step: 0.5 },
   })
 
   const customClock = useRef(new Clock())
 
-  const vel = new Vector3()
   const rotVel = new Vector3()
+  const vel = useRef(new Vector3())
+  const curVel = useRef(new Vector3())
   const playerinTheAir = useRef(true)
   const playerLanded = useRef(false)
   const playerLastJump = useRef(0)
 
   const playerRef = useRef<RapierRigidBody>(null) // Rigid Body reference
   const characterRef = useRef<Group>(null) // 3D models reference
-  const cameraRef = useRef<CameraControls>(null)
+
   const movement = useRef({
     x: 1,
     z: 0,
     w: 0, // used to store whether the player is moving forwards or backwards
   })
 
-  const cameraTarget = useRef(new Vector3(0, 0, 0))
-  const cameraPosition = useRef<Group>(null)
-  const cameraYVelocity = useRef(0)
   const lastElapsedTime = useRef(0)
-  const positionWorldPosition = new Vector3()
 
   const characterState = useStore((state) => state.characterState)
   const setCharacterState = useStore((state) => state.setCharacterState)
@@ -111,12 +77,11 @@ export const Player = () => {
 
   useFrame(({ clock }) => {
     if (
-      !cameraRef.current ||
       !playerRef.current ||
       !characterRef.current ||
-      !cameraTarget.current ||
-      !cameraPosition.current ||
-      !customClock.current
+      !customClock.current ||
+      !curVel.current ||
+      !vel.current
     )
       return
 
@@ -129,22 +94,22 @@ export const Player = () => {
     rotVel.y = 0
     rotVel.z = 0
 
-    vel.x = 0
-    vel.y = 0
-    vel.z = 0
+    vel.current.x = 0
+    vel.current.y = 0
+    vel.current.z = 0
 
     // This reference is used to store whether the player is moving forwards or backwards
     movement.current.w = 0
 
     // Store current velocity
-    const curVel = playerRef.current.linvel()
+    curVel.current = vec3(playerRef.current.linvel())
 
     // If the player is running
     const MOVEMENT_SPEED = get()[Controls.run] ? RUN_SPEED : WALK_SPEED
 
     // Moving forward
     if (get()[Controls.forward]) {
-      vel.z += MOVEMENT_SPEED
+      vel.current.z += MOVEMENT_SPEED
 
       movement.current.x = 1
       movement.current.w = 1 // Moving forwards or backwards
@@ -157,7 +122,7 @@ export const Player = () => {
       )
     }
     if (get()[Controls.backward]) {
-      vel.z -= MOVEMENT_SPEED
+      vel.current.z -= MOVEMENT_SPEED
 
       movement.current.x = -1
       movement.current.w = 1 // Moving forwards or backwards
@@ -171,15 +136,15 @@ export const Player = () => {
     }
 
     // Enable the player to rotate without any lateral movement
-    const isMovingZ = Math.abs(vel.z) >= MOVEMENT_SPEED
+    const isMovingZ = Math.abs(vel.current.z) >= MOVEMENT_SPEED
 
     if (get()[Controls.left]) {
-      if (!isMovingZ) vel.z += MOVEMENT_SPEED * 0.5 * movement.current.x
+      if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y += ROTATION_SPEED * movement.current.x
     }
     if (get()[Controls.right]) {
-      if (!isMovingZ) vel.z += MOVEMENT_SPEED * 0.5 * movement.current.x
+      if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y -= ROTATION_SPEED * movement.current.x
     }
@@ -191,7 +156,7 @@ export const Player = () => {
       quat(playerRef.current.rotation()),
     )
 
-    vel.applyEuler(eulerRot)
+    vel.current.applyEuler(eulerRot)
 
     // Allow the character to jump if it isn't currently in the air
     if (
@@ -200,29 +165,33 @@ export const Player = () => {
       playerLanded.current &&
       generalElapsedTime - playerLastJump.current > 0.8
     ) {
-      vel.y += JUMP_FORCE
+      vel.current.y += JUMP_FORCE
       playerinTheAir.current = true
       playerLanded.current = false
       playerLastJump.current = generalElapsedTime
     } else {
-      vel.y = curVel.y
+      vel.current.y = curVel.current.y
     }
 
     // Apply Velocity
-    playerRef.current.setLinvel(vel, true)
+    playerRef.current.setLinvel(vel.current, true)
 
     // Player animations
     if (playerinTheAir.current === true) {
       // If the player is in the air, it means the player is jumping
       if (characterState !== 'Jump') setCharacterState('Jump')
     } else if (
-      (Math.abs(vel.x) > WALK_SPEED || Math.abs(vel.z) > WALK_SPEED) &&
+      (Math.abs(vel.current.x) > WALK_SPEED ||
+        Math.abs(vel.current.z) > WALK_SPEED) &&
       movement.current.w === 1
     ) {
       // Player is walking if it has a high horizontal velocity and the movement w is 1
       customClock.current.start() // Reset counting
       if (characterState !== 'Run') setCharacterState('Run')
-    } else if (Math.abs(vel.x) > 0.05 || Math.abs(vel.z) > 0.05) {
+    } else if (
+      Math.abs(vel.current.x) > 0.05 ||
+      Math.abs(vel.current.z) > 0.05
+    ) {
       // Player needs to have a minimum horizontal speed to start walking
       customClock.current.start() // Reset counting
       if (characterState !== 'Walk') setCharacterState('Walk')
@@ -253,42 +222,6 @@ export const Player = () => {
       }
     }
 
-    // Set camera to follow the player when it's moving,
-    // But, when character is Sit, you can rotate the camera around
-    if (characterState !== 'Sit' && !ROTATE) {
-      // Log last camera velocity
-      const lastCameraYVelocity = cameraYVelocity.current
-
-      // Update camera Y from time to time to prevent it from shaking too much
-      if (lastElapsedTime.current !== Math.floor(generalElapsedTime * 10)) {
-        //Change Y position based on Y velocity
-        if (Math.abs(curVel.x) > 0.01 || Math.abs(curVel.z) > 0.01)
-          cameraYVelocity.current = getCameraYVelocity(curVel)
-
-        const cameraYVelocityMid =
-          (lastCameraYVelocity + cameraYVelocity.current) / 2
-
-        cameraPosition.current.position.y = MathUtils.lerp(
-          cameraPosition.current.position.y,
-          cameraYVelocityMid + CAMERA_HEIGHT,
-          0.3,
-        )
-      }
-
-      cameraTarget.current = vec3(playerRef.current.translation())
-      cameraPosition.current.getWorldPosition(positionWorldPosition)
-
-      cameraRef.current.setLookAt(
-        positionWorldPosition.x,
-        positionWorldPosition.y,
-        positionWorldPosition.z,
-        cameraTarget.current.x,
-        cameraTarget.current.y,
-        cameraTarget.current.z,
-        true,
-      )
-    }
-
     //Update last elapsed time
     lastElapsedTime.current = Math.floor(generalElapsedTime * 10)
 
@@ -301,8 +234,6 @@ export const Player = () => {
 
   return (
     <>
-      <CameraControls ref={cameraRef} />
-
       <RigidBody
         colliders={false}
         gravityScale={GRAVITY_SCALE}
@@ -321,24 +252,20 @@ export const Player = () => {
             playerLanded.current = true
 
             // Reset y speed
-            const curVel = playerRef.current.linvel()
-            curVel.y = 0
+            curVel.current = vec3(playerRef.current.linvel())
+            curVel.current.y = 0
 
-            playerRef.current.setLinvel(curVel, true)
+            playerRef.current.setLinvel(curVel.current, true)
           }
 
           // Make the collectible disapear
           if (e.other.rigidBodyObject?.name === 'collectible') {
             const instanceId = e.other.rigidBodyObject.userData.id
-            if (instanceId) setCollected(instanceId)
+            if (instanceId !== undefined) setCollected(instanceId)
           }
         }}
       >
-        <group
-          ref={cameraPosition}
-          position-y={CAMERA_HEIGHT}
-          position-z={-CAMERA_DISTANCE}
-        />
+        <Camera playerRef={playerRef} />
 
         <group ref={characterRef}>
           <Maria position={[0, -0.85, 0]} />
@@ -346,6 +273,7 @@ export const Player = () => {
 
         <CapsuleCollider args={[0.65, 0.2]} />
       </RigidBody>
+
       <Shadow playerRef={characterRef} />
     </>
   )
