@@ -108,9 +108,10 @@ void main()
     float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), normal));
 
     // Attenuation
+    float grassPlacement = (terrainColor.g + terrainColor.b) - 1.0;
     float distanceScale = getGrassAttenuation(modelCenter.xz);
     float slopeScale = smoothstep(remap(slope, 0.3, 0.8, 1.0, 0.0), 0.0, 1.0);
-    float scale = distanceScale * slopeScale * smoothstep(0.3, 0.8, terrainColor.g);
+    float scale = distanceScale * slopeScale * smoothstep(0.3, 0.8, grassPlacement);
     modelPosition.xyz = mix(modelCenter.xyz, modelPosition.xyz, scale);
 
     // Tipness

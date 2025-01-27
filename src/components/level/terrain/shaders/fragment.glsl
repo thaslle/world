@@ -4,9 +4,6 @@ precision mediump float;
 
 // Uniforms for light and camera
 uniform float uTime;
-uniform vec3 uLightPosition;
-uniform vec3 uLightColor;
-uniform float uLightIntensity;
 uniform vec3 uGroundColor;
 uniform vec3 uGrassColor;
 uniform vec3 uSnowColor;

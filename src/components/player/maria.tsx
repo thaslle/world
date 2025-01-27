@@ -68,28 +68,24 @@ export const Maria = (props: GroupProps) => {
     shader.uniforms.uTime = { value: 0 }
     shader.uniforms.uWaterHeight = { value: settings.waterHeight }
 
-    // Inject custom varyings into the vertex shader
     shader.vertexShader = shader.vertexShader.replace(
       varyingVertexShader.search,
       varyingVertexShader.replace,
     )
 
-    // Calculate world position and normal in the vertex shader
     shader.vertexShader = shader.vertexShader.replace(
       mainVertexShader.search,
       mainVertexShader.replace,
     )
 
-    // Inject custom varyings and Fresnel logic into the fragment shader
-    shader.fragmentShader = shader.fragmentShader.replace(
-      mainFragmentShader.search,
-      mainFragmentShader.replace,
-    )
-
-    // Add Fresnel effect logic while preserving the original texture
     shader.fragmentShader = shader.fragmentShader.replace(
       varyingFragmentShader.search,
       varyingFragmentShader.replace,
+    )
+
+    shader.fragmentShader = shader.fragmentShader.replace(
+      mainFragmentShader.search,
+      mainFragmentShader.replace,
     )
   }
 
@@ -120,3 +116,4 @@ export const Maria = (props: GroupProps) => {
 }
 
 useGLTF.preload('/models/maria.glb')
+

@@ -69,7 +69,7 @@ export const Grass = () => {
     BLADE_HEIGHT_RANDOMNESS: { value: 0.8, min: 0.1, max: 5.0, step: 0.1 },
     POSITION_RANDOMNESS: { value: 1.1, min: 0.1, max: 5.0, step: 0.1 },
     TERRAIN_OFFSET: { value: 820.0, min: -1000.0, max: 1000.0, step: 10.0 },
-    GRASS_BASE_COLOR: { value: '#d6e29c', label: 'GRASS' },
+    GRASS_BASE_COLOR: { value: '#d2de93', label: 'GRASS' }, //d6e29c
   })
 
   const GRASS_COLOR = new THREE.Color(GRASS_BASE_COLOR)

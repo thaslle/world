@@ -40,13 +40,13 @@ export const Player = () => {
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
 
-    // POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
-    // POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
+    POSITION_X: { value: 44.3, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Y: { value: 7, min: -1000, max: 1000, step: 0.5 },
+    POSITION_Z: { value: 89.17, min: -1000, max: 1000, step: 0.5 },
 
-    POSITION_X: { value: 73.35, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Y: { value: 2.59, min: -1000, max: 1000, step: 0.5 },
-    POSITION_Z: { value: 120.64, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_X: { value: 73.35, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Y: { value: 2.59, min: -1000, max: 1000, step: 0.5 },
+    // POSITION_Z: { value: 120.64, min: -1000, max: 1000, step: 0.5 },
   })
 
   const customClock = useRef(new Clock())

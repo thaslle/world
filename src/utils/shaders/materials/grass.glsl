@@ -5,9 +5,9 @@ vec3 grass(in vec3 baseTint, in float vnoise, in float vsnoise, in float vfbm) {
     baseColor = pow(baseColor, vec3(0.10)); // Apply power curve for contrast
 
     // Dots texture
-    float dotsNoise = vsnoise * 0.5 + 0.5;
+    float dotsNoise = vsnoise * 0.2 + 0.2;
     vec3 dotsBaseColor = vec3(dotsNoise);
-    vec3 dotsEffect = smoothstep(0.08, 0.001, dotsBaseColor);
+    vec3 dotsEffect = smoothstep(0.075, 0.001, dotsBaseColor);
     
     // Grass Texture
     float grassThreshold = 0.45;
@@ -17,14 +17,14 @@ vec3 grass(in vec3 baseTint, in float vnoise, in float vsnoise, in float vfbm) {
     vec3 finalBase = baseColor * baseTint;
 
     // Tint Adjustments
-    vec3 dotsTintColor = baseTint - 0.08;   // Slightly darkened dots tint
+    vec3 dotsTintColor = baseTint - 0.06;   // Slightly darkened dots tint
     vec3 grassTintColor = finalBase + vec3(0.01, 0.01, 0.016);  // Slightly lightened grassBase
     
     // Combine finalall s together
     vec3 finalColor = finalBase;
 
-    finalColor = mix(finalColor, dotsTintColor, dotsEffect);
     finalColor = mix(finalColor, grassTintColor, grassEffect);
+    finalColor = mix(finalColor, dotsTintColor, dotsEffect);
 
 
     return finalColor;
