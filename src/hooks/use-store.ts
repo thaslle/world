@@ -21,11 +21,14 @@ type Store = {
   collected: number
   lastCollected: number | null
   lastCollectedPosition: collectiblePositionsProps
+  status: string
   showBook: boolean
+  openBook: boolean
   showTreasure: boolean
   openTreasure: boolean
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
+  setStatus: (status: string) => void
   setDebug: () => void
   setPhysics: () => void
 }
@@ -47,6 +50,7 @@ export const useStore = create<Store>((set) => ({
     position: new Vector3(),
     rotation: new Euler(),
   },
+  status: 'find',
   showBook: false,
   openBook: false,
   showTreasure: false,
@@ -62,6 +66,8 @@ export const useStore = create<Store>((set) => ({
         id in state.collectiblePositions ? state.collected + 1 : state.collected
       const showBook = collected >= settings.collectiblesNeeded
 
+      if (showBook) state.setStatus('place')
+
       return {
         collected: collected,
         lastCollected: id,
@@ -73,6 +79,11 @@ export const useStore = create<Store>((set) => ({
           (_, index) => index !== id,
         ),
       }
+    }),
+
+  setStatus: (status) =>
+    set({
+      status,
     }),
 
   setDebug: () => set((state) => ({ debug: !state.debug })),

@@ -242,6 +242,7 @@ export const Player = () => {
         ref={playerRef}
         position={[POSITION_X, POSITION_Y, POSITION_Z]}
         type={FIXED ? 'fixed' : 'dynamic'}
+        name="player"
         onCollisionEnter={(e) => {
           // Check if player is on the ground
           if (

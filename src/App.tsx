@@ -6,6 +6,7 @@ import { Leva } from 'leva'
 
 import { Experience } from './components/experience'
 import { Debug } from './components/debug'
+import { UI } from './ui'
 
 import { Controls } from './config/controls'
 import { useStore } from './hooks/use-store'
@@ -38,6 +39,7 @@ function App() {
             <Experience />
           </Physics>
         </Canvas>
+        <UI />
       </KeyboardControls>
     </>
   )

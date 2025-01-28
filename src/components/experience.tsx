@@ -3,6 +3,7 @@ import { useControls } from 'leva'
 import { Grass } from './grass'
 import { Level } from './level'
 import { Player } from './player'
+import { Assets } from './assets'
 
 import { settings } from '~/config/settings'
 
@@ -30,6 +31,7 @@ export const Experience = () => {
       <Player />
       <Grass />
       <Level />
+      <Assets />
     </>
   )
 }
