@@ -5,3 +5,58 @@ canvas {
   width: 100vw;
   height: 100vh;
 }
+
+@font-face {
+  font-family: 'Pally';
+  src:
+    url('/fonts/pally-regular.woff2') format('woff2'),
+    url('/fonts/pally-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Pally';
+  src:
+    url('/fonts/pally-medium.woff2') format('woff2'),
+    url('/fonts/pally-medium.woff') format('woff');
+  font-weight: medium;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Pally';
+  src:
+    url('/fonts/pally-bold.woff2') format('woff2'),
+    url('/fonts/pally-bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --base-font: 16px;
+  --bg-color: #fff;
+  --font-color: #2b363b;
+  --font-background: #fefffa;
+
+  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-time: 0.15s;
+
+  --font-family: 'Pally', Arial, Helvetica, sans-serif;
+}
+
+html {
+  font-size: var(--base-font);
+}
+body {
+  font-family: var(--font-family);
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  color: var(--font-color);
+  background-color: var(--bg-color);
+}
+

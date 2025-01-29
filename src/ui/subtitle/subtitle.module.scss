@@ -1,0 +1,14 @@
+.wrapper {
+  display: grid;
+  place-items: center;
+  align-items: end;
+  height: 100%;
+
+  .subtitle {
+    font-size: 1.2rem;
+    padding: 0.5em 1em;
+    background-color: var(--font-background);
+    border-radius: 1.5em;
+    white-space: pre;
+  }
+}

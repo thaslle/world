@@ -22,10 +22,6 @@ type Store = {
   lastCollected: number | null
   lastCollectedPosition: collectiblePositionsProps
   status: string
-  showBook: boolean
-  openBook: boolean
-  showTreasure: boolean
-  openTreasure: boolean
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
   setStatus: (status: string) => void
@@ -51,10 +47,6 @@ export const useStore = create<Store>((set) => ({
     rotation: new Euler(),
   },
   status: 'find',
-  showBook: false,
-  openBook: false,
-  showTreasure: false,
-  openTreasure: false,
   setCharacterState: (characterState) =>
     set({
       characterState,

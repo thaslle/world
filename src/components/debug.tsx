@@ -4,7 +4,6 @@ import { useStore } from '~/hooks/use-store'
 const Controls = {
   debug: '.',
   physics: ',',
-  position: ';',
 }
 
 type HandlerProps = {
@@ -14,7 +13,6 @@ type HandlerProps = {
 export const Debug = () => {
   const setDebug = useStore((state) => state.setDebug)
   const setPhysics = useStore((state) => state.setPhysics)
-  const playerPosition = useStore((state) => state.playerPosition)
 
   const downHandler = ({ key }: HandlerProps) => {
     if (key === Controls.debug) {
@@ -23,10 +21,6 @@ export const Debug = () => {
 
     if (key === Controls.physics) {
       setPhysics()
-    }
-
-    if (key === Controls.position) {
-      console.log(playerPosition)
     }
   }
 

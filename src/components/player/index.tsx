@@ -225,7 +225,7 @@ export const Player = () => {
     //Update last elapsed time
     lastElapsedTime.current = Math.floor(generalElapsedTime * 10)
 
-    // console.log(playerRef.current.translation())
+    //console.log(playerRef.current.translation())
 
     useStore.setState(() => ({
       playerPosition: playerRef.current?.translation(),
