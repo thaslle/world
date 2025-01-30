@@ -3,10 +3,20 @@ import { Vector } from 'three/examples/jsm/Addons.js'
 import { create } from 'zustand'
 import { settings } from '~/config/settings'
 
-type collectiblePositionsProps = {
+type CollectiblePositionsProps = {
   position: Vector3
   rotation: Euler
 }
+
+export type StatusProps =
+  | 'find'
+  | 'place'
+  | 'book'
+  | 'treasure'
+  | 'quote'
+  | 'cheers'
+  | 'finished'
+
 type Store = {
   playerPosition: Vector | null
   debug: boolean
@@ -17,14 +27,14 @@ type Store = {
   terrainSegments: number
   characterState: string
   oceanBaseColor: Color
-  collectiblePositions: Array<collectiblePositionsProps>
+  collectiblePositions: Array<CollectiblePositionsProps>
   collected: number
   lastCollected: number | null
-  lastCollectedPosition: collectiblePositionsProps
-  status: string
+  lastCollectedPosition: CollectiblePositionsProps
+  status: StatusProps
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
-  setStatus: (status: string) => void
+  setStatus: (status: StatusProps) => void
   setDebug: () => void
   setPhysics: () => void
 }

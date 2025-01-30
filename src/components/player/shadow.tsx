@@ -17,7 +17,7 @@ export const Shadow: React.FC<ShadowProps> = ({ playerRef }) => {
   const positionWorldPosition = new THREE.Vector3()
 
   const { SHADOW_SIZE } = useControls('Camera', {
-    SHADOW_SIZE: { value: 10, min: 1, max: 300, step: 1 },
+    SHADOW_SIZE: { value: 80, min: 1, max: 300, step: 1 },
   })
 
   useLayoutEffect(
@@ -52,7 +52,7 @@ export const Shadow: React.FC<ShadowProps> = ({ playerRef }) => {
         target={playerRef.current || undefined}
         castShadow
         intensity={2}
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
       >
         <orthographicCamera
           attach="shadow-camera"

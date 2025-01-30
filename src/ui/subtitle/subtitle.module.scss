@@ -1,3 +1,5 @@
+@use '~/css/helpers' as *;
+
 .wrapper {
   display: grid;
   place-items: center;
@@ -6,9 +8,25 @@
 
   .subtitle {
     font-size: 1.2rem;
-    padding: 0.5em 1em;
+    padding: 0.6em 1em;
     background-color: var(--font-background);
     border-radius: 1.5em;
     white-space: pre;
+
+    opacity: 0;
+    transform: translateY(50%) scale(0.9);
+
+    @include subtitle-show-animation;
+
+    & > span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(50%) scale(0.5);
+
+      @include letter-show-animation;
+    }
   }
+
+  @include subtitle-show-keyframes;
+  @include letter-show-keyframes;
 }

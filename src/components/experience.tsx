@@ -1,3 +1,4 @@
+import { Environment } from '@react-three/drei'
 import { useControls } from 'leva'
 
 import { Grass } from './grass'
@@ -15,12 +16,7 @@ export const Experience = () => {
   return (
     <>
       <ambientLight intensity={settings.ambientLight.intensity} />
-
-      <directionalLight
-        intensity={settings.directionalLight.intensity}
-        position={settings.directionalLight.position}
-        color={settings.directionalLight.color}
-      />
+      <Environment preset="forest" environmentIntensity={2} />
 
       <color attach="background" args={[BACKGROUND]} />
       <fog

@@ -1,6 +1,7 @@
 // import { clsx } from 'clsx'
 //import { useEffect, useState } from 'react'
 import { Subtitle } from './subtitle'
+import { Image } from './image'
 
 import { useStore } from '~/hooks/use-store'
 
@@ -30,31 +31,24 @@ export const UI = () => {
         )}
 
         {status === 'place' && (
-          <p className={s.subtitle}>
+          <Subtitle>
             Você conseguiu! Agora leve as conchas para o alto da montanha
-          </p>
+          </Subtitle>
         )}
 
         {status === 'book' && (
-          <p className={s.subtitle}>É hora de ler um bom livro pra relaxar</p>
+          <Subtitle>É hora de ler um bom livro pra relaxar</Subtitle>
         )}
 
         {status === 'treasure' && (
-          <p className={s.subtitle}>
+          <Subtitle>
             Encontre um lugar fora da grande ilha pra ter uma surpresa
-          </p>
+          </Subtitle>
         )}
       </div>
 
       {status === 'quote' && (
-        <div className={s.image}>
-          <figure>
-            <img src="/images/book-quote.jpg" />
-          </figure>
-          <div className={s.close} onClick={() => setStatus('treasure')}>
-            Close
-          </div>
-        </div>
+        <Image src="/images/book-quote.jpg" next="treasure" />
       )}
 
       {status === 'cheers' && (

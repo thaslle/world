@@ -15,7 +15,7 @@ export const Subtitle = ({ children }: SubtitleProps) => {
     <div className={s.wrapper}>
       <div className={s.subtitle}>
         {splitText.map((c, i) => (
-          <span key={i} style={{ animationDelay: `${0.1 + i / 100}s` }}>
+          <span key={i} style={{ animationDelay: `${0.4 + i / 100}s` }}>
             {c}
           </span>
         ))}

@@ -34,7 +34,7 @@ export const Player = () => {
   } = useControls('Character', {
     FIXED: { value: false },
     WALK_SPEED: { value: 2.0, min: 0.1, max: 8.0, step: 0.1 },
-    RUN_SPEED: { value: 5.0, min: 0.2, max: 30, step: 0.1 },
+    RUN_SPEED: { value: 6.0, min: 0.2, max: 30, step: 0.1 },
     ROTATION_SPEED: { value: 2.5, min: 0.2, max: 12, step: 0.1 },
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },

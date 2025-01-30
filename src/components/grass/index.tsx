@@ -1,45 +1,16 @@
 // This code is based on Bruno Simon's Infinite World
 // https://github.com/brunosimon/infinite-world
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { extend, ReactThreeFiber, useFrame } from '@react-three/fiber'
-import { shaderMaterial } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 import { useControls } from 'leva'
 
 import { useStore } from '~/hooks/use-store'
+import { settings } from '~/config/settings'
 
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from './shaders/fragment.glsl'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      grassMaterial: ReactThreeFiber.Node<
-        typeof GrassMaterial & JSX.IntrinsicElements['shaderMaterial'],
-        typeof GrassMaterial
-      >
-    }
-  }
-}
-
-const GrassMaterial = shaderMaterial(
-  {
-    uTime: 0,
-    uGrassDistance: 0,
-    uPlayerPosition: new THREE.Vector3(0.0, 0.0, 0.0),
-    uTerrainSize: 0,
-    uTerrainTextureSize: 0,
-    uTerrainTexture: null,
-    uTerrainOffset: new THREE.Vector3(),
-    uTerrainHeightMax: 0,
-    uColor: new THREE.Vector3(),
-  },
-  vertexShader,
-  fragmentShader,
-)
-
-extend({ GrassMaterial })
 
 export const Grass = () => {
   const {
@@ -49,6 +20,8 @@ export const Grass = () => {
     terrainHeightsMax,
     terrainSegments,
   } = useStore()
+
+  const [shaderLoaded, setShaderLoaded] = useState(false)
 
   const {
     DETAILS,
@@ -61,27 +34,77 @@ export const Grass = () => {
     TERRAIN_OFFSET,
     GRASS_BASE_COLOR,
   } = useControls('Grass', {
-    DETAILS: { value: 290, min: 10, max: 2000, step: 1 },
-    SIZE: { value: 26.0, min: 0.1, max: 100.0, step: 0.1 },
-    COUNT: { value: 150000, min: 100, max: 150000, step: 10 },
-    BLADE_WIDTH_RATIO: { value: 2.0, min: 0.1, max: 10.0, step: 0.1 },
-    BLADE_HEIGHT_RATIO: { value: 3.0, min: 0.1, max: 10.0, step: 0.1 },
-    BLADE_HEIGHT_RANDOMNESS: { value: 0.8, min: 0.1, max: 5.0, step: 0.1 },
-    POSITION_RANDOMNESS: { value: 1.1, min: 0.1, max: 5.0, step: 0.1 },
-    TERRAIN_OFFSET: { value: 820.0, min: -1000.0, max: 1000.0, step: 10.0 },
-    GRASS_BASE_COLOR: { value: '#d2de93', label: 'GRASS' }, //d6e29c
+    // DETAILS: { value: 290, min: 10, max: 2000, step: 1 },
+    // SIZE: { value: 26.0, min: 0.1, max: 100.0, step: 0.1 },
+    // COUNT: { value: 150000, min: 100, max: 150000, step: 10 },
+    // BLADE_WIDTH_RATIO: { value: 2.0, min: 0.1, max: 10.0, step: 0.1 },
+    // BLADE_HEIGHT_RATIO: { value: 3.0, min: 0.1, max: 10.0, step: 0.1 },
+    // BLADE_HEIGHT_RANDOMNESS: { value: 0.8, min: 0.1, max: 5.0, step: 0.1 },
+    // POSITION_RANDOMNESS: { value: 1.1, min: 0.1, max: 5.0, step: 0.1 },
+    // TERRAIN_OFFSET: { value: 820.0, min: -1000.0, max: 1000.0, step: 10.0 },
+    DETAILS: { value: 300, min: 10, max: 2000, step: 1 },
+    SIZE: { value: 50.0, min: 0.1, max: 100.0, step: 0.1 },
+    COUNT: { value: 200000, min: 100, max: 200000, step: 10 },
+    BLADE_WIDTH_RATIO: { value: 1.4, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_HEIGHT_RATIO: { value: 2.2, min: 0.1, max: 10.0, step: 0.1 },
+    BLADE_HEIGHT_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
+    POSITION_RANDOMNESS: { value: 0.7, min: 0.1, max: 5.0, step: 0.1 },
+    TERRAIN_OFFSET: { value: 1000.0, min: -1000.0, max: 1000.0, step: 10.0 },
+    GRASS_BASE_COLOR: { value: '#778a2b', label: 'GRASS' }, //d6e29c
   })
 
   const GRASS_COLOR = new THREE.Color(GRASS_BASE_COLOR)
 
   const geometryRef = useRef(new THREE.BufferGeometry())
-  const materialRef = useRef<THREE.ShaderMaterial & typeof GrassMaterial>(null)
   const meshRef = useRef<THREE.Mesh>(null)
 
+  const materialRef = useRef(
+    new THREE.MeshLambertMaterial({
+      color: GRASS_COLOR,
+      side: THREE.DoubleSide,
+      shadowSide: THREE.DoubleSide,
+    }),
+  )
+
   useEffect(() => {
-    if (!materialRef.current) return
-    materialRef.current.uniforms.uColor.value = GRASS_COLOR
-  }, [GRASS_COLOR])
+    if (materialRef.current)
+      materialRef.current.userData = materialRef.current.userData || {}
+  }, [])
+
+  materialRef.current.onBeforeCompile = (shader) => {
+    materialRef.current.userData.shader = shader
+
+    // Reload shader in all dependecies
+    setShaderLoaded(true)
+
+    // Declare the new uniform
+    shader.uniforms.uTime = { value: 0 }
+    shader.uniforms.uGrassDistance = { value: 0 }
+    shader.uniforms.uPlayerPosition = {
+      value: new THREE.Vector3(0.0, 0.0, 0.0),
+    }
+    shader.uniforms.uTerrainSize = { value: 0 }
+    shader.uniforms.uTerrainTextureSize = { value: 0 }
+    shader.uniforms.uTerrainTexture = { value: null }
+    shader.uniforms.uTerrainOffset = { value: new THREE.Vector3() }
+    shader.uniforms.uTerrainHeightMax = { value: 0 }
+    shader.uniforms.uColor = { value: new THREE.Vector3() }
+    shader.uniforms.uLightPosition = {
+      value: settings.directionalLight.position,
+    }
+
+    shader.vertexShader = vertexShader
+    shader.fragmentShader = fragmentShader
+  }
+
+  useEffect(() => {
+    if (materialRef.current)
+      materialRef.current.userData = materialRef.current.userData || {}
+
+    if (!materialRef.current.userData.shader) return
+    materialRef.current.color = GRASS_COLOR
+    materialRef.current.userData.shader.uniforms.uColor.value = GRASS_COLOR
+  }, [GRASS_COLOR, shaderLoaded])
 
   const { centers, positions } = useMemo(() => {
     const centers = new Float32Array(COUNT * 3 * 2)
@@ -152,7 +175,15 @@ export const Grass = () => {
   ])
 
   useEffect(() => {
-    if (!geometryRef.current || !materialRef.current) return
+    if (materialRef.current)
+      materialRef.current.userData = materialRef.current.userData || {}
+
+    if (
+      !geometryRef.current ||
+      !materialRef.current ||
+      !materialRef.current.userData.shader
+    )
+      return
 
     // Update geometry with the blades attributes
     geometryRef.current.setAttribute(
@@ -165,54 +196,69 @@ export const Grass = () => {
     )
 
     // Pass the size properties to the shader
-    materialRef.current.uniforms.uGrassDistance.value = SIZE
-    materialRef.current.uniforms.uTerrainOffset.value = new THREE.Vector3(
-      TERRAIN_OFFSET,
-      0.0,
-      TERRAIN_OFFSET,
-    )
-  }, [centers, positions])
+    materialRef.current.userData.shader.uniforms.uGrassDistance.value = SIZE
+    materialRef.current.userData.shader.uniforms.uTerrainOffset.value =
+      new THREE.Vector3(TERRAIN_OFFSET, 0.0, TERRAIN_OFFSET)
+  }, [centers, positions, shaderLoaded])
 
   useEffect(() => {
-    if (
-      terrainHeights &&
-      terrainSize &&
-      terrainHeightsMax &&
-      materialRef.current
-    ) {
-      const dataTexture = new THREE.DataTexture(
-        terrainHeights,
-        terrainSegments,
-        terrainSegments,
-        THREE.RGBAFormat,
-        THREE.FloatType,
-        THREE.UVMapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.ClampToEdgeWrapping,
-        THREE.LinearFilter,
-        THREE.LinearFilter,
-      )
-      dataTexture.needsUpdate = true
-      dataTexture.flipY = false
+    if (materialRef.current)
+      materialRef.current.userData = materialRef.current.userData || {}
 
-      materialRef.current.uniforms.uTerrainTexture.value = dataTexture
-      materialRef.current.uniforms.uTerrainSize.value = terrainSize
-      materialRef.current.uniforms.uTerrainTextureSize.value = terrainSize
-      materialRef.current.uniforms.uTerrainHeightMax.value = terrainHeightsMax
-    }
-  }, [terrainHeights, terrainHeightsMax, terrainSegments, terrainSize])
+    if (
+      !terrainHeights ||
+      !terrainSize ||
+      !terrainHeightsMax ||
+      !materialRef.current
+    )
+      return
+
+    const dataTexture = new THREE.DataTexture(
+      terrainHeights,
+      terrainSegments,
+      terrainSegments,
+      THREE.RGBAFormat,
+      THREE.FloatType,
+      THREE.UVMapping,
+      THREE.ClampToEdgeWrapping,
+      THREE.ClampToEdgeWrapping,
+      THREE.LinearFilter,
+      THREE.LinearFilter,
+    )
+    dataTexture.needsUpdate = true
+    dataTexture.flipY = false
+
+    if (!materialRef.current.userData.shader) return
+
+    materialRef.current.userData.shader.uniforms.uTerrainTexture.value =
+      dataTexture
+    materialRef.current.userData.shader.uniforms.uTerrainSize.value =
+      terrainSize
+    materialRef.current.userData.shader.uniforms.uTerrainTextureSize.value =
+      terrainSize
+    materialRef.current.userData.shader.uniforms.uTerrainHeightMax.value =
+      terrainHeightsMax
+  }, [
+    terrainHeights,
+    terrainHeightsMax,
+    terrainSegments,
+    terrainSize,
+    shaderLoaded,
+  ])
 
   //Update Positions
   useFrame(({ clock }) => {
     if (!meshRef.current || !materialRef.current || !playerPosition) return
 
-    materialRef.current.uniforms.uTime.value = clock.getElapsedTime()
-
     // Update mesh position (y has to be always 0)
     meshRef.current.position.set(playerPosition.x, 0, playerPosition.z)
 
     // Update player position
-    materialRef.current.uniforms.uPlayerPosition.value.set(
+    if (!materialRef.current.userData.shader) return
+    materialRef.current.userData.shader.uniforms.uTime.value =
+      clock.getElapsedTime()
+
+    materialRef.current.userData.shader.uniforms.uPlayerPosition.value.set(
       playerPosition.x,
       playerPosition.y,
       playerPosition.z,
@@ -220,9 +266,13 @@ export const Grass = () => {
   })
 
   return (
-    <mesh frustumCulled={false} ref={meshRef} receiveShadow>
+    <mesh
+      frustumCulled={false}
+      ref={meshRef}
+      receiveShadow
+      material={materialRef.current}
+    >
       <bufferGeometry ref={geometryRef} />
-      <grassMaterial ref={materialRef} />
     </mesh>
   )
 }

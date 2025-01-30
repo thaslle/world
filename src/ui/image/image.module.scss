@@ -1,0 +1,30 @@
+@use '~/css/helpers' as *;
+
+.image {
+  @include ui;
+
+  .wrapper {
+    @include ui-show-animation;
+
+    figure {
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      width: max-content;
+      height: max-content;
+
+      img {
+        display: block;
+        visibility: hidden;
+        max-width: 70vw;
+        max-height: 70vh;
+      }
+    }
+
+    .close {
+      position: relative;
+    }
+  }
+
+  @include ui-show-keyframes;
+}

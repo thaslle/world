@@ -4,8 +4,8 @@ import {
   DoubleSide,
   Color,
   Vector3,
-  MeshStandardMaterial,
   Euler,
+  MeshLambertMaterial,
 } from 'three'
 import { GroupProps, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
@@ -28,7 +28,7 @@ export function Terrain(props: GroupProps) {
     OCEAN_BASE_COLOR,
   } = useControls('Level', {
     GROUND_BASE_COLOR: { value: '#f5a733', label: 'GROUND' },
-    GRASS_BASE_COLOR: { value: '#92ad39', label: 'GRASS' },
+    GRASS_BASE_COLOR: { value: '#94b138', label: 'GRASS' },
     ROCK_BASE_COLOR: { value: '#b7794d', label: 'ROCK' },
     SNOW_BASE_COLOR: { value: '#e8e8e8', label: 'SNOW' },
     OCEAN_BASE_COLOR: { value: '#badfe8', label: 'OCEAN' },
@@ -186,7 +186,7 @@ export function Terrain(props: GroupProps) {
           ref={materialRef}
           side={DoubleSide}
           vertexColors
-          baseMaterial={MeshStandardMaterial}
+          baseMaterial={MeshLambertMaterial}
           uniforms={uniforms}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
