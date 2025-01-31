@@ -37,8 +37,9 @@ canvas {
 }
 
 :root {
-  --base-font: 16px;
+  --base-font: clamp(14px, 3vw, 18px);
   --bg-color: #fff;
+  --button-color: #93cb43;
   --font-color: #2e484e;
   --font-background: #fefffa;
 

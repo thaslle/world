@@ -66,7 +66,8 @@ export const useStore = create<Store>((set) => ({
     set((state) => {
       const collected =
         id in state.collectiblePositions ? state.collected + 1 : state.collected
-      const showBook = collected >= settings.collectiblesNeeded
+      const showBook =
+        collected >= settings.collectiblesNeeded && state.status === 'find'
 
       if (showBook) state.setStatus('place')
 

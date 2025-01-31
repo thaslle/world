@@ -1,5 +1,3 @@
-// import { clsx } from 'clsx'
-//import { useEffect, useState } from 'react'
 import { Subtitle } from './subtitle'
 import { Image } from './image'
 
@@ -11,7 +9,6 @@ import { settings } from '~/config/settings'
 export const UI = () => {
   const collected = useStore((state) => state.collected)
   const status = useStore((state) => state.status)
-  const setStatus = useStore((state) => state.setStatus)
 
   //const { setAudioToPlay, setAudioEnabled } = useAudioManager()
   // const [playGame, setPlayGame] = useState(false)
@@ -52,14 +49,7 @@ export const UI = () => {
       )}
 
       {status === 'cheers' && (
-        <div className={s.image}>
-          <figure>
-            <img src="/images/joey-30-years.gif" />
-          </figure>
-          <div className={s.close} onClick={() => setStatus('finished')}>
-            Close
-          </div>
-        </div>
+        <Image src="/images/joey-30-years.gif" next="finished" />
       )}
     </div>
   )

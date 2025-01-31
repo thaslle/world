@@ -3,28 +3,142 @@
 .image {
   @include ui;
 
+  @include ui-show-animation;
+  @include ui-show-keyframes;
+
+  &:has(.reverse) {
+    @include ui-hide-animation;
+    @include ui-hide-keyframes;
+  }
+
   .wrapper {
-    @include ui-show-animation;
+    animation: 0.4s cubic-bezier(0.75, -0.5, 0, 1.75) 0s forwards normal show;
+
+    &.reverse {
+      animation: 0.4s cubic-bezier(0.75, -0.5, 0, 1.75) 0s forwards normal hide;
+    }
 
     figure {
-      background-color: white;
-      border-radius: 0.5rem;
+      background-color: #eae1e1;
+      clip-path: inset(1px round 0.5rem);
       overflow: hidden;
       width: max-content;
       height: max-content;
+      position: relative;
 
       img {
         display: block;
-        visibility: hidden;
+        // visibility: hidden;
         max-width: 70vw;
         max-height: 70vh;
+      }
+
+      &:after {
+        display: block;
+        content: '';
+        width: 200%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        mix-blend-mode: plus-lighter;
+        background-image: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 1) 50%,
+          rgba(255, 255, 255, 0) 60%
+        );
+        opacity: 0.2;
+        transform: translateX(-100%);
+        animation: 3s ease-in-out 0.4s infinite normal flare;
       }
     }
 
     .close {
-      position: relative;
+      display: grid;
+      place-items: center;
+      grid-template-areas: 'close';
+
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(50%, -50%);
+
+      background-color: var(--button-color);
+      border-radius: 100%;
+      box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+
+      width: 1.8rem;
+      height: 1.8rem;
+
+      cursor: pointer;
+
+      span {
+        display: none;
+      }
+
+      &::after,
+      &:before {
+        display: block;
+        content: '';
+        width: 3px;
+        height: 100%;
+        background-color: var(--font-background);
+        grid-area: close;
+        border-radius: 0.2rem;
+      }
+      &::after {
+        transform: rotate(45deg);
+      }
+      &:before {
+        transform: rotate(-45deg);
+      }
     }
   }
 
   @include ui-show-keyframes;
+  @include ui-hide-keyframes;
+
+  @keyframes show {
+    0% {
+      opacity: 0;
+      filter: blur(1.5rem);
+      transform: perspective(10rem) translate(0%, 150%) rotateX(-5deg)
+        scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      filter: blur(0);
+      transform: perspective(5rem) translate(0%, 0%) rotateX(0deg) scale(1);
+    }
+  }
+
+  @keyframes hide {
+    0% {
+      opacity: 1;
+      filter: blur(0);
+      transform: perspective(5rem) translate(0%, 0%) rotateX(0deg) scale(1);
+    }
+    100% {
+      opacity: 0;
+      filter: blur(1.5rem);
+      transform: perspective(10rem) translate(0%, 150%) rotateX(-5deg)
+        scale(0.5);
+    }
+  }
+
+  @keyframes flare {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    40% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }

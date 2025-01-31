@@ -7,23 +7,32 @@
   height: 100%;
 
   .subtitle {
-    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.4ch;
+
+    font-size: 1rem;
     padding: 0.6em 1em;
     background-color: var(--font-background);
-    border-radius: 1.5em;
-    white-space: pre;
+    border-radius: 3em;
 
     opacity: 0;
     transform: translateY(50%) scale(0.9);
 
     @include subtitle-show-animation;
 
-    & > span {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(50%) scale(0.5);
+    & > .word {
+      display: block;
 
-      @include letter-show-animation;
+      & > .letter {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(50%) scale(0.5);
+
+        @include letter-show-animation;
+      }
     }
   }
 

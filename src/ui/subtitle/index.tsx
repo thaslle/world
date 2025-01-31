@@ -6,17 +6,32 @@ type SubtitleProps = {
 }
 
 export const Subtitle = ({ children }: SubtitleProps) => {
-  if (!children) return
+  if (!children) return null
 
   const text = typeof children === 'string' ? children : children.toString()
-  const splitText = text.split('')
+  const splitWord = text.split(' ')
+
+  let universalCounter = 0 // Universal counter for all letters
 
   return (
     <div className={s.wrapper}>
       <div className={s.subtitle}>
-        {splitText.map((c, i) => (
-          <span key={i} style={{ animationDelay: `${0.4 + i / 100}s` }}>
-            {c}
+        {splitWord.map((w, i) => (
+          <span key={i} className={s.word}>
+            {w.split('').map((c, il) => {
+              const delay = 0.4 + universalCounter / 50
+              universalCounter++
+
+              return (
+                <span
+                  key={il}
+                  className={s.letter}
+                  style={{ animationDelay: `${delay}s` }}
+                >
+                  {c}
+                </span>
+              )
+            })}
           </span>
         ))}
       </div>
