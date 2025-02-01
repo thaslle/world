@@ -3,6 +3,7 @@ import { Terrain } from './terrain'
 import { Water } from './water'
 import { Base } from './base'
 import { Trees } from './trees'
+import { Rocks } from './rocks'
 
 export const Level = () => {
   return (
@@ -12,6 +13,7 @@ export const Level = () => {
       </RigidBody>
 
       <Trees />
+      <Rocks />
       <Water />
       <Base />
     </>

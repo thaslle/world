@@ -106,7 +106,7 @@ const LeafMaterial = () => {
 
         worldViewPosition += vec4(mix(vec3(0.0), inflatedVertexOffset, uEffectBlend), 0.0);
 
-        worldViewPosition = applyWind(worldViewPosition);
+        //worldViewPosition = applyWind(worldViewPosition);
 
         gl_Position = projectionMatrix * worldViewPosition;
         `,

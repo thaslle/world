@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { GroupProps } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { Mesh, MeshStandardMaterial, Object3D, InstancedMesh } from 'three'
+import { Mesh, Object3D, InstancedMesh, MeshToonMaterial } from 'three'
 
 import LeafMaterial from './material'
 
 import { treesPositions } from './positions'
-import { settings } from '~/config/settings'
 
 // Type for the Props of the Instances component
 interface TreesProps extends GroupProps {
@@ -22,22 +21,21 @@ export const Trees: React.FC<TreesProps> = ({
   const instancedFoliageRef = useRef<InstancedMesh>(null)
 
   // We clamp the number of trees
-  const positions = treesPositions.slice(0, settings.trees)
-  const count = positions.length
+  const count = treesPositions.length
 
   const { nodes, materials } = useGLTF('/models/tree.glb')
 
   const leafMaterial = LeafMaterial()
 
-  const trunkMaterial = new MeshStandardMaterial({
-    map: (materials.trunk as MeshStandardMaterial).map,
+  const trunkMaterial = new MeshToonMaterial({
+    map: (materials.trunk as MeshToonMaterial).map,
   })
 
   useEffect(() => {
     if (!instancedTrunkRef.current || !instancedFoliageRef.current) return
 
     // Set positions for both the trunk and foliage instances
-    positions.forEach((item, i) => {
+    treesPositions.forEach((item, i) => {
       // Randomize position for both trunk and foliage
       const x = item.position.x
       const y = item.position.y
@@ -54,9 +52,9 @@ export const Trees: React.FC<TreesProps> = ({
       instancedTrunkRef.current?.setMatrixAt(i, temp.matrix)
 
       // Set the foliage position with an offset on the y-axis to make it appear above the trunk
-      temp.position.set(x, y + 2, z) // Foliage slightly higher
+      temp.position.set(x, y + 3.5, z) // Foliage slightly higher
       temp.rotation.set(0, rotation, 0)
-      //temp.scale.set(scale, scale, scale)
+      temp.scale.set(scale * 1.2, scale * 0.7, scale * 1.2)
       temp.updateMatrix()
       instancedFoliageRef.current?.setMatrixAt(i, temp.matrix)
     })

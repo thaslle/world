@@ -87,7 +87,7 @@ void main()
     float oceanFactor = smoothstep(0.8, 0.0, csm_vPositionW.y);
     baseColor = mix(baseColor, uOceanColor, oceanFactor * min(vignetteFactor + 0.3, 1.0));
 
-    float shadowIntensity = 0.4;
+    float shadowIntensity = 0.3;
     vec3 shadowedColor = baseColor * getShadowMask();
     vec3 finalColor = mix(baseColor, shadowedColor, shadowIntensity);
 
