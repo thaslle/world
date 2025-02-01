@@ -13,7 +13,7 @@ export const Assets = () => {
       <Collectibles />
       {status === 'place' && <Checkmark />}
       {status === 'book' && <Book />}
-      {status === 'treasure' && <Treasure />}
+      {(status === 'treasure' || status === 'cheers') && <Treasure />}
     </>
   )
 }

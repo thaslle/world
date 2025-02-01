@@ -8,7 +8,7 @@ varying vec3 csm_vNormalW;
 
 void main()
 {
-  vec4 baseColor = csm_FragColor;
+  vec4 baseColor = vec4(csm_vColor, 1.0);
 
   // Modify the y position based on sine function, oscillating up and down over time
   float sineOffset = sin(uTime * 1.2) * 0.1;  // 1.2 controls the speed, 0.1 controls the amplitude

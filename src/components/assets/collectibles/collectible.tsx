@@ -7,7 +7,7 @@ import {
   InstancedRigidBodyProps,
   RapierRigidBody,
 } from '@react-three/rapier'
-import { Mesh, MeshStandardMaterial, Object3D, InstancedMesh } from 'three'
+import { Mesh, MeshLambertMaterial, Object3D, InstancedMesh } from 'three'
 
 import CustomShaderMaterial from 'three-custom-shader-material/vanilla'
 
@@ -20,13 +20,11 @@ import fragmentShader from './shaders/fragment.glsl'
 interface CollectibleProps extends GroupProps {
   temp?: Object3D
   nodes: Mesh
-  material: MeshStandardMaterial
 }
 
 export const Collectible: React.FC<CollectibleProps> = ({
   temp = new Object3D(),
   nodes,
-  material,
 }) => {
   const collectiblePositions = useStore((state) => state.collectiblePositions)
 
@@ -35,14 +33,14 @@ export const Collectible: React.FC<CollectibleProps> = ({
   const rigidBodies = useRef<RapierRigidBody[]>(null)
 
   const collectibleMaterial = new CustomShaderMaterial({
-    baseMaterial: MeshStandardMaterial,
+    baseMaterial: MeshLambertMaterial,
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
+    vertexColors: true,
     uniforms: {
       uTime: { value: 0 },
       uWaterHeight: { value: settings.waterHeight },
     },
-    map: material.map,
   })
 
   const instances = useMemo(() => {

@@ -25,9 +25,9 @@ export const rocksPositions = [
     scale: { x: 3.977, y: 2.159, z: 6.206 },
   },
   {
-    position: { x: 115.114, y: 3.514, z: -66.049 },
+    position: { x: 115.114, y: 2.715, z: -66.049 },
     rotation: { x: 2.988, y: -0.018, z: -2.915 },
-    scale: { x: 3.977, y: 2.159, z: 6.206 },
+    scale: { x: 3.977, y: 2.559, z: 6.206 },
   },
   {
     position: { x: 76.283, y: 5.23, z: -71.895 },

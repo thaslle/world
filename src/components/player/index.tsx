@@ -18,14 +18,17 @@ import { useStore } from '~/hooks/use-store'
 import { Maria } from './maria'
 import { Shadow } from './shadow'
 import { Camera } from './camera'
+import { settings } from '~/config/settings'
 
 const START_POSITION = {
   default: { x: 44.3, y: 8.5, z: 89.7 },
   rock: { x: 51.84, y: 6.5, z: -4.44 },
-  beach: { x: 73.35, y: 3, z: 120.64 },
+  beach: { x: 73.35, y: 5, z: 120.64 },
+  chest: { x: 109.8, y: 8, z: -119.3 },
+  mountain: { x: -63.8, y: 35, z: -55.7 },
 }
 
-const playerStart = 'rock'
+const playerStart = 'mountain'
 
 export const Player = () => {
   const {
@@ -228,13 +231,15 @@ export const Player = () => {
       } else if (
         elapsedTime > WAITING_TIME &&
         characterState !== 'Sit' &&
-        characterState !== 'SitDown'
+        characterState !== 'SitDown' &&
+        playerRef.current?.translation().y > settings.waterHeight + 1
       ) {
         // If the character is waiting for some time, starts sitting movement
         setCharacterState('SitDown')
       } else if (
         elapsedTime > WAITING_TIME + 6 &&
-        characterState === 'SitDown'
+        characterState === 'SitDown' &&
+        playerRef.current?.translation().y > settings.waterHeight + 1
       ) {
         // After sitting animation is complete plays a sort of sitting idle animation
         setCharacterState('Sit')

@@ -5,17 +5,16 @@ import { Collectible } from './collectible'
 import { Pick } from './pick'
 
 export const Collectibles = () => {
-  const { nodes, materials } = useGLTF('/models/barrel.gltf')
-  const meshNode = nodes.Prop_Barrel as Mesh
-  const meshMaterial = materials.Atlas as MeshStandardMaterial
+  const { nodes } = useGLTF('/models/seashell.glb')
+  const meshNode = nodes.shell as Mesh
 
   return (
     <>
-      <Collectible nodes={meshNode} material={meshMaterial} />
-      <Pick nodes={meshNode} material={meshMaterial} />
+      <Collectible nodes={meshNode} />
+      <Pick nodes={meshNode} />
     </>
   )
 }
 
-useGLTF.preload('/models/barrel.gltf')
+useGLTF.preload('/models/seashell.glb')
 

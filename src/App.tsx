@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { Suspense, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Stats, KeyboardControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
@@ -28,7 +28,7 @@ function App() {
   const showPhysics = useStore((state) => state.physics)
 
   return (
-    <>
+    <Suspense>
       <Debug />
       <Leva hidden={!showDebug} />
       <KeyboardControls map={keyboardMap}>
@@ -41,7 +41,7 @@ function App() {
         </Canvas>
         <UI />
       </KeyboardControls>
-    </>
+    </Suspense>
   )
 }
 

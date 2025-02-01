@@ -17,7 +17,8 @@ export const Checkmark = () => {
       varying vec2 vUv;
       void main() {
         float y = vUv.y;
-        gl_FragColor = vec4(1.0, 0.9, 0.55, 1.0 - y);
+        vec3 uColor = mix(vec3(1.0), vec3(0.569,0.985,0.890), smoothstep(1.0, 0.3, y));
+        gl_FragColor = vec4(uColor, 1.0 - y);
       }
     `
 
@@ -37,7 +38,7 @@ export const Checkmark = () => {
         }}
       />
       <mesh>
-        <cylinderGeometry args={[0.4, 0.4, 0.8, 16, 1, true]} />
+        <cylinderGeometry args={[0.4, 0.4, 1, 16, 1, true]} />
         <shaderMaterial
           fog={false}
           transparent={true}

@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { GroupProps } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { Mesh, Object3D, InstancedMesh, MeshToonMaterial } from 'three'
+import {
+  Mesh,
+  Object3D,
+  InstancedMesh,
+  MeshToonMaterial,
+  MeshBasicMaterial,
+} from 'three'
 
 import LeafMaterial from './material'
 
@@ -27,8 +33,8 @@ export const Trees: React.FC<TreesProps> = ({
 
   const leafMaterial = LeafMaterial()
 
-  const trunkMaterial = new MeshToonMaterial({
-    map: (materials.trunk as MeshToonMaterial).map,
+  const trunkMaterial = new MeshBasicMaterial({
+    map: (materials.trunk as MeshBasicMaterial).map,
   })
 
   useEffect(() => {

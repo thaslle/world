@@ -3,8 +3,6 @@ import { useGLTF } from '@react-three/drei'
 import { RigidBody, vec3 } from '@react-three/rapier'
 import { Mesh, Euler, MeshToonMaterial } from 'three'
 
-//import CustomShaderMaterial from 'three-custom-shader-material/vanilla'
-
 import { rocksPositions } from './positions'
 import { settings } from '~/config/settings'
 
@@ -18,18 +16,7 @@ import {
 export const Rocks = () => {
   const { nodes } = useGLTF('/models/rocks.glb')
 
-  //   const rockMaterial = new CustomShaderMaterial({
-  //     baseMaterial: MeshToonMaterial,
-  //     vertexShader: vertexShader,
-  //     //fragmentShader: fragmentShader,
-  //     uniforms: {
-  //       uTime: { value: 0 },
-  //       uWaterHeight: { value: settings.waterHeight },
-  //     },
-  //     color: 'gray',
-  //   })
-
-  const rockMaterial = new MeshToonMaterial({ color: 'gray' })
+  const rockMaterial = new MeshToonMaterial({ color: '#6e7164' })
 
   useFrame(({ clock }) => {
     if (!rockMaterial.userData.shader) return

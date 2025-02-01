@@ -1,3 +1,4 @@
+import { Collected } from './collected'
 import { Subtitle } from './subtitle'
 import { Image } from './image'
 
@@ -17,7 +18,7 @@ export const UI = () => {
   return (
     <div className={s.ui}>
       <div className={s.top}>
-        <p className={s.collected}>{collected}</p>
+        <Collected collected={collected} />
       </div>
 
       <div className={s.bottom}>

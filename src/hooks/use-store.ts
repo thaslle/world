@@ -56,7 +56,7 @@ export const useStore = create<Store>((set) => ({
     position: new Vector3(),
     rotation: new Euler(),
   },
-  status: 'find',
+  status: 'place',
   setCharacterState: (characterState) =>
     set({
       characterState,

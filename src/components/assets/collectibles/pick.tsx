@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Group, Mesh, MeshStandardMaterial } from 'three'
+import { Group, Mesh, MeshToonMaterial } from 'three'
 import { GroupProps } from '@react-three/fiber'
 import { useSpring } from '@react-spring/core'
 import { a } from '@react-spring/three'
@@ -8,10 +8,9 @@ import { useStore } from '~/hooks/use-store'
 
 interface PickProps extends GroupProps {
   nodes: Mesh
-  material: MeshStandardMaterial
 }
 
-export const Pick: React.FC<PickProps> = ({ nodes, material }) => {
+export const Pick: React.FC<PickProps> = ({ nodes }) => {
   const collected = useStore((state) => state.collected)
   const lastCollected = useStore((state) => state.lastCollected)
   const lastCollectedPosition = useStore((state) => state.lastCollectedPosition)
@@ -58,6 +57,8 @@ export const Pick: React.FC<PickProps> = ({ nodes, material }) => {
   const scale = spring.to([0, 1], [0.6, 0.3])
   const rotation = spring.to([0, 1], [0, Math.PI * 2])
   const position = spring.to([0, 1], [0, 3])
+
+  const material = new MeshToonMaterial({ vertexColors: true })
 
   return (
     <group ref={groupRef} visible={visible} position={[73, 2, 150]}>
