@@ -53,7 +53,7 @@ void main() {
     alpha += min(vignette + 0.4, 1.0);
 
     // Fog
-    float fogFactor = smoothstep( uFogNear, uFogFar, vFogDepth * 0.1 );
+    float fogFactor = smoothstep( uFogNear * 0.5, uFogFar * 0.5, vFogDepth * 0.1 );
     finalColor = mix( finalColor, uFogColor, min(1.0, fogFactor + 0.8));
 
     // Output the final color

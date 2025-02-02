@@ -23,12 +23,13 @@ import { settings } from '~/config/settings'
 const START_POSITION = {
   default: { x: 44.3, y: 8.5, z: 89.7 },
   rock: { x: 51.84, y: 6.5, z: -4.44 },
-  beach: { x: 73.35, y: 5, z: 120.64 },
+  water: { x: 73.35, y: 5, z: 120.64 },
+  beach: { x: 73.14, y: 8, z: 106.9 },
   chest: { x: 109.8, y: 8, z: -119.3 },
   mountain: { x: -63.8, y: 35, z: -55.7 },
 }
 
-const playerStart = 'rock'
+const playerStart = 'beach'
 
 export const Player = () => {
   const {

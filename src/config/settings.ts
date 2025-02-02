@@ -1,9 +1,9 @@
 import { Color, Vector3 } from 'three'
 
 export const settings = {
-  background: '#9ffffc', // #79fffa
   fog: { color: '#b0fce5', near: 80.0, far: 350.0 },
   ambientLight: { intensity: 2 },
+  levelRadius: 512,
   directionalLight: {
     intensity: 7,
     position: new Vector3(40, 100, 20),

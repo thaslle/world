@@ -30,7 +30,7 @@ export const varyingFragmentShader = {
 }
 
 export const mainFragmentShader = {
-  search: `#include <dithering_fragment>`,
+  search: `#include <fog_fragment>`,
   replace: `
     vec4 baseColor = gl_FragColor; // Existing material color
     vec4 shadedColor = vec4(min(baseColor.rgb + 0.1, 1.0), 1.0);
@@ -55,7 +55,7 @@ export const mainFragmentShader = {
     
     gl_FragColor = vec4(finalColor, baseColor.a);
 
-    #include <dithering_fragment>
+    #include <fog_fragment>
     `,
 }
 
