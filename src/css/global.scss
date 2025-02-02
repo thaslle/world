@@ -7,30 +7,30 @@ canvas {
 }
 
 @font-face {
-  font-family: 'Pally';
+  font-family: 'Quicksand';
   src:
-    url('/fonts/pally-regular.woff2') format('woff2'),
-    url('/fonts/pally-regular.woff') format('woff');
+    url('/fonts/quicksand-regular.woff2') format('woff2'),
+    url('/fonts/quicksand-regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Pally';
+  font-family: 'Quicksand';
   src:
-    url('/fonts/pally-medium.woff2') format('woff2'),
-    url('/fonts/pally-medium.woff') format('woff');
+    url('/fonts/quicksand-semibold.woff2') format('woff2'),
+    url('/fonts/quicksand-semibold.woff') format('woff');
   font-weight: medium;
   font-style: normal;
   font-display: block;
 }
 
 @font-face {
-  font-family: 'Pally';
+  font-family: 'Quicksand';
   src:
-    url('/fonts/pally-bold.woff2') format('woff2'),
-    url('/fonts/pally-bold.woff') format('woff');
+    url('/fonts/quicksand-bold.woff2') format('woff2'),
+    url('/fonts/quicksand-bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
   font-display: block;
@@ -40,13 +40,13 @@ canvas {
   --base-font: clamp(14px, 3vw, 18px);
   --bg-color: #fff;
   --button-color: #93cb43;
-  --font-color: #2e484e;
-  --font-background: #fefffa;
+  --font-color: #486051;
+  --font-background: #fefffade;
 
   --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-time: 0.15s;
 
-  --font-family: 'Pally', Arial, Helvetica, sans-serif;
+  --font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 }
 
 html {
@@ -55,8 +55,9 @@ html {
 body {
   font-family: var(--font-family);
   font-optical-sizing: auto;
-  font-weight: bold;
+  font-weight: normal;
   font-style: normal;
+  letter-spacing: -0.01em;
   color: var(--font-color);
   background-color: var(--bg-color);
 }

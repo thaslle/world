@@ -10,10 +10,10 @@ export const Level = () => {
     <>
       <RigidBody type="fixed" name="terrain" colliders="trimesh">
         <Terrain />
+        <Rocks />
       </RigidBody>
 
       <Trees />
-      <Rocks />
       <Water />
       <Base />
     </>

@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { RigidBody, vec3 } from '@react-three/rapier'
+import { vec3 } from '@react-three/rapier'
 import { Mesh, Euler, MeshToonMaterial } from 'three'
 
 import { rocksPositions } from './positions'
@@ -54,24 +54,17 @@ export const Rocks = () => {
     <group dispose={null}>
       {rocksPositions.map((item, i) => {
         return (
-          <RigidBody
-            key={`rb_${i}`}
-            type="fixed"
-            colliders="trimesh"
-            name="terrain"
-          >
-            <mesh
-              key={i}
-              geometry={(nodes.rock as Mesh).geometry}
-              material={rockMaterial}
-              position={vec3(item.position)}
-              rotation={
-                new Euler(item.rotation.x, item.rotation.y, item.rotation.z)
-              }
-              scale={vec3(item.scale)}
-              castShadow
-            />
-          </RigidBody>
+          <mesh
+            key={i}
+            geometry={(nodes.rock as Mesh).geometry}
+            material={rockMaterial}
+            position={vec3(item.position)}
+            rotation={
+              new Euler(item.rotation.x, item.rotation.y, item.rotation.z)
+            }
+            scale={vec3(item.scale)}
+            castShadow
+          />
         )
       })}
     </group>

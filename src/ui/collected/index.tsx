@@ -29,17 +29,20 @@ export const Collected = ({ collected }: CollectedProps) => {
         <div className={s.numbers}>
           {decimals.map((index) => {
             const value = parseFloat(decimalsCount[index])
-            const valueDec = parseFloat(decimalsCount[index + 1])
-
-            const translate = valueDec > 0 && value === 0 ? 0 : value
+            const valueDec = parseFloat(decimalsCount[index + 1] ?? 0)
+            const translate = (value + valueDec * 10) * 100
+            const shadow = [...Array(valueDec + 1)].map(
+              (_, s) => `0 ${1.2 * 10 * (s + 1)}em 0 var(--font-color)`,
+            )
 
             return (
               <div
                 className={s.roll}
                 key={index}
                 style={{
-                  transform: `translateY(-${translate * 100}%)`,
+                  transform: `translateY(-${translate}%)`,
                   opacity: index === 0 || value > 0 || valueDec > 0 ? 1 : 0,
+                  textShadow: shadow.join(),
                 }}
               >
                 {[...Array(10)].map((_, i) => {

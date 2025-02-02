@@ -28,7 +28,7 @@ const START_POSITION = {
   mountain: { x: -63.8, y: 35, z: -55.7 },
 }
 
-const playerStart = 'mountain'
+const playerStart = 'rock'
 
 export const Player = () => {
   const {
