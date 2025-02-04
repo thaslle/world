@@ -1,31 +1,17 @@
-import { useRef } from 'react'
-import { Vector3, MathUtils, Clock, Group } from 'three'
+import { useEffect, useRef } from 'react'
+import { Group, Vector3 } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { CameraControls } from '@react-three/drei'
-import { RapierRigidBody, vec3 } from '@react-three/rapier'
 import { useControls } from 'leva'
+import {
+  RapierRigidBody,
+  RigidBody,
+  usePrismaticJoint,
+  vec3,
+} from '@react-three/rapier'
 
 import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
-
-const getCameraYVelocity = (
-  curVel: Vector3,
-  threshold = 0.2,
-  maxLimit = 8,
-  expFactor = 1.5,
-) => {
-  // Activated when player is moving down
-  if (curVel.y < threshold) {
-    const normalizedY = Math.min(
-      maxLimit,
-      Math.pow(Math.abs(curVel.y * 0.05) / threshold, expFactor) * maxLimit,
-    )
-    return normalizedY
-  }
-
-  // If conditions aren't met, return 0 or the original curVel.y
-  return 0
-}
 
 type CameraProps = {
   playerRef: React.RefObject<RapierRigidBody>
@@ -46,56 +32,65 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
     CAMERA_HEIGHT: { value: 1.0, min: 0.1, max: 20.0, step: 0.1 },
   })
 
-  const customClock = useRef(new Clock())
-  const cameraRef = useRef<CameraControls>(null)
-
-  const cameraTarget = useRef(new Vector3(0, 0, 0))
-  const cameraPosition = useRef<Group>(null)
-  const cameraYVelocity = useRef(0)
-  const lastElapsedTime = useRef(0)
-  const positionWorldPosition = new Vector3()
-
   const characterState = useStore((state) => state.characterState)
 
-  useFrame(({ clock }) => {
+  const playerPosition = useRef<RapierRigidBody>(null)
+  const jointPosition = useRef<RapierRigidBody>(null)
+  const cameraPosition = useRef<Group>(null)
+  const cameraRef = useRef<CameraControls>(null)
+  const cameraTarget = useRef(new Vector3(0, 0, 0))
+  const positionWorldPosition = new Vector3()
+
+  useEffect(() => {
+    if (!playerRef.current || !jointPosition.current) return
+
+    const playerCopyPos = playerRef.current.translation()
+    playerCopyPos.y += 0.5
+
+    jointPosition.current.setTranslation(playerCopyPos, true)
+    jointPosition.current.setRotation(playerRef.current.rotation(), true)
+  }, [])
+
+  usePrismaticJoint(playerPosition, jointPosition, [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 1, 0],
+  ])
+
+  useFrame(() => {
     if (
       !cameraRef.current ||
       !playerRef.current ||
       !cameraTarget.current ||
       !cameraPosition.current ||
-      !customClock.current
+      !playerPosition.current ||
+      !jointPosition.current
     )
       return
 
-    // Clock functions
-    const generalElapsedTime = clock.getElapsedTime()
+    playerPosition.current.setTranslation(playerRef.current.translation(), true)
+    playerPosition.current.setRotation(playerRef.current.rotation(), true)
 
-    const curVel = vec3(playerRef.current.linvel())
+    const jointPos = jointPosition.current.translation()
+    const jointVel = jointPosition.current.linvel()
+
+    // Kep it still
+    if (jointVel.y > 0)
+      jointPosition.current.setLinvel(new Vector3(0, 0, 0), true)
+    else
+      jointPosition.current.setLinvel(new Vector3(0, jointVel.y * 0.5, 0), true)
 
     // Set camera to follow the player when it's moving,
     // But, when character is Sit, you can rotate the camera around
     if (characterState !== 'Sit' && !ROTATE) {
-      // Log last camera velocity
-      const lastCameraYVelocity = cameraYVelocity.current
-
-      // Update camera Y from time to time to prevent it from shaking too much
-      if (lastElapsedTime.current !== Math.floor(generalElapsedTime * 10)) {
-        //Change Y position based on Y velocity
-        if (Math.abs(curVel.x) > 0.01 || Math.abs(curVel.z) > 0.01)
-          cameraYVelocity.current = getCameraYVelocity(curVel)
-
-        const cameraYVelocityMid =
-          (lastCameraYVelocity + cameraYVelocity.current) / 2
-
-        cameraPosition.current.position.y = MathUtils.lerp(
-          cameraPosition.current.position.y,
-          cameraYVelocityMid + CAMERA_HEIGHT,
-          0.3,
-        )
-      }
-
       cameraTarget.current = vec3(playerRef.current.translation())
       cameraPosition.current.getWorldPosition(positionWorldPosition)
+
+      if (positionWorldPosition.y < jointPos.y)
+        positionWorldPosition.y = jointPos.y
+
+      if (positionWorldPosition.y < settings.waterHeight)
+        positionWorldPosition.y = settings.waterHeight + 0.5
 
       cameraRef.current.setLookAt(
         positionWorldPosition.x,
@@ -107,20 +102,44 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
         true,
       )
     }
-
-    //Update last elapsed time
-    lastElapsedTime.current = Math.floor(generalElapsedTime * 10)
   })
 
   return (
     <>
-      <CameraControls ref={cameraRef} />
+      <RigidBody
+        ref={playerPosition}
+        type="kinematicPosition"
+        colliders={false}
+        collisionGroups={settings.groupCamera}
+        canSleep={false}
+      >
+        <mesh position={[0, 0, -CAMERA_DISTANCE]}>
+          <boxGeometry args={[1, CAMERA_HEIGHT * 10, 1]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
 
-      <group
-        ref={cameraPosition}
-        position-y={CAMERA_HEIGHT}
-        position-z={-CAMERA_DISTANCE}
-      />
+        <CameraControls ref={cameraRef} />
+
+        <group
+          ref={cameraPosition}
+          position-y={CAMERA_HEIGHT}
+          position-z={-CAMERA_DISTANCE}
+        />
+      </RigidBody>
+
+      <RigidBody
+        ref={jointPosition}
+        type="dynamic"
+        collisionGroups={settings.groupKnots}
+        gravityScale={20}
+        canSleep={false}
+        linearDamping={0.8}
+      >
+        <mesh position={[0, 0, -CAMERA_DISTANCE]}>
+          <capsuleGeometry args={[0.65, 1.7, 3, 6]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      </RigidBody>
     </>
   )
 }

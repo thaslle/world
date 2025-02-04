@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
+import { RapierRigidBody } from '@react-three/rapier'
 import { useControls } from 'leva'
 
 import { useStore } from '~/hooks/use-store'
@@ -12,14 +13,13 @@ import { settings } from '~/config/settings'
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from './shaders/fragment.glsl'
 
-export const Grass = () => {
-  const {
-    playerPosition,
-    terrainSize,
-    terrainHeights,
-    terrainHeightsMax,
-    terrainSegments,
-  } = useStore()
+type GrassProps = {
+  playerRef: React.RefObject<RapierRigidBody>
+}
+
+export const Grass: React.FC<GrassProps> = ({ playerRef }) => {
+  const { terrainSize, terrainHeights, terrainHeightsMax, terrainSegments } =
+    useStore()
 
   const [shaderLoaded, setShaderLoaded] = useState(false)
 
@@ -240,7 +240,9 @@ export const Grass = () => {
 
   //Update Positions
   useFrame(({ clock }) => {
-    if (!meshRef.current || !materialRef.current || !playerPosition) return
+    if (!meshRef.current || !materialRef.current || !playerRef.current) return
+
+    const playerPosition = playerRef.current.translation()
 
     // Update mesh position (y has to be always 0)
     meshRef.current.position.set(playerPosition.x, 0, playerPosition.z)

@@ -12,15 +12,13 @@ import {
 } from '@react-three/rapier'
 import { useControls } from 'leva'
 
+import { settings } from '~/config/settings'
 import { Controls } from '~/config/controls'
 import { useStore } from '~/hooks/use-store'
 
 import { Maria } from './maria'
 import { Shadow } from './shadow'
 import { Camera } from './camera'
-import { Joint } from './joint'
-
-import { settings } from '~/config/settings'
 
 const START_POSITION = {
   default: { x: 44.3, y: 8.5, z: 89.7 },
@@ -33,7 +31,11 @@ const START_POSITION = {
 
 const playerStart = 'mountain'
 
-export const Player = () => {
+type PlayerProps = {
+  playerRef: React.RefObject<RapierRigidBody>
+}
+
+export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
   const {
     FIXED,
     WALK_SPEED,
@@ -83,7 +85,7 @@ export const Player = () => {
   const playerLanded = useRef(false)
   const playerLastJump = useRef(0)
 
-  const playerRef = useRef<RapierRigidBody>(null) // Rigid Body reference
+  //const playerRef = useRef<RapierRigidBody>(null) // Rigid Body reference
   const characterRef = useRef<Group>(null) // 3D models reference
 
   const movement = useRef({
@@ -254,9 +256,9 @@ export const Player = () => {
 
     //console.log(playerRef.current.translation())
 
-    useStore.setState(() => ({
-      playerPosition: playerRef.current?.translation(),
-    }))
+    // useStore.setState(() => ({
+    //   playerPosition: playerRef.current?.translation(),
+    // }))
   })
 
   return (
@@ -268,8 +270,8 @@ export const Player = () => {
         enabledRotations={[false, true, false]}
         ref={playerRef}
         position={[POSITION_X, POSITION_Y, POSITION_Z]}
-        collisionGroups={settings.groupPlayer}
         type={FIXED ? 'fixed' : 'dynamic'}
+        collisionGroups={settings.groupPlayer}
         name="player"
         onCollisionEnter={(e) => {
           // Check if player is on the ground
@@ -294,8 +296,6 @@ export const Player = () => {
           }
         }}
       >
-        {/* <Camera playerRef={playerRef} /> */}
-
         <group ref={characterRef}>
           <Maria position={[0, -0.85, 0]} />
         </group>
@@ -303,9 +303,8 @@ export const Player = () => {
         <CapsuleCollider args={[0.65, 0.2]} />
       </RigidBody>
 
-      <Joint playerRef={playerRef} />
-
       <Shadow playerRef={characterRef} />
+      <Camera playerRef={playerRef} />
     </>
   )
 }

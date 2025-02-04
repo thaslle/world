@@ -5,6 +5,7 @@ export const settings = {
   fog: { color: '#b0fce5', near: 80.0, far: 350.0 },
   ambientLight: { intensity: 2 },
   levelRadius: 512,
+  terrainSize: 300,
   directionalLight: {
     intensity: 7,
     position: new Vector3(40, 100, 20),
@@ -17,6 +18,7 @@ export const settings = {
   collectiblesNeeded: 3,
   groupPlayer: interactionGroups(0, [1]),
   groupLevel: interactionGroups(1),
-  groupKnots: interactionGroups(2, [1]),
+  groupCamera: interactionGroups(2, [3]),
+  groupKnots: interactionGroups(3, [1, 2]),
 }
 
