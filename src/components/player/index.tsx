@@ -18,6 +18,8 @@ import { useStore } from '~/hooks/use-store'
 import { Maria } from './maria'
 import { Shadow } from './shadow'
 import { Camera } from './camera'
+import { Joint } from './joint'
+
 import { settings } from '~/config/settings'
 
 const START_POSITION = {
@@ -29,7 +31,7 @@ const START_POSITION = {
   mountain: { x: -63.8, y: 35, z: -55.7 },
 }
 
-const playerStart = 'beach'
+const playerStart = 'mountain'
 
 export const Player = () => {
   const {
@@ -266,6 +268,7 @@ export const Player = () => {
         enabledRotations={[false, true, false]}
         ref={playerRef}
         position={[POSITION_X, POSITION_Y, POSITION_Z]}
+        collisionGroups={settings.groupPlayer}
         type={FIXED ? 'fixed' : 'dynamic'}
         name="player"
         onCollisionEnter={(e) => {
@@ -291,7 +294,7 @@ export const Player = () => {
           }
         }}
       >
-        <Camera playerRef={playerRef} />
+        {/* <Camera playerRef={playerRef} /> */}
 
         <group ref={characterRef}>
           <Maria position={[0, -0.85, 0]} />
@@ -299,6 +302,8 @@ export const Player = () => {
 
         <CapsuleCollider args={[0.65, 0.2]} />
       </RigidBody>
+
+      <Joint playerRef={playerRef} />
 
       <Shadow playerRef={characterRef} />
     </>

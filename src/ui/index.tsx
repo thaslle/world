@@ -22,6 +22,16 @@ export const UI = () => {
       </div>
 
       <div className={s.bottom}>
+        {status === 'find' && collected === 1 && (
+          <Subtitle>
+            {`A primeira já foi, agora falta${settings.collectiblesNeeded - collected > 1 && 'm'} ${settings.collectiblesNeeded - collected} concha${settings.collectiblesNeeded - collected > 1 && 's'}`}
+          </Subtitle>
+        )}
+
+        {status === 'find' && collected === settings.collectiblesNeeded - 1 && (
+          <Subtitle>Quase lá! Só mais uma concha!</Subtitle>
+        )}
+
         {status === 'find' && (
           <Subtitle>
             {`Encontre ${settings.collectiblesNeeded} concha${settings.collectiblesNeeded > 1 && 's'} na praia ao redor da ilha`}

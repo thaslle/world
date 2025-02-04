@@ -1,3 +1,4 @@
+import { interactionGroups } from '@react-three/rapier'
 import { Color, Vector3 } from 'three'
 
 export const settings = {
@@ -14,5 +15,8 @@ export const settings = {
   collectibleGrabDistance: 3,
   collectibles: 20,
   collectiblesNeeded: 3,
+  groupPlayer: interactionGroups(0, [1]),
+  groupLevel: interactionGroups(1),
+  groupKnots: interactionGroups(2, [1]),
 }
 

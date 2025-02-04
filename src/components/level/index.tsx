@@ -6,6 +6,8 @@ import { Trees } from './trees'
 import { Rocks } from './rocks'
 import { Sky } from './sky'
 
+import { settings } from '~/config/settings'
+
 export const Level = () => {
   return (
     <>
@@ -14,7 +16,12 @@ export const Level = () => {
       <Water />
       <Trees />
 
-      <RigidBody type="fixed" name="terrain" colliders="trimesh">
+      <RigidBody
+        type="fixed"
+        name="terrain"
+        colliders="trimesh"
+        collisionGroups={settings.groupLevel}
+      >
         <Terrain />
         <Rocks />
       </RigidBody>
