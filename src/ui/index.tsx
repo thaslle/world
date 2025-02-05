@@ -45,7 +45,7 @@ export const UI = () => {
         )}
 
         {status === 'book' && (
-          <Subtitle>É hora de ler um bom livro pra relaxar</Subtitle>
+          <Subtitle>Que tal ler um bom livro pra relaxar?</Subtitle>
         )}
 
         {status === 'treasure' && (

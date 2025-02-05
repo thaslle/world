@@ -5,6 +5,7 @@ import { Base } from './base'
 import { Trees } from './trees'
 import { Rocks } from './rocks'
 import { Sky } from './sky'
+import { Boundaries } from './boundaries'
 
 import { settings } from '~/config/settings'
 
@@ -15,6 +16,7 @@ export const Level = () => {
       <Base />
       <Water />
       <Trees />
+      <Boundaries />
 
       <RigidBody
         type="fixed"
@@ -28,4 +30,3 @@ export const Level = () => {
     </>
   )
 }
-
