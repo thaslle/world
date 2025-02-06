@@ -1,5 +1,4 @@
 import { Color, Euler, Vector3 } from 'three'
-import { Vector } from 'three/examples/jsm/Addons.js'
 import { create } from 'zustand'
 import { settings } from '~/config/settings'
 
@@ -18,7 +17,7 @@ export type StatusProps =
   | 'finished'
 
 type Store = {
-  playerPosition: Vector | null
+  ready: boolean
   debug: boolean
   physics: boolean
   terrainSize: number
@@ -32,6 +31,7 @@ type Store = {
   lastCollected: number | null
   lastCollectedPosition: CollectiblePositionsProps
   status: StatusProps
+  setReady: (ready: boolean) => void
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
   setStatus: (status: StatusProps) => void
@@ -40,7 +40,7 @@ type Store = {
 }
 
 export const useStore = create<Store>((set) => ({
-  playerPosition: null,
+  ready: false,
   debug: false,
   physics: false,
   terrainSize: settings.terrainSize,
@@ -57,6 +57,10 @@ export const useStore = create<Store>((set) => ({
     rotation: new Euler(),
   },
   status: 'find',
+  setReady: (ready) =>
+    set({
+      ready,
+    }),
   setCharacterState: (characterState) =>
     set({
       characterState,

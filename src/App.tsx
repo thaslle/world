@@ -1,6 +1,6 @@
 import { Suspense, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Stats, KeyboardControls } from '@react-three/drei'
+import { Stats, KeyboardControls, AdaptiveDpr } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { Leva } from 'leva'
 
@@ -34,6 +34,8 @@ function App() {
       <KeyboardControls map={keyboardMap}>
         <Canvas camera={{ position: [3, 3, 3], fov: 35 }} shadows>
           {showDebug && <Stats />}
+
+          <AdaptiveDpr pixelated />
 
           <Physics debug={showPhysics}>
             <Experience />

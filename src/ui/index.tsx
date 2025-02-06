@@ -10,6 +10,8 @@ import { settings } from '~/config/settings'
 export const UI = () => {
   const collected = useStore((state) => state.collected)
   const status = useStore((state) => state.status)
+  const ready = useStore((state) => state.ready)
+  const setReady = useStore((state) => state.setReady)
 
   //const { setAudioToPlay, setAudioEnabled } = useAudioManager()
   // const [playGame, setPlayGame] = useState(false)
@@ -61,6 +63,15 @@ export const UI = () => {
 
       {status === 'cheers' && (
         <Image src="/images/joey-30-years.gif" next="finished" />
+      )}
+
+      {!ready && (
+        <button
+          onClick={() => setReady(true)}
+          style={{ all: 'unset', pointerEvents: 'visible', fontSize: '8px' }}
+        >
+          Ready
+        </button>
       )}
     </div>
   )
