@@ -6,6 +6,7 @@ import { Leva } from 'leva'
 
 import { Experience } from './components/experience'
 import { Debug } from './components/debug'
+import { AudioControl } from './audio-control'
 import { UI } from './ui'
 
 import { Controls } from './config/controls'
@@ -42,6 +43,7 @@ function App() {
           </Physics>
         </Canvas>
         <UI />
+        <AudioControl />
       </KeyboardControls>
     </Suspense>
   )

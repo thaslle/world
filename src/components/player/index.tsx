@@ -14,7 +14,9 @@ import { useControls } from 'leva'
 
 import { settings } from '~/config/settings'
 import { Controls } from '~/config/controls'
+
 import { useStore } from '~/hooks/use-store'
+import { useAudio } from '~/hooks/use-audio'
 
 import { Maria } from './maria'
 import { Shadow } from './shadow'
@@ -99,6 +101,9 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
   const characterState = useStore((state) => state.characterState)
   const setCharacterState = useStore((state) => state.setCharacterState)
   const setCollected = useStore((state) => state.setCollected)
+
+  const lastAudioPlayed = useAudio((state) => state.lastAudioPlayed)
+  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const [, get] = useKeyboardControls()
 
@@ -202,11 +207,15 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
 
     // Apply Velocity
     playerRef.current.setLinvel(vel.current, true)
+    const playerY = playerRef.current?.translation().y
 
     // Player animations
     if (playerinTheAir.current === true) {
       // If the player is in the air, it means the player is jumping
-      if (characterState !== 'Jump') setCharacterState('Jump')
+      if (characterState !== 'Jump') {
+        setCharacterState('Jump')
+        setAudioToPlay(null)
+      }
     } else if (
       (Math.abs(vel.current.x) > WALK_SPEED ||
         Math.abs(vel.current.z) > WALK_SPEED) &&
@@ -214,14 +223,29 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     ) {
       // Player is walking if it has a high horizontal velocity and the movement w is 1
       customClock.current.start() // Reset counting
-      if (characterState !== 'Run') setCharacterState('Run')
+      if (characterState !== 'Run') {
+        setCharacterState('Run')
+        if (lastAudioPlayed !== 'running') setAudioToPlay('running')
+      }
     } else if (
       Math.abs(vel.current.x) > 0.05 ||
       Math.abs(vel.current.z) > 0.05
     ) {
       // Player needs to have a minimum horizontal speed to start walking
       customClock.current.start() // Reset counting
-      if (characterState !== 'Walk') setCharacterState('Walk')
+      if (characterState !== 'Walk') {
+        setCharacterState('Walk')
+        if (lastAudioPlayed !== 'walking') setAudioToPlay('walking')
+      }
+
+      // if (lastAudioPlayed !== 'walking' && playerY > settings.waterHeight + 1)
+      //   setAudioToPlay('walking')
+
+      // if (
+      //   lastAudioPlayed !== 'walkingwater' &&
+      //   playerY <= settings.waterHeight + 1
+      // )
+      //   setAudioToPlay('walkingwater')
     } else {
       // Logics for when the player is not moving
       if (
@@ -233,21 +257,24 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
         // Set a default Idle state if player doesn't have any state
         customClock.current.start()
         setCharacterState('Idle')
+        setAudioToPlay(null)
       } else if (
         elapsedTime > WAITING_TIME &&
         characterState !== 'Sit' &&
         characterState !== 'SitDown' &&
-        playerRef.current?.translation().y > settings.waterHeight + 1
+        playerY > settings.waterHeight + 1
       ) {
         // If the character is waiting for some time, starts sitting movement
         setCharacterState('SitDown')
+        setAudioToPlay(null)
       } else if (
         elapsedTime > WAITING_TIME + 6 &&
         characterState === 'SitDown' &&
-        playerRef.current?.translation().y > settings.waterHeight + 1
+        playerY > settings.waterHeight + 1
       ) {
         // After sitting animation is complete plays a sort of sitting idle animation
         setCharacterState('Sit')
+        setAudioToPlay(null)
       }
     }
 

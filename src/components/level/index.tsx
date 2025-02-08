@@ -6,12 +6,14 @@ import { Trees } from './trees'
 import { Rocks } from './rocks'
 import { Sky } from './sky'
 import { Boundaries } from './boundaries'
+import { Audio } from './audio'
 
 import { settings } from '~/config/settings'
 
 export const Level = () => {
   return (
     <>
+      <Audio />
       <Sky />
       <Base />
       <Water />
@@ -30,3 +32,4 @@ export const Level = () => {
     </>
   )
 }
+

@@ -3,6 +3,7 @@ import { Subtitle } from './subtitle'
 import { Image } from './image'
 
 import { useStore } from '~/hooks/use-store'
+import { useAudio } from '~/hooks/use-audio'
 
 import s from './ui.module.scss'
 import { settings } from '~/config/settings'
@@ -13,9 +14,12 @@ export const UI = () => {
   const ready = useStore((state) => state.ready)
   const setReady = useStore((state) => state.setReady)
 
-  //const { setAudioToPlay, setAudioEnabled } = useAudioManager()
-  // const [playGame, setPlayGame] = useState(false)
-  // const [showScore, setShowScore] = useState(false)
+  const setAudioEnabled = useAudio((state) => state.setAudioEnabled)
+
+  const handleReady = () => {
+    setReady(true)
+    setAudioEnabled(true)
+  }
 
   return (
     <div className={s.ui}>
@@ -67,7 +71,7 @@ export const UI = () => {
 
       {!ready && (
         <button
-          onClick={() => setReady(true)}
+          onClick={() => handleReady()}
           style={{ all: 'unset', pointerEvents: 'visible', fontSize: '8px' }}
         >
           Ready
