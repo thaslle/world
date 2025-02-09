@@ -6,10 +6,12 @@ import { useSpring } from '@react-spring/core'
 import { a } from '@react-spring/three'
 
 import { useStore } from '~/hooks/use-store'
+import { useAudio } from '~/hooks/use-audio'
 
 export const Treasure = () => {
   const setStatus = useStore((state) => state.setStatus)
   const status = useStore((state) => state.status)
+  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const rotateStatus = status === 'cheers' ? 1 : 0
 
@@ -61,7 +63,10 @@ export const Treasure = () => {
           args={[1]}
           sensor
           onIntersectionEnter={(e) => {
-            if (e.other.rigidBodyObject?.name === 'player') setStatus('cheers')
+            if (e.other.rigidBodyObject?.name === 'player') {
+              setStatus('cheers')
+              setAudioToPlay('lock')
+            }
           }}
         />
         <group dispose={null} rotation-y={-Math.PI / 1.5}>

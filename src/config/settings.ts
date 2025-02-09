@@ -16,6 +16,7 @@ export const settings = {
   collectibleGrabDistance: 3,
   collectibles: 20,
   collectiblesNeeded: 3,
+  backgroundAudioVolume: 0.4,
   groupPlayer: interactionGroups(0, [1]),
   groupLevel: interactionGroups(1),
   groupCamera: interactionGroups(2, [3]),

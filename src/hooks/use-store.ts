@@ -14,6 +14,7 @@ export type StatusProps =
   | 'treasure'
   | 'quote'
   | 'cheers'
+  | 'explore'
   | 'finished'
 
 type Store = {

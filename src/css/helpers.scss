@@ -20,7 +20,7 @@
       backdrop-filter: blur(0);
     }
     100% {
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(1px);
     }
   }
 }
@@ -31,7 +31,7 @@
 @mixin ui-hide-keyframes {
   @keyframes uiHide {
     0% {
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(1px);
     }
     100% {
       backdrop-filter: blur(0);

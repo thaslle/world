@@ -1,26 +1,40 @@
 import { create } from 'zustand'
 
+type AudioToPlayProps = {
+  audio: string | null
+  time: number
+}
 type AudioProps = {
-  audioToPlay: string | null
+  audioToPlay: AudioToPlayProps
   audioEnabled: boolean
-  lastAudioPlayed: string | null
   lastTimeAudioPlayed: number
+  lastAudioPlayed: string | null
+  playerAudioToPlay: string | null
+  lastPlayerAudioPlayed: string | null
 
   setAudioToPlay: (audio: string | null) => void
   setAudioEnabled: (enabled: boolean) => void
-  setLastAudioPlayed: (audio: string) => void
   setLastTimeAudioPlayed: (time: number) => void
+  setLastAudioPlayed: (audio: string | null) => void
+  setPlayerAudioToPlay: (audio: string | null) => void
+  setLastPlayerAudioPlayed: (audio: string | null) => void
 }
 
 export const useAudio = create<AudioProps>((set) => ({
-  audioToPlay: null,
+  audioToPlay: { audio: null, time: Date.now() },
   audioEnabled: false,
   pauseAudio: false,
-  lastAudioPlayed: null,
   lastTimeAudioPlayed: Date.now(),
+  lastAudioPlayed: null,
+  playerAudioToPlay: null,
+  lastPlayerAudioPlayed: null,
 
-  setAudioToPlay: (audio) => set(() => ({ audioToPlay: audio })),
+  setAudioToPlay: (audio) =>
+    set(() => ({ audioToPlay: { audio: audio, time: Date.now() } })),
   setAudioEnabled: (enabled) => set(() => ({ audioEnabled: enabled })),
-  setLastAudioPlayed: (audio) => set(() => ({ lastAudioPlayed: audio })),
   setLastTimeAudioPlayed: (time) => set(() => ({ lastTimeAudioPlayed: time })),
+  setLastAudioPlayed: (audio) => set(() => ({ lastAudioPlayed: audio })),
+  setPlayerAudioToPlay: (audio) => set(() => ({ playerAudioToPlay: audio })),
+  setLastPlayerAudioPlayed: (audio) =>
+    set(() => ({ lastPlayerAudioPlayed: audio })),
 }))

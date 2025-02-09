@@ -7,19 +7,35 @@ import { useAudio } from '~/hooks/use-audio'
 
 import s from './ui.module.scss'
 import { settings } from '~/config/settings'
+import { useEffect } from 'react'
 
 export const UI = () => {
   const collected = useStore((state) => state.collected)
   const status = useStore((state) => state.status)
   const ready = useStore((state) => state.ready)
   const setReady = useStore((state) => state.setReady)
+  const setStatus = useStore((state) => state.setStatus)
 
   const setAudioEnabled = useAudio((state) => state.setAudioEnabled)
+  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const handleReady = () => {
     setReady(true)
     setAudioEnabled(true)
   }
+
+  // Play birthday music
+  useEffect(() => {
+    if (status === 'cheers') setAudioToPlay('birthday')
+    if (status === 'place') setAudioToPlay('success')
+
+    if (status !== 'explore') return
+    const timer = setTimeout(() => setStatus('finished'), 10000)
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [status])
 
   return (
     <div className={s.ui}>
@@ -59,6 +75,27 @@ export const UI = () => {
             Encontre um lugar fora da grande ilha pra ter uma surpresa
           </Subtitle>
         )}
+
+        {status === 'explore' &&
+          collected < settings.collectiblesNeeded &&
+          settings.collectiblesNeeded - collected > 1 && (
+            <Subtitle>
+              {`Agora o mundo é seu! Aproveite para explorar a ilha e encontrar todas as ${settings.collectiblesNeeded - collected} conchas que ainda restam`}
+            </Subtitle>
+          )}
+
+        {status === 'explore' &&
+          settings.collectiblesNeeded - collected === 1 && (
+            <Subtitle>
+              {`Agora o mundo é seu! Aproveite para explorar a ilha e encontrar a última concha`}
+            </Subtitle>
+          )}
+
+        {status === 'explore' && settings.collectiblesNeeded === collected && (
+          <Subtitle>
+            {`Agora o mundo é seu! Aproveite para explorar a ilha e e ver a vista do alto da montanha`}
+          </Subtitle>
+        )}
       </div>
 
       {status === 'quote' && (
@@ -66,7 +103,11 @@ export const UI = () => {
       )}
 
       {status === 'cheers' && (
-        <Image src="/images/joey-30-years.gif" next="finished" />
+        <Image
+          src="/images/joey-30-years.gif"
+          next="explore"
+          closeTime={21000}
+        />
       )}
 
       {!ready && (

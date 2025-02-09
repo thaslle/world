@@ -102,7 +102,8 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
   const setCharacterState = useStore((state) => state.setCharacterState)
   const setCollected = useStore((state) => state.setCollected)
 
-  const lastAudioPlayed = useAudio((state) => state.lastAudioPlayed)
+  const lastPlayerAudioPlayed = useAudio((state) => state.lastPlayerAudioPlayed)
+  const setPlayerAudioToPlay = useAudio((state) => state.setPlayerAudioToPlay)
   const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const [, get] = useKeyboardControls()
@@ -214,7 +215,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       // If the player is in the air, it means the player is jumping
       if (characterState !== 'Jump') {
         setCharacterState('Jump')
-        setAudioToPlay(null)
+        setPlayerAudioToPlay(null)
       }
     } else if (
       (Math.abs(vel.current.x) > WALK_SPEED ||
@@ -225,7 +226,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       customClock.current.start() // Reset counting
       if (characterState !== 'Run') {
         setCharacterState('Run')
-        if (lastAudioPlayed !== 'running') setAudioToPlay('running')
+        if (lastPlayerAudioPlayed !== 'running') setPlayerAudioToPlay('running')
       }
     } else if (
       Math.abs(vel.current.x) > 0.05 ||
@@ -235,7 +236,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       customClock.current.start() // Reset counting
       if (characterState !== 'Walk') {
         setCharacterState('Walk')
-        if (lastAudioPlayed !== 'walking') setAudioToPlay('walking')
+        if (lastPlayerAudioPlayed !== 'walking') setPlayerAudioToPlay('walking')
       }
     } else {
       // Logics for when the player is not moving
@@ -248,7 +249,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
         // Set a default Idle state if player doesn't have any state
         customClock.current.start()
         setCharacterState('Idle')
-        setAudioToPlay(null)
+        setPlayerAudioToPlay(null)
       } else if (
         elapsedTime > WAITING_TIME &&
         characterState !== 'Sit' &&
@@ -257,7 +258,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       ) {
         // If the character is waiting for some time, starts sitting movement
         setCharacterState('SitDown')
-        setAudioToPlay(null)
+        setPlayerAudioToPlay(null)
       } else if (
         elapsedTime > WAITING_TIME + 6 &&
         characterState === 'SitDown' &&
@@ -265,7 +266,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       ) {
         // After sitting animation is complete plays a sort of sitting idle animation
         setCharacterState('Sit')
-        setAudioToPlay(null)
+        setPlayerAudioToPlay('yawning')
       }
     }
 
@@ -310,7 +311,10 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
           // Make the collectible disapear
           if (e.other.rigidBodyObject?.name === 'collectible') {
             const instanceId = e.other.rigidBodyObject.userData.id
-            if (instanceId !== undefined) setCollected(instanceId)
+            if (instanceId !== undefined) {
+              setCollected(instanceId)
+              setAudioToPlay('pop')
+            }
           }
         }}
       >

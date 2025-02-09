@@ -51,7 +51,7 @@ export const Audio = () => {
               autoplay
               loop
               url="/sounds/birds.mp3"
-              distance={5}
+              distance={30}
             />
           </group>
         </>

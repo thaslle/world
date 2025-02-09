@@ -5,9 +5,12 @@ import { BallCollider, RigidBody, vec3 } from '@react-three/rapier'
 import { Group, Mesh, MeshLambertMaterial, Vector3 } from 'three'
 
 import { useStore } from '~/hooks/use-store'
+import { useAudio } from '~/hooks/use-audio'
 
 export const Book = () => {
   const setStatus = useStore((state) => state.setStatus)
+  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
+
   const bookRef = useRef<Group>(null)
 
   const { nodes, materials } = useGLTF('/models/book.glb')
@@ -40,7 +43,10 @@ export const Book = () => {
           args={[1]}
           sensor
           onIntersectionEnter={(e) => {
-            if (e.other.rigidBodyObject?.name === 'player') setStatus('quote')
+            if (e.other.rigidBodyObject?.name === 'player') {
+              setStatus('quote')
+              setAudioToPlay('pop')
+            }
           }}
         />
         <group ref={bookRef} dispose={null}>

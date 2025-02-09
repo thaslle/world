@@ -2,9 +2,11 @@ import { BallCollider, RigidBody, vec3 } from '@react-three/rapier'
 import * as THREE from 'three'
 
 import { useStore } from '~/hooks/use-store'
+import { useAudio } from '~/hooks/use-audio'
 
 export const Checkmark = () => {
   const setStatus = useStore((state) => state.setStatus)
+  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const vertexShader = /*glsl*/ `
       varying vec2 vUv;
@@ -34,7 +36,10 @@ export const Checkmark = () => {
         args={[1]}
         sensor
         onIntersectionEnter={(e) => {
-          if (e.other.rigidBodyObject?.name === 'player') setStatus('book')
+          if (e.other.rigidBodyObject?.name === 'player') {
+            setStatus('book')
+            setAudioToPlay('pop')
+          }
         }}
       />
       <mesh>
