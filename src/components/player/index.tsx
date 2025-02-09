@@ -237,15 +237,6 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
         setCharacterState('Walk')
         if (lastAudioPlayed !== 'walking') setAudioToPlay('walking')
       }
-
-      // if (lastAudioPlayed !== 'walking' && playerY > settings.waterHeight + 1)
-      //   setAudioToPlay('walking')
-
-      // if (
-      //   lastAudioPlayed !== 'walkingwater' &&
-      //   playerY <= settings.waterHeight + 1
-      // )
-      //   setAudioToPlay('walkingwater')
     } else {
       // Logics for when the player is not moving
       if (

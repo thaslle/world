@@ -5,7 +5,6 @@ type AudioKey = keyof typeof audios
 
 const audios = {
   walking: { audio: new Audio('/sounds/walking.mp3'), loop: true },
-  walkingwater: { audio: new Audio('/sounds/walkingwater.mp3'), loop: true },
   running: { audio: new Audio('/sounds/running.mp3'), loop: true },
 }
 
@@ -55,6 +54,20 @@ export const AudioControl = () => {
       if (audio.current) audio.current.pause()
     }
   }, [audioToPlay])
+
+  // Background audio
+  const background = useRef(new Audio('/sounds/background.mp3'))
+
+  useEffect(() => {
+    if (audioEnabled) {
+      background.current.currentTime = 0
+      background.current.play()
+      background.current.loop = true
+      background.current.volume = 0.4
+    } else {
+      background.current.pause()
+    }
+  }, [audioEnabled])
 
   return null
 }
