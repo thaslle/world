@@ -81,8 +81,7 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
       jointPosition.current.setLinvel(new Vector3(0, jointVel.y * 0.5, 0), true)
 
     // Set camera to follow the player when it's moving,
-    // But, when character is Sit, you can rotate the camera around
-    if (characterState !== 'Sit' && !ROTATE) {
+    if (!ROTATE) {
       cameraTarget.current = vec3(playerRef.current.translation())
       cameraPosition.current.getWorldPosition(positionWorldPosition)
 

@@ -10,6 +10,7 @@ const audios = {
   success: new Audio('/sounds/success.mp3'),
   pop: new Audio('/sounds/pop.mp3'),
   close: new Audio('/sounds/close.mp3'),
+  subtitle: new Audio('/sounds/subtitle.mp3'),
   lock: new Audio('/sounds/lock.mp3'),
   birthday: new Audio('/sounds/birthday.mp3'),
 }

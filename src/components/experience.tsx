@@ -7,26 +7,30 @@ import { Level } from './level'
 import { Player } from './player'
 import { Assets } from './assets'
 
+import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
 
 export const Experience = () => {
   const playerRef = useRef<RapierRigidBody>(null)
+  const ready = useStore((state) => state.ready)
 
   return (
-    <>
-      <ambientLight intensity={settings.ambientLight.intensity} />
-      <Environment preset="forest" environmentIntensity={2} />
+    ready && (
+      <>
+        <ambientLight intensity={settings.ambientLight.intensity} />
+        <Environment preset="forest" environmentIntensity={2} />
 
-      <fog
-        attach="fog"
-        args={[settings.fog.color, settings.fog.near, settings.fog.far]}
-      />
+        <fog
+          attach="fog"
+          args={[settings.fog.color, settings.fog.near, settings.fog.far]}
+        />
 
-      <Level />
-      <Grass playerRef={playerRef} />
-      <Player playerRef={playerRef} />
-      <Assets />
-    </>
+        <Level />
+        <Grass playerRef={playerRef} />
+        <Player playerRef={playerRef} />
+        <Assets />
+      </>
+    )
   )
 }
 

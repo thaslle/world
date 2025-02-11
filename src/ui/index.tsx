@@ -1,3 +1,4 @@
+import { Learn } from './learn'
 import { Collected } from './collected'
 import { Subtitle } from './subtitle'
 import { Image } from './image'
@@ -7,30 +8,27 @@ import { useAudio } from '~/hooks/use-audio'
 
 import s from './ui.module.scss'
 import { settings } from '~/config/settings'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export const UI = () => {
   const collected = useStore((state) => state.collected)
   const status = useStore((state) => state.status)
-  const ready = useStore((state) => state.ready)
-  const setReady = useStore((state) => state.setReady)
   const setStatus = useStore((state) => state.setStatus)
+  const [showLearn, setShowLearn] = useState(false)
 
-  const setAudioEnabled = useAudio((state) => state.setAudioEnabled)
   const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
-
-  const handleReady = () => {
-    setReady(true)
-    setAudioEnabled(true)
-  }
 
   // Play birthday music
   useEffect(() => {
     if (status === 'cheers') setAudioToPlay('birthday')
     if (status === 'place') setAudioToPlay('success')
 
-    if (status !== 'explore') return
-    const timer = setTimeout(() => setStatus('finished'), 10000)
+    let timer: ReturnType<typeof setTimeout>
+
+    if (status === 'explore')
+      timer = setTimeout(() => setStatus('finished'), 10000)
+
+    if (status === 'learn') timer = setTimeout(() => setShowLearn(true), 2000)
 
     return () => {
       if (timer) clearTimeout(timer)
@@ -44,6 +42,8 @@ export const UI = () => {
       </div>
 
       <div className={s.bottom}>
+        {showLearn && <Learn />}
+
         {status === 'find' && collected === 1 && (
           <Subtitle>
             {`A primeira já foi, agora falta${settings.collectiblesNeeded - collected > 1 && 'm'} ${settings.collectiblesNeeded - collected} concha${settings.collectiblesNeeded - collected > 1 && 's'}`}
@@ -108,15 +108,6 @@ export const UI = () => {
           next="explore"
           closeTime={21000}
         />
-      )}
-
-      {!ready && (
-        <button
-          onClick={() => handleReady()}
-          style={{ all: 'unset', pointerEvents: 'visible', fontSize: '8px' }}
-        >
-          Ready
-        </button>
       )}
     </div>
   )

@@ -8,6 +8,9 @@ type CollectiblePositionsProps = {
 }
 
 export type StatusProps =
+  | 'loading'
+  | 'wait'
+  | 'learn'
   | 'find'
   | 'place'
   | 'book'
@@ -21,6 +24,7 @@ type Store = {
   ready: boolean
   debug: boolean
   physics: boolean
+  terrainLoaded: boolean
   terrainSize: number
   terrainHeights: Float32Array
   terrainHeightsMax: number
@@ -44,6 +48,7 @@ export const useStore = create<Store>((set) => ({
   ready: false,
   debug: false,
   physics: false,
+  terrainLoaded: false,
   terrainSize: settings.terrainSize,
   terrainHeights: new Float32Array(),
   terrainHeightsMax: 0,
@@ -57,7 +62,7 @@ export const useStore = create<Store>((set) => ({
     position: new Vector3(),
     rotation: new Euler(),
   },
-  status: 'find',
+  status: 'loading',
   setReady: (ready) =>
     set({
       ready,

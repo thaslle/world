@@ -167,6 +167,7 @@ export function Terrain(props: GroupProps) {
     )
 
     useStore.setState(() => ({
+      terrainLoaded: true,
       terrainHeights: heightData,
       terrainHeightsMax: maxHeight,
       terrainSegments: heightMapSize,

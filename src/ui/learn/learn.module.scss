@@ -1,0 +1,173 @@
+@use '~/css/helpers' as *;
+
+.wrapper {
+  display: grid;
+  grid-template-rows: auto max-content;
+  place-items: center;
+  align-items: end;
+  height: 100%;
+  gap: 1rem;
+
+  .arrows {
+    display: grid;
+    gap: 3px;
+    grid-template-areas: '. up .' 'left down right';
+
+    .arrow {
+      aspect-ratio: 1;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: grid;
+      place-items: center;
+      background-color: var(--font-background);
+      border-radius: 5px;
+      transform-origin: center;
+
+      opacity: 0;
+      transform: translateY(50%) scale(0.5);
+
+      animation: 0.3s cubic-bezier(0.75, -0.5, 0, 1.75) forwards 1 normal
+        arrowShow;
+
+      &:nth-child(1) {
+        grid-area: up;
+        animation-delay: 0.51s;
+      }
+      &:nth-child(2) {
+        grid-area: left;
+        animation-delay: 0.5s;
+        svg {
+          transform: rotate(-90deg);
+        }
+      }
+      &:nth-child(3) {
+        grid-area: down;
+        animation-delay: 0.52s;
+        svg {
+          transform: rotate(180deg);
+        }
+      }
+      &:nth-child(4) {
+        grid-area: right;
+        animation-delay: 0.53s;
+        svg {
+          transform: rotate(90deg);
+        }
+      }
+
+      svg {
+        display: block;
+        width: 40%;
+        height: 40%;
+
+        path {
+          fill: var(--font-color);
+        }
+      }
+    }
+  }
+
+  .bottom {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.4ch;
+
+    .subtitle {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 0.4ch;
+      position: relative;
+
+      font-size: 1rem;
+      font-weight: medium;
+      padding: 0.6em 1em;
+      background-color: var(--font-background);
+      border-radius: 3em;
+      clip-path: inset(0 round 3em);
+
+      opacity: 0;
+      transform: translateY(50%) scale(0.9);
+
+      @include subtitle-show-animation;
+
+      &:after {
+        display: block;
+        content: '';
+        width: 200%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        mix-blend-mode: plus-lighter;
+        background-image: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 1) 50%,
+          rgba(255, 255, 255, 0) 60%
+        );
+        opacity: 0.1;
+        transform: translateX(-100%);
+        animation: 6s ease-in-out 0.4s infinite normal flare;
+      }
+    }
+
+    .button {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 0.4ch;
+      position: relative;
+
+      font-size: 1rem;
+      font-weight: medium;
+      padding: 0.6em 1em;
+      background-color: var(--font-background);
+      border-radius: 3em;
+      clip-path: inset(0 round 3em);
+
+      opacity: 0;
+      transform: translateY(50%) scale(0.9);
+
+      @include subtitle-show-animation;
+
+      svg {
+        width: 1.5ch;
+        height: 1.5ch;
+        path {
+          fill: var(--font-color);
+        }
+      }
+    }
+  }
+
+  @include subtitle-show-keyframes;
+
+  @keyframes flare {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    40% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes arrowShow {
+    0% {
+      opacity: 0;
+      transform: translateY(50%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}

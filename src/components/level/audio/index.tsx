@@ -11,7 +11,7 @@ export const Audio = () => {
     <>
       {ready && (
         <>
-          <group position={[-settings.terrainSize, 0, 0]}>
+          <group position={[-settings.terrainSize, -waveDistance * 10, 0]}>
             <PositionalAudio
               autoplay
               loop
@@ -20,7 +20,7 @@ export const Audio = () => {
             />
           </group>
 
-          <group position={[settings.terrainSize, 0, 0]}>
+          <group position={[settings.terrainSize, -waveDistance * 10, 0]}>
             <PositionalAudio
               autoplay
               loop
@@ -29,7 +29,7 @@ export const Audio = () => {
             />
           </group>
 
-          <group position={[0, 0, -settings.terrainSize]}>
+          <group position={[0, -waveDistance * 10, -settings.terrainSize]}>
             <PositionalAudio
               autoplay
               loop
@@ -37,7 +37,7 @@ export const Audio = () => {
               distance={waveDistance}
             />
           </group>
-          <group position={[0, 0, settings.terrainSize]}>
+          <group position={[0, -waveDistance * 10, settings.terrainSize]}>
             <PositionalAudio
               autoplay
               loop

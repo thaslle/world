@@ -23,6 +23,7 @@ import { Shadow } from './shadow'
 import { Camera } from './camera'
 
 const START_POSITION = {
+  start: { x: 109.6, y: 15, z: 79.57 },
   default: { x: 44.3, y: 8.5, z: 89.7 },
   rock: { x: 51.84, y: 6.5, z: -4.44 },
   water: { x: 73.35, y: 5, z: 120.64 },
@@ -31,7 +32,13 @@ const START_POSITION = {
   mountain: { x: -63.8, y: 35, z: -55.7 },
 }
 
-const playerStart = 'beach'
+const START_ROTATION = {
+  start: { x: 0, y: 0.9615808129310608, z: 0, w: -0.2745218873023987 },
+  default: { x: 0, y: 0, z: 0, w: 0 },
+}
+
+const playerStartPosition = 'start'
+const playerStartRotation = 'start'
 
 type PlayerProps = {
   playerRef: React.RefObject<RapierRigidBody>
@@ -59,25 +66,29 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
 
     POSITION_X: {
-      value: START_POSITION[playerStart].x,
+      value: START_POSITION[playerStartPosition].x,
       min: -1000,
       max: 1000,
       step: 0.5,
     },
     POSITION_Y: {
-      value: START_POSITION[playerStart].y,
+      value: START_POSITION[playerStartPosition].y,
       min: -1000,
       max: 1000,
       step: 0.5,
     },
     POSITION_Z: {
-      value: START_POSITION[playerStart].z,
+      value: START_POSITION[playerStartPosition].z,
       min: -1000,
       max: 1000,
       step: 0.5,
     },
   })
 
+  // Start Rotation
+  const startRotation = euler().setFromQuaternion(
+    quat(START_ROTATION[playerStartRotation]),
+  )
   const customClock = useRef(new Clock())
 
   const rotVel = new Vector3()
@@ -98,6 +109,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
 
   const lastElapsedTime = useRef(0)
 
+  const terrainLoaded = useStore((state) => state.terrainLoaded)
   const characterState = useStore((state) => state.characterState)
   const setCharacterState = useStore((state) => state.setCharacterState)
   const setCollected = useStore((state) => state.setCollected)
@@ -274,60 +286,61 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     lastElapsedTime.current = Math.floor(generalElapsedTime * 10)
 
     //console.log(playerRef.current.translation())
-
-    // useStore.setState(() => ({
-    //   playerPosition: playerRef.current?.translation(),
-    // }))
+    //console.log(playerRef.current.rotation())
   })
 
+  // Wait for the terrain to be loaded before placing the player
   return (
-    <>
-      <RigidBody
-        colliders={false}
-        gravityScale={GRAVITY_SCALE}
-        canSleep={false}
-        enabledRotations={[false, true, false]}
-        ref={playerRef}
-        position={[POSITION_X, POSITION_Y, POSITION_Z]}
-        type={FIXED ? 'fixed' : 'dynamic'}
-        collisionGroups={settings.groupPlayer}
-        name="player"
-        onCollisionEnter={(e) => {
-          // Check if player is on the ground
-          if (
-            playerRef.current &&
-            e.other.rigidBodyObject?.name === 'terrain'
-          ) {
-            playerinTheAir.current = false
-            playerLanded.current = true
+    terrainLoaded && (
+      <>
+        <RigidBody
+          colliders={false}
+          gravityScale={GRAVITY_SCALE}
+          canSleep={false}
+          enabledRotations={[false, true, false]}
+          ref={playerRef}
+          position={[POSITION_X, POSITION_Y, POSITION_Z]}
+          rotation={startRotation}
+          type={FIXED ? 'fixed' : 'dynamic'}
+          collisionGroups={settings.groupPlayer}
+          name="player"
+          onCollisionEnter={(e) => {
+            // Check if player is on the ground
+            if (
+              playerRef.current &&
+              e.other.rigidBodyObject?.name === 'terrain'
+            ) {
+              playerinTheAir.current = false
+              playerLanded.current = true
 
-            // Reset y speed
-            curVel.current = vec3(playerRef.current.linvel())
-            curVel.current.y = 0
+              // Reset y speed
+              curVel.current = vec3(playerRef.current.linvel())
+              curVel.current.y = 0
 
-            playerRef.current.setLinvel(curVel.current, true)
-          }
-
-          // Make the collectible disapear
-          if (e.other.rigidBodyObject?.name === 'collectible') {
-            const instanceId = e.other.rigidBodyObject.userData.id
-            if (instanceId !== undefined) {
-              setCollected(instanceId)
-              setAudioToPlay('pop')
+              playerRef.current.setLinvel(curVel.current, true)
             }
-          }
-        }}
-      >
-        <group ref={characterRef}>
-          <Maria position={[0, -0.85, 0]} />
-        </group>
 
-        <CapsuleCollider args={[0.65, 0.2]} />
-      </RigidBody>
+            // Make the collectible disapear
+            if (e.other.rigidBodyObject?.name === 'collectible') {
+              const instanceId = e.other.rigidBodyObject.userData.id
+              if (instanceId !== undefined) {
+                setCollected(instanceId)
+                setAudioToPlay('pop')
+              }
+            }
+          }}
+        >
+          <group ref={characterRef}>
+            <Maria position={[0, -0.85, 0]} />
+          </group>
 
-      <Shadow playerRef={characterRef} />
-      <Camera playerRef={playerRef} />
-    </>
+          <CapsuleCollider args={[0.65, 0.2]} />
+        </RigidBody>
+
+        <Shadow playerRef={characterRef} />
+        <Camera playerRef={playerRef} />
+      </>
+    )
   )
 }
 

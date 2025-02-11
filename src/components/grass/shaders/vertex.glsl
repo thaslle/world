@@ -86,7 +86,7 @@ void main()
     float height = terrainColor.a * uTerrainHeightMax;
     
     // Apply the height to the model's position
-    modelPosition.y += height;  // Adjust the model's y-coordinate based on the heightmap
+    modelPosition.y += height - 0.05;  // Adjust the model's y-coordinate based on the heightmap
     
     // Update the model center's y position for correct rendering
     modelCenter.y += height;

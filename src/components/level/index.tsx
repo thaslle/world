@@ -25,6 +25,7 @@ export const Level = () => {
         name="terrain"
         colliders="trimesh"
         collisionGroups={settings.groupLevel}
+        friction={0.01}
       >
         <Terrain />
         <Rocks />

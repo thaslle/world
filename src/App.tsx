@@ -7,12 +7,15 @@ import { Leva } from 'leva'
 import { Experience } from './components/experience'
 import { Debug } from './components/debug'
 import { AudioControl } from './audio-control'
+import { Loading } from './ui/loading'
 import { UI } from './ui'
 
 import { Controls } from './config/controls'
 import { useStore } from './hooks/use-store'
 
 function App() {
+  const ready = useStore((state) => state.ready)
+
   const keyboardMap = useMemo(
     () => [
       { name: Controls.forward, keys: ['ArrowUp', 'KeyW'] },
@@ -29,23 +32,26 @@ function App() {
   const showPhysics = useStore((state) => state.physics)
 
   return (
-    <Suspense>
-      <Debug />
-      <Leva hidden={!showDebug} />
-      <KeyboardControls map={keyboardMap}>
-        <Canvas camera={{ position: [3, 3, 3], fov: 35 }} shadows>
-          {showDebug && <Stats />}
+    <>
+      <Loading />
+      <Suspense>
+        <Debug />
+        <Leva hidden={!showDebug} />
+        <KeyboardControls map={keyboardMap}>
+          <Canvas camera={{ position: [3, 3, 3], fov: 35 }} shadows>
+            {showDebug && <Stats />}
 
-          <AdaptiveDpr pixelated />
+            <AdaptiveDpr pixelated />
 
-          <Physics debug={showPhysics}>
-            <Experience />
-          </Physics>
-        </Canvas>
-        <UI />
-        <AudioControl />
-      </KeyboardControls>
-    </Suspense>
+            <Physics debug={showPhysics}>
+              <Experience />
+            </Physics>
+          </Canvas>
+          <UI />
+          <AudioControl />
+        </KeyboardControls>
+      </Suspense>
+    </>
   )
 }
 

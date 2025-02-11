@@ -1,0 +1,255 @@
+@use '~/css/helpers' as *;
+
+.wrapper {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  padding: 10vw;
+  box-sizing: border-box;
+  touch-action: none;
+  display: grid;
+  gap: 3rem;
+  place-content: center;
+  justify-items: center;
+  background: radial-gradient(#00c1ed, #00edb6);
+  text-align: center;
+  overflow: hidden;
+  z-index: 999;
+
+  .message {
+    display: contents;
+
+    h1 {
+      font-size: clamp(24px, 8vw, 120px);
+      font-weight: bold;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+    }
+
+    .paragraph {
+      color: white;
+      line-height: 1.4em;
+      max-width: 43ch;
+    }
+
+    .text {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 0.4ch;
+      position: relative;
+
+      opacity: 0;
+      transform: translateY(50%) scale(0.9);
+
+      @include subtitle-show-animation;
+
+      & > .word {
+        display: block;
+
+        & > .letter {
+          display: inline-block;
+          opacity: 0;
+          transform: translateY(50%) scale(0.5);
+
+          @include letter-show-animation;
+        }
+      }
+    }
+  }
+
+  .waves {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    opacity: 0;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    filter: blur(3px);
+
+    animation: 0.3s ease-in 0.5s forwards 1 normal waveShow;
+
+    &:before {
+      pointer-events: none;
+      display: block;
+      content: '';
+      position: relative;
+      left: -25%;
+      top: -25%;
+      width: 150%;
+      height: 150%;
+      background: url(/images/water.jpg);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+
+      animation: 15s ease-in-out infinite normal waves;
+    }
+  }
+
+  .loading {
+    display: grid;
+    place-items: center;
+    max-width: 30ch;
+    width: 100%;
+    grid-template-areas: 'loader';
+
+    .loader {
+      display: grid;
+      place-items: center;
+      grid-area: loader;
+      width: 100%;
+      height: 100%;
+
+      span {
+        display: block;
+        background: var(--font-backgound-solid);
+        width: 100%;
+        height: 4px;
+        border-radius: 1rem;
+        transition: width 0.1s ease-in-out;
+      }
+    }
+
+    .start {
+      all: unset;
+      pointer-events: visible;
+      grid-area: loader;
+      font-family: var(--font-family);
+      font-size: 1rem;
+      font-weight: medium;
+      width: 10ch;
+      padding: 0.6em 1em;
+      background-color: var(--font-backgound-solid);
+      border-radius: 3em;
+      clip-path: inset(0 round 3em);
+      transform: scale(0);
+      cursor: pointer;
+
+      .words {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        column-gap: 0.4ch;
+        position: relative;
+
+        .word {
+          display: block;
+
+          & > .letter {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50%) scale(0.5);
+
+            @include letter-show-animation;
+          }
+        }
+      }
+    }
+  }
+
+  &.loaded .loading {
+    .loader span {
+      animation: 0.3s cubic-bezier(0.42, 0, 0.02, 1.3) forwards 1 normal
+        loaderMorph;
+    }
+
+    .start {
+      animation: 0.3s cubic-bezier(0.42, 0, 0.02, 1.3) forwards 1 normal
+        buttonShow;
+    }
+  }
+
+  &.hide {
+    animation: 0.3s ease-in-out forwards 1 normal hideLoading;
+
+    .loading .loader span {
+      display: none;
+    }
+  }
+
+  @include subtitle-show-keyframes;
+  @include letter-show-keyframes;
+
+  @keyframes hideLoading {
+    0% {
+      opacity: 1;
+    }
+    99% {
+      opacity: 0;
+    }
+    100% {
+      display: none;
+    }
+  }
+
+  @keyframes loaderMorph {
+    0% {
+      width: 100%;
+      height: 4px;
+    }
+    50% {
+      height: 8px;
+    }
+    90% {
+      width: 10ch;
+      height: 100%;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes buttonShow {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes waveShow {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes waves {
+    0% {
+      transform: translate(0%, 0%);
+    }
+
+    10% {
+      transform: translate(1%, 0.5%);
+    }
+
+    30% {
+      transform: translate(-0.5%, 1%);
+    }
+
+    50% {
+      transform: translate(0.1%, -0.2%);
+    }
+
+    70% {
+      transform: translate(-0.2%, 0.3%);
+    }
+
+    90% {
+      transform: translate(0.05%, -0.05%);
+    }
+
+    100% {
+      transform: translate(0%, 0%);
+    }
+  }
+}
