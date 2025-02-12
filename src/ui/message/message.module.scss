@@ -1,0 +1,9 @@
+@use '~/css/helpers' as *;
+
+.wrapper {
+  display: grid;
+  place-items: center;
+  align-items: end;
+  height: 100%;
+}
+

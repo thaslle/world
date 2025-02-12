@@ -1,22 +1,24 @@
+import { useEffect, useState } from 'react'
+
 import { Learn } from './learn'
 import { Collected } from './collected'
-import { Subtitle } from './subtitle'
+import { Message } from './message'
 import { Image } from './image'
 
 import { useStore } from '~/hooks/use-store'
 import { useAudio } from '~/hooks/use-audio'
 
-import s from './ui.module.scss'
 import { settings } from '~/config/settings'
-import { useEffect, useState } from 'react'
+
+import s from './ui.module.scss'
 
 export const UI = () => {
   const collected = useStore((state) => state.collected)
   const status = useStore((state) => state.status)
   const setStatus = useStore((state) => state.setStatus)
-  const [showLearn, setShowLearn] = useState(false)
-
   const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
+
+  const [showLearn, setShowLearn] = useState(false)
 
   // Play birthday music
   useEffect(() => {
@@ -29,6 +31,7 @@ export const UI = () => {
       timer = setTimeout(() => setStatus('finished'), 10000)
 
     if (status === 'learn') timer = setTimeout(() => setShowLearn(true), 2000)
+    if (status === 'find') setShowLearn(false)
 
     return () => {
       if (timer) clearTimeout(timer)
@@ -45,56 +48,56 @@ export const UI = () => {
         {showLearn && <Learn />}
 
         {status === 'find' && collected === 1 && (
-          <Subtitle>
+          <Message>
             {`A primeira já foi, agora falta${settings.collectiblesNeeded - collected > 1 && 'm'} ${settings.collectiblesNeeded - collected} concha${settings.collectiblesNeeded - collected > 1 && 's'}`}
-          </Subtitle>
+          </Message>
         )}
 
         {status === 'find' && collected === settings.collectiblesNeeded - 1 && (
-          <Subtitle>Quase lá! Só mais uma concha!</Subtitle>
+          <Message>Quase lá! Só mais uma concha!</Message>
         )}
 
         {status === 'find' && (
-          <Subtitle>
+          <Message>
             {`Encontre ${settings.collectiblesNeeded} concha${settings.collectiblesNeeded > 1 && 's'} na praia ao redor da ilha`}
-          </Subtitle>
+          </Message>
         )}
 
         {status === 'place' && (
-          <Subtitle>
+          <Message>
             Você conseguiu! Agora leve as conchas para o alto da montanha
-          </Subtitle>
+          </Message>
         )}
 
         {status === 'book' && (
-          <Subtitle>Que tal ler um bom livro pra relaxar?</Subtitle>
+          <Message>Que tal ler um bom livro pra relaxar?</Message>
         )}
 
         {status === 'treasure' && (
-          <Subtitle>
+          <Message>
             Encontre um lugar fora da grande ilha pra ter uma surpresa
-          </Subtitle>
+          </Message>
         )}
 
         {status === 'explore' &&
           collected < settings.collectiblesNeeded &&
           settings.collectiblesNeeded - collected > 1 && (
-            <Subtitle>
+            <Message>
               {`Agora o mundo é seu! Aproveite para explorar a ilha e encontrar todas as ${settings.collectiblesNeeded - collected} conchas que ainda restam`}
-            </Subtitle>
+            </Message>
           )}
 
         {status === 'explore' &&
           settings.collectiblesNeeded - collected === 1 && (
-            <Subtitle>
+            <Message>
               {`Agora o mundo é seu! Aproveite para explorar a ilha e encontrar a última concha`}
-            </Subtitle>
+            </Message>
           )}
 
         {status === 'explore' && settings.collectiblesNeeded === collected && (
-          <Subtitle>
+          <Message>
             {`Agora o mundo é seu! Aproveite para explorar a ilha e e ver a vista do alto da montanha`}
-          </Subtitle>
+          </Message>
         )}
       </div>
 

@@ -1,43 +1,57 @@
-import { useEffect } from 'react'
-import { useAudio } from '~/hooks/use-audio'
+import { useEffect, useState } from 'react'
+
+import { KeyboardMap } from '~/utils/keyboard-map'
+import { Controls } from '~/config/controls'
+import { useStore } from '~/hooks/use-store'
+
+import { Walk } from './walk'
+import { Run } from './run'
+import { Jump } from './jump'
 
 import s from './learn.module.scss'
-import { Arrow } from './arrow.svg'
-import { Shift } from './shift.svg'
 
 export const Learn = () => {
-  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
+  const [message, setMessage] = useState('walk')
+  const setStatus = useStore((state) => state.setStatus)
+  const keyboardMap = KeyboardMap()
 
-  // Set a delay time to play audio
+  const downHandler = ({ key, code }: { key: string; code: string }) => {
+    const keyPressed = code === 'Space' ? code : key
+
+    keyboardMap.forEach((control) => {
+      if (control.keys.includes(keyPressed)) {
+        switch (control.name) {
+          case Controls.forward:
+          case Controls.backward:
+          case Controls.left:
+          case Controls.right:
+            if (message === 'walk') setMessage('run')
+            break
+          case Controls.run:
+            if (message === 'run') setMessage('jump')
+            break
+
+          case Controls.jump:
+            if (message === 'jump') setStatus('find')
+            break
+        }
+      }
+    })
+  }
+
   useEffect(() => {
-    const delayAUdio = setTimeout(() => setAudioToPlay('subtitle'), 400)
+    window.addEventListener('keydown', downHandler)
+
     return () => {
-      clearTimeout(delayAUdio)
+      window.removeEventListener('keydown', downHandler)
     }
-  }, [])
+  }, [keyboardMap, message])
 
   return (
     <div className={s.wrapper}>
-      <div className={s.arrows}>
-        <div className={s.arrow}>
-          <Arrow />
-        </div>
-        <div className={s.arrow}>
-          <Arrow />
-        </div>
-        <div className={s.arrow}>
-          <Arrow />
-        </div>
-        <div className={s.arrow}>
-          <Arrow />
-        </div>
-      </div>
-      <div className={s.bottom}>
-        <div className={s.subtitle}>Use as setas para andar</div>
-        <div className={s.button}>
-          <Shift /> correr
-        </div>
-      </div>
+      {message === 'walk' && <Walk />}
+      {message === 'run' && <Run />}
+      {message === 'jump' && <Jump />}
     </div>
   )
 }

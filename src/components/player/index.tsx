@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import { Vector3, MathUtils, Clock, Group } from 'three'
+import { useEffect, useRef } from 'react'
+import { Vector3, MathUtils, Clock, Group, Vector2 } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useKeyboardControls } from '@react-three/drei'
 import {
@@ -51,8 +51,11 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     RUN_SPEED,
     ROTATION_SPEED,
     JUMP_FORCE,
-    WAITING_TIME,
     GRAVITY_SCALE,
+    WAITING_TIME,
+    MOUSE_X_THRESHOLD,
+    MOUSE_Y_THRESHOLD,
+    MOUSE_RUN_THRESHOLD,
     POSITION_X,
     POSITION_Y,
     POSITION_Z,
@@ -64,6 +67,9 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
+    MOUSE_X_THRESHOLD: { value: 0.1, min: 0.01, max: 0.8, step: 0.1 },
+    MOUSE_Y_THRESHOLD: { value: 0.4, min: 0.1, max: 0.8, step: 0.1 },
+    MOUSE_RUN_THRESHOLD: { value: 1.5, min: 0.1, max: 10.0, step: 0.1 },
 
     POSITION_X: {
       value: START_POSITION[playerStartPosition].x,
@@ -92,6 +98,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
   const customClock = useRef(new Clock())
 
   const rotVel = new Vector3()
+  const mouseVel = new Vector2()
   const vel = useRef(new Vector3())
   const curVel = useRef(new Vector3())
   const playerinTheAir = useRef(true)
@@ -119,8 +126,33 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
   const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const [, get] = useKeyboardControls()
+  const isClicking = useRef(false)
 
-  useFrame(({ clock }) => {
+  // Enable control by mouse or touch events
+  useEffect(() => {
+    const onMouseDown = () => {
+      isClicking.current = true
+    }
+    const onMouseUp = () => {
+      isClicking.current = false
+    }
+
+    document.addEventListener('mousedown', onMouseDown)
+    document.addEventListener('mouseup', onMouseUp)
+
+    // touch
+    document.addEventListener('touchstart', onMouseDown)
+    document.addEventListener('touchend', onMouseUp)
+
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown)
+      document.removeEventListener('mouseup', onMouseUp)
+      document.removeEventListener('touchstart', onMouseDown)
+      document.removeEventListener('touchend', onMouseUp)
+    }
+  }, [])
+
+  useFrame(({ clock, mouse }) => {
     if (
       !playerRef.current ||
       !characterRef.current ||
@@ -135,6 +167,9 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     const generalElapsedTime = clock.getElapsedTime()
 
     // Clean the movement variables
+    mouseVel.x = 0
+    mouseVel.y = 0
+
     rotVel.x = 0
     rotVel.y = 0
     rotVel.z = 0
@@ -149,11 +184,22 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     // Store current velocity
     curVel.current = vec3(playerRef.current.linvel())
 
+    if (isClicking.current) {
+      console.log(mouse)
+      if (Math.abs(mouse.x) > MOUSE_X_THRESHOLD) mouseVel.x = -mouse.x
+      if (Math.abs(mouse.y) > MOUSE_Y_THRESHOLD) mouseVel.y = mouse.y
+    }
+
     // If the player is running
-    const MOVEMENT_SPEED = get()[Controls.run] ? RUN_SPEED : WALK_SPEED
+    const MOVEMENT_SPEED =
+      get()[Controls.run] ||
+      Math.abs(mouseVel.x) > MOUSE_RUN_THRESHOLD ||
+      Math.abs(mouseVel.y) > MOUSE_RUN_THRESHOLD
+        ? RUN_SPEED
+        : WALK_SPEED
 
     // Moving forward
-    if (get()[Controls.forward]) {
+    if (get()[Controls.forward] || mouseVel.y > MOUSE_Y_THRESHOLD) {
       vel.current.z += MOVEMENT_SPEED
 
       movement.current.x = 1
@@ -166,7 +212,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
         0.3,
       )
     }
-    if (get()[Controls.backward]) {
+    if (get()[Controls.backward] || mouseVel.y < -MOUSE_Y_THRESHOLD) {
       vel.current.z -= MOVEMENT_SPEED
 
       movement.current.x = -1
@@ -183,15 +229,19 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     // Enable the player to rotate without any lateral movement
     const isMovingZ = Math.abs(vel.current.z) >= MOVEMENT_SPEED
 
-    if (get()[Controls.left]) {
+    if (get()[Controls.left] || mouseVel.x > MOUSE_X_THRESHOLD) {
       if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y += ROTATION_SPEED * movement.current.x
+
+      // Make movement smoother with mouse
+      if (isClicking.current) rotVel.y *= Math.abs(mouse.x)
     }
-    if (get()[Controls.right]) {
+    if (get()[Controls.right] || mouseVel.x < -MOUSE_Y_THRESHOLD) {
       if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y -= ROTATION_SPEED * movement.current.x
+      if (isClicking.current) rotVel.y *= Math.abs(mouse.x)
     }
 
     playerRef.current.setAngvel(rotVel, true)

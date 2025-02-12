@@ -10,7 +10,6 @@ import {
   vec3,
 } from '@react-three/rapier'
 
-import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
 
 type CameraProps = {
@@ -32,13 +31,12 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
     CAMERA_HEIGHT: { value: 1.0, min: 0.1, max: 20.0, step: 0.1 },
   })
 
-  const characterState = useStore((state) => state.characterState)
-
   const playerPosition = useRef<RapierRigidBody>(null)
   const jointPosition = useRef<RapierRigidBody>(null)
   const cameraPosition = useRef<Group>(null)
-  const cameraRef = useRef<CameraControls>(null)
   const cameraTarget = useRef(new Vector3(0, 0, 0))
+  const cameraLookAt = useRef(new Vector3(0, 0, 0))
+
   const positionWorldPosition = new Vector3()
 
   useEffect(() => {
@@ -57,11 +55,11 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
     [0, 1, 0],
   ])
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
     if (
-      !cameraRef.current ||
       !playerRef.current ||
       !cameraTarget.current ||
+      !cameraLookAt.current ||
       !cameraPosition.current ||
       !playerPosition.current ||
       !jointPosition.current
@@ -80,6 +78,12 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
     else
       jointPosition.current.setLinvel(new Vector3(0, jointVel.y * 0.5, 0), true)
 
+    if (jointPos.y < playerRef.current.translation().y)
+      jointPosition.current.setTranslation(
+        new Vector3(jointPos.x, playerRef.current.translation().y, jointPos.z),
+        true,
+      )
+
     // Set camera to follow the player when it's moving,
     if (!ROTATE) {
       cameraTarget.current = vec3(playerRef.current.translation())
@@ -91,15 +95,10 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
       if (positionWorldPosition.y < settings.waterHeight)
         positionWorldPosition.y = settings.waterHeight + 0.5
 
-      cameraRef.current.setLookAt(
-        positionWorldPosition.x,
-        positionWorldPosition.y,
-        positionWorldPosition.z,
-        cameraTarget.current.x,
-        cameraTarget.current.y,
-        cameraTarget.current.z,
-        true,
-      )
+      camera.position.lerp(positionWorldPosition, 0.05)
+      cameraLookAt.current.lerp(cameraTarget.current, 0.05)
+
+      camera.lookAt(cameraLookAt.current)
     }
   })
 
@@ -117,7 +116,7 @@ export const Camera: React.FC<CameraProps> = ({ playerRef }) => {
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
 
-        <CameraControls ref={cameraRef} />
+        {ROTATE && <CameraControls />}
 
         <group
           ref={cameraPosition}

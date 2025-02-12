@@ -12,9 +12,17 @@ import {
   mainFragmentShader,
   varyingFragmentShader,
 } from './shaders/fragments.glsl'
+import { GLTF } from 'three-stdlib'
+
+type GLTFResult = GLTF & {
+  nodes: {
+    rock: Mesh
+  }
+  materials: {}
+}
 
 export const Rocks = () => {
-  const { nodes } = useGLTF('/models/rocks.glb')
+  const { nodes } = useGLTF('/models/rocks.glb') as GLTFResult
 
   const rockMaterial = new MeshToonMaterial({ color: '#6e7164' })
 
@@ -56,7 +64,7 @@ export const Rocks = () => {
         return (
           <mesh
             key={i}
-            geometry={(nodes.rock as Mesh).geometry}
+            geometry={nodes.rock.geometry}
             material={rockMaterial}
             position={vec3(item.position)}
             rotation={

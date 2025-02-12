@@ -86,10 +86,10 @@ void main()
     float height = terrainColor.a * uTerrainHeightMax;
     
     // Apply the height to the model's position
-    modelPosition.y += height - 0.05;  // Adjust the model's y-coordinate based on the heightmap
+    modelPosition.y += height - 0.20;  // Adjust the model's y-coordinate based on the heightmap
     
     // Update the model center's y position for correct rendering
-    modelCenter.y += height;
+    modelCenter.y += height - 0.20;
 
     // Slope
     float slope = 1.0 - abs(dot(vec3(0.0, 1.0, 0.0), normal));

@@ -20,10 +20,13 @@ export type StatusProps =
   | 'explore'
   | 'finished'
 
+type FrameloopProps = 'always' | 'never'
+
 type Store = {
   ready: boolean
   debug: boolean
   physics: boolean
+  frameloop: FrameloopProps
   terrainLoaded: boolean
   terrainSize: number
   terrainHeights: Float32Array
@@ -37,6 +40,7 @@ type Store = {
   lastCollectedPosition: CollectiblePositionsProps
   status: StatusProps
   setReady: (ready: boolean) => void
+  setFrameloop: (frameloop: FrameloopProps) => void
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
   setStatus: (status: StatusProps) => void
@@ -48,6 +52,7 @@ export const useStore = create<Store>((set) => ({
   ready: false,
   debug: false,
   physics: false,
+  frameloop: 'always',
   terrainLoaded: false,
   terrainSize: settings.terrainSize,
   terrainHeights: new Float32Array(),
@@ -66,6 +71,10 @@ export const useStore = create<Store>((set) => ({
   setReady: (ready) =>
     set({
       ready,
+    }),
+  setFrameloop: (frameloop) =>
+    set({
+      frameloop,
     }),
   setCharacterState: (characterState) =>
     set({

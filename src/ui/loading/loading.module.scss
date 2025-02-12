@@ -31,32 +31,6 @@
       line-height: 1.4em;
       max-width: 43ch;
     }
-
-    .text {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      column-gap: 0.4ch;
-      position: relative;
-
-      opacity: 0;
-      transform: translateY(50%) scale(0.9);
-
-      @include subtitle-show-animation;
-
-      & > .word {
-        display: block;
-
-        & > .letter {
-          display: inline-block;
-          opacity: 0;
-          transform: translateY(50%) scale(0.5);
-
-          @include letter-show-animation;
-        }
-      }
-    }
   }
 
   .waves {
@@ -172,9 +146,6 @@
       display: none;
     }
   }
-
-  @include subtitle-show-keyframes;
-  @include letter-show-keyframes;
 
   @keyframes hideLoading {
     0% {

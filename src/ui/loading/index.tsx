@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { useProgress } from '@react-three/drei'
-import { BreakWords } from './break-words'
+import { Subtitle } from '../subtitle'
 
 import { useStore } from '~/hooks/use-store'
 import { useAudio } from '~/hooks/use-audio'
@@ -22,6 +22,8 @@ export const Loading = () => {
     setAudioEnabled(true)
   }
 
+  const time = 0.005
+
   return (
     <div
       className={clsx(s.wrapper, { [s.loaded]: !active }, { [s.hide]: ready })}
@@ -29,14 +31,16 @@ export const Loading = () => {
       <div className={s.waves}></div>
       <div className={s.message}>
         <h1>
-          <BreakWords>Oi, Maria</BreakWords>
+          <Subtitle wrapper={false} time={time}>
+            Oi, Maria
+          </Subtitle>
         </h1>
         <div className={s.paragraph}>
-          <BreakWords>
+          <Subtitle wrapper={false} time={time}>
             Seja bem-vinda a sua experiência de aniversário. Siga as pistas para
             guiar a personagem (que é você mesma) nessa breve jornada em busca
             de uma surpresa.
-          </BreakWords>
+          </Subtitle>
         </div>
       </div>
       <div className={s.loading}>
@@ -48,7 +52,9 @@ export const Loading = () => {
 
         <button className={s.start} onClick={() => handleReady()}>
           <span className={s.words}>
-            <BreakWords>Começar</BreakWords>
+            <Subtitle wrapper={false} time={time} delay={1.1}>
+              Começar
+            </Subtitle>
           </span>
         </button>
       </div>

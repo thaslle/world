@@ -1,12 +1,28 @@
 import { Float, useGLTF } from '@react-three/drei'
 import { BallCollider, RigidBody, vec3 } from '@react-three/rapier'
-import { Color, Mesh, MeshToonMaterial } from 'three'
+import { Color, Mesh, MeshStandardMaterial, MeshToonMaterial } from 'three'
+import { GLTF } from 'three-stdlib'
 import { useControls } from 'leva'
 import { useSpring } from '@react-spring/core'
 import { a } from '@react-spring/three'
 
 import { useStore } from '~/hooks/use-store'
 import { useAudio } from '~/hooks/use-audio'
+
+type GLTFResult = GLTF & {
+  nodes: {
+    Chest_Base: Mesh
+    Chest_Base_1: Mesh
+    Chest_Base_2: Mesh
+    Chest_Top: Mesh
+    Chest_Top_1: Mesh
+  }
+  materials: {
+    Metal: MeshStandardMaterial
+    DarkWood: MeshStandardMaterial
+    Wood: MeshStandardMaterial
+  }
+}
 
 export const Treasure = () => {
   const setStatus = useStore((state) => state.setStatus)
@@ -27,7 +43,7 @@ export const Treasure = () => {
   const LIGHWOOD_COLOR = new Color(LIGHWOOD_BASE_COLOR)
   const METAL_COLOR = new Color(METAL_BASE_COLOR)
 
-  const { nodes } = useGLTF('/models/chest.glb')
+  const { nodes } = useGLTF('/models/chest.glb') as GLTFResult
 
   const darkWoodMaterial = new MeshToonMaterial({ color: DARKWOOD_COLOR })
   const lightWoodMaterial = new MeshToonMaterial({ color: LIGHWOOD_COLOR })
@@ -72,29 +88,29 @@ export const Treasure = () => {
         <group dispose={null} rotation-y={-Math.PI / 1.5}>
           <group rotation={[-Math.PI / 2, 0, 0]}>
             <mesh
-              geometry={(nodes.Chest_Base as Mesh).geometry}
+              geometry={nodes.Chest_Base.geometry}
               material={darkWoodMaterial}
               castShadow
             />
             <mesh
-              geometry={(nodes.Chest_Base_1 as Mesh).geometry}
+              geometry={nodes.Chest_Base_1.geometry}
               material={lightWoodMaterial}
               castShadow
             />
             <mesh
-              geometry={(nodes.Chest_Base_2 as Mesh).geometry}
+              geometry={nodes.Chest_Base_2.geometry}
               material={metalMaterial}
               castShadow
             />
           </group>
           <a.group position={[-0.001, 0.525, -0.353]} rotation-x={rotation}>
             <mesh
-              geometry={(nodes.Chest_Top as Mesh).geometry}
+              geometry={nodes.Chest_Top.geometry}
               material={darkWoodMaterial}
               castShadow
             />
             <mesh
-              geometry={(nodes.Chest_Top_1 as Mesh).geometry}
+              geometry={nodes.Chest_Top_1.geometry}
               material={lightWoodMaterial}
               castShadow
             />

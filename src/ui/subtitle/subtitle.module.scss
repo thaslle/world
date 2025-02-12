@@ -1,62 +1,57 @@
 @use '~/css/helpers' as *;
 
-.wrapper {
-  display: grid;
-  place-items: center;
-  align-items: end;
-  height: 100%;
+.subtitle {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.4ch;
+  position: relative;
 
-  .subtitle {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    column-gap: 0.4ch;
-    position: relative;
-
+  &.background {
     font-size: 1rem;
     font-weight: medium;
     padding: 0.6em 1em;
     background-color: var(--font-background);
     border-radius: 3em;
     clip-path: inset(0 round 3em);
+  }
 
-    opacity: 0;
-    transform: translateY(50%) scale(0.9);
+  opacity: 0;
+  transform: translateY(50%) scale(0.9);
 
-    @include subtitle-show-animation;
+  @include subtitle-show-animation;
 
-    & > .word {
-      display: block;
+  & > .word {
+    display: block;
 
-      & > .letter {
-        display: inline-block;
-        opacity: 0;
-        transform: translateY(50%) scale(0.5);
+    & > .letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(50%) scale(0.5);
 
-        @include letter-show-animation;
-      }
+      @include letter-show-animation;
     }
+  }
 
-    &:after {
-      display: block;
-      content: '';
-      width: 200%;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      top: 0;
-      mix-blend-mode: plus-lighter;
-      background-image: linear-gradient(
-        120deg,
-        rgba(255, 255, 255, 0) 40%,
-        rgba(255, 255, 255, 1) 50%,
-        rgba(255, 255, 255, 0) 60%
-      );
-      opacity: 0.1;
-      transform: translateX(-100%);
-      animation: 6s ease-in-out 0.4s infinite normal flare;
-    }
+  &:after {
+    display: block;
+    content: '';
+    width: 200%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    mix-blend-mode: plus-lighter;
+    background-image: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    opacity: 0.1;
+    transform: translateX(-100%);
+    animation: 6s ease-in-out 0.4s infinite normal flare;
   }
 
   @include subtitle-show-keyframes;

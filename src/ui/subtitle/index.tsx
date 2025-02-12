@@ -1,52 +1,66 @@
-import React, { useEffect } from 'react'
-import { useAudio } from '~/hooks/use-audio'
+import React from 'react'
+import { clsx } from 'clsx'
 
 import s from './subtitle.module.scss'
 
 type SubtitleProps = {
   children: React.ReactNode
+  wrapper?: boolean
+  split?: boolean
+  delay?: number
+  time?: number
 }
 
-export const Subtitle = ({ children }: SubtitleProps) => {
+const SplitText = ({ children, delay = 0.4, time = 0.02 }: SubtitleProps) => {
   if (!children) return null
-
-  const setAudioToPlay = useAudio((state) => state.setAudioToPlay)
 
   const text = typeof children === 'string' ? children : children.toString()
   const splitWord = text.split(' ')
 
   let universalCounter = 0 // Universal counter for all letters
 
-  // Set a delay time to play audio
-  useEffect(() => {
-    const delayAUdio = setTimeout(() => setAudioToPlay('subtitle'), 400)
-    return () => {
-      clearTimeout(delayAUdio)
-    }
-  }, [])
+  return (
+    <>
+      {splitWord.map((w, i) => (
+        <span key={i} className={s.word}>
+          {w.split('').map((c, il) => {
+            const lDelay = delay + universalCounter * time
+            universalCounter++
+
+            return (
+              <span
+                key={il}
+                className={s.letter}
+                style={{ animationDelay: `${lDelay}s` }}
+              >
+                {c}
+              </span>
+            )
+          })}
+        </span>
+      ))}
+    </>
+  )
+}
+
+export const Subtitle = ({
+  children,
+  wrapper = true,
+  split = true,
+  delay = 0.4,
+  time = 0.02,
+}: SubtitleProps) => {
+  if (!children) return null
 
   return (
-    <div className={s.wrapper}>
-      <div className={s.subtitle}>
-        {splitWord.map((w, i) => (
-          <span key={i} className={s.word}>
-            {w.split('').map((c, il) => {
-              const delay = 0.4 + universalCounter / 50
-              universalCounter++
-
-              return (
-                <span
-                  key={il}
-                  className={s.letter}
-                  style={{ animationDelay: `${delay}s` }}
-                >
-                  {c}
-                </span>
-              )
-            })}
-          </span>
-        ))}
-      </div>
+    <div className={clsx(s.subtitle, { [s.background]: wrapper })}>
+      {split ? (
+        <SplitText delay={delay} time={time}>
+          {children}
+        </SplitText>
+      ) : (
+        children
+      )}
     </div>
   )
 }

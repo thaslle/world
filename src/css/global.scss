@@ -36,11 +36,22 @@ canvas {
   font-display: block;
 }
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src:
+    url('/fonts/jetbrainsmono-regular.woff2') format('woff2'),
+    url('/fonts/jetbrainsmono-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 :root {
   --base-font: clamp(14px, 3vw, 18px);
   --bg-color: #fff;
   --button-color: #93cb43;
   --font-color: #486051;
+  --font-color-light: #48605160;
   --font-background: #fefffade;
   --font-backgound-solid: #fefffa;
 
@@ -48,6 +59,8 @@ canvas {
   --transition-time: 0.15s;
 
   --font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+  --font-button: 'JetBrains Mono', 'Courier New', Courier, 'Lucida Console',
+    monospace;
 }
 
 html {

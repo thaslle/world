@@ -5,10 +5,12 @@ import {
   LoopRepeat,
   Group,
   SkinnedMesh,
+  AnimationClip,
+  Bone,
 } from 'three'
 import { GroupProps, useFrame, useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
+import { GLTF, SkeletonUtils } from 'three-stdlib'
 
 import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
@@ -20,12 +22,36 @@ import {
   varyingFragmentShader,
 } from './shaders/fragments.glsl'
 
+type ActionName =
+  | 'Idle'
+  | 'Jump'
+  | 'Run'
+  | 'Sit'
+  | 'SitDown'
+  | 'StandUp'
+  | 'Walk'
+
+interface GLTFAction extends AnimationClip {
+  name: ActionName
+}
+
+type GLTFResult = GLTF & {
+  nodes: {
+    Body: SkinnedMesh
+    mixamorigHips: Bone
+  }
+  materials: {
+    m_char: MeshStandardMaterial
+  }
+  animations: GLTFAction[]
+}
+
 export const Maria = (props: GroupProps) => {
   const group = useRef<Group>(null)
   const { scene, animations } = useGLTF('/models/maria.glb')
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
 
-  const { nodes, materials } = useGraph(clone)
+  const { nodes, materials } = useGraph(clone) as GLTFResult
   const { actions } = useAnimations(animations, group)
 
   const { characterState } = useStore()
@@ -55,7 +81,7 @@ export const Maria = (props: GroupProps) => {
 
   const playerMaterial = useRef(
     new MeshStandardMaterial({
-      map: (materials.m_char as MeshStandardMaterial).map,
+      map: materials.m_char.map,
     }),
   )
 
@@ -103,8 +129,8 @@ export const Maria = (props: GroupProps) => {
           <primitive object={nodes.mixamorigHips} />
           <skinnedMesh
             name="Body"
-            geometry={(nodes.Body as SkinnedMesh).geometry}
-            skeleton={(nodes.Body as SkinnedMesh).skeleton}
+            geometry={nodes.Body.geometry}
+            skeleton={nodes.Body.skeleton}
             material={playerMaterial.current}
             castShadow
             receiveShadow

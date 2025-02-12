@@ -1,11 +1,28 @@
 import { useRef } from 'react'
+import { GLTF } from 'three-stdlib'
 import { useFrame } from '@react-three/fiber'
 import { Float, useGLTF } from '@react-three/drei'
 import { BallCollider, RigidBody, vec3 } from '@react-three/rapier'
-import { Group, Mesh, MeshLambertMaterial, Vector3 } from 'three'
+import {
+  Group,
+  Mesh,
+  MeshLambertMaterial,
+  MeshStandardMaterial,
+  Vector3,
+} from 'three'
 
 import { useStore } from '~/hooks/use-store'
 import { useAudio } from '~/hooks/use-audio'
+
+type GLTFResult = GLTF & {
+  nodes: {
+    cover: Mesh
+    pages: Mesh
+  }
+  materials: {
+    book: MeshStandardMaterial
+  }
+}
 
 export const Book = () => {
   const setStatus = useStore((state) => state.setStatus)
@@ -13,9 +30,9 @@ export const Book = () => {
 
   const bookRef = useRef<Group>(null)
 
-  const { nodes, materials } = useGLTF('/models/book.glb')
+  const { nodes, materials } = useGLTF('/models/book.glb') as GLTFResult
   const bookMaterial = new MeshLambertMaterial({
-    map: (materials.book as MeshLambertMaterial).map,
+    map: materials.book.map,
   })
 
   const position = vec3({
@@ -51,12 +68,12 @@ export const Book = () => {
         />
         <group ref={bookRef} dispose={null}>
           <mesh
-            geometry={(nodes.cover as Mesh).geometry}
+            geometry={nodes.cover.geometry}
             material={bookMaterial}
             castShadow
           />
           <mesh
-            geometry={(nodes.pages as Mesh).geometry}
+            geometry={nodes.pages.geometry}
             material={bookMaterial}
             castShadow
           />

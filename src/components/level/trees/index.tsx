@@ -1,17 +1,28 @@
 import { useEffect, useRef } from 'react'
 import { GroupProps } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
+import { GLTF } from 'three-stdlib'
 import {
   Mesh,
   Object3D,
   InstancedMesh,
-  MeshToonMaterial,
   MeshBasicMaterial,
+  MeshStandardMaterial,
 } from 'three'
 
 import LeafMaterial from './material'
 
 import { treesPositions } from './positions'
+
+type GLTFResult = GLTF & {
+  nodes: {
+    trunk: Mesh
+    foliage: Mesh
+  }
+  materials: {
+    trunk: MeshStandardMaterial
+  }
+}
 
 // Type for the Props of the Instances component
 interface TreesProps extends GroupProps {
@@ -29,12 +40,12 @@ export const Trees: React.FC<TreesProps> = ({
   // We clamp the number of trees
   const count = treesPositions.length
 
-  const { nodes, materials } = useGLTF('/models/tree.glb')
+  const { nodes, materials } = useGLTF('/models/tree.glb') as GLTFResult
 
   const leafMaterial = LeafMaterial()
 
   const trunkMaterial = new MeshBasicMaterial({
-    map: (materials.trunk as MeshBasicMaterial).map,
+    map: materials.trunk.map,
   })
 
   useEffect(() => {

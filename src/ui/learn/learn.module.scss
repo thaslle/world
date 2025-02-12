@@ -1,12 +1,12 @@
 @use '~/css/helpers' as *;
 
 .wrapper {
-  display: grid;
-  grid-template-rows: auto max-content;
-  place-items: center;
-  align-items: end;
+  display: flex;
   height: 100%;
   gap: 1rem;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
 
   .arrows {
     display: grid;
@@ -74,47 +74,6 @@
     justify-content: center;
     column-gap: 0.4ch;
 
-    .subtitle {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      column-gap: 0.4ch;
-      position: relative;
-
-      font-size: 1rem;
-      font-weight: medium;
-      padding: 0.6em 1em;
-      background-color: var(--font-background);
-      border-radius: 3em;
-      clip-path: inset(0 round 3em);
-
-      opacity: 0;
-      transform: translateY(50%) scale(0.9);
-
-      @include subtitle-show-animation;
-
-      &:after {
-        display: block;
-        content: '';
-        width: 200%;
-        height: 100%;
-        position: absolute;
-        left: 0;
-        top: 0;
-        mix-blend-mode: plus-lighter;
-        background-image: linear-gradient(
-          120deg,
-          rgba(255, 255, 255, 0) 40%,
-          rgba(255, 255, 255, 1) 50%,
-          rgba(255, 255, 255, 0) 60%
-        );
-        opacity: 0.1;
-        transform: translateX(-100%);
-        animation: 6s ease-in-out 0.4s infinite normal flare;
-      }
-    }
-
     .button {
       display: flex;
       flex-direction: row;
@@ -123,17 +82,18 @@
       column-gap: 0.4ch;
       position: relative;
 
-      font-size: 1rem;
-      font-weight: medium;
-      padding: 0.6em 1em;
-      background-color: var(--font-background);
-      border-radius: 3em;
-      clip-path: inset(0 round 3em);
+      font-family: var(--font-button);
+      font-size: 0.65rem;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+      padding: 0.25em 0.5em;
+      border-radius: 0.4em;
+      border: 1px var(--font-color-light) solid;
+      margin-inline: 0.5ch;
 
-      opacity: 0;
-      transform: translateY(50%) scale(0.9);
-
-      @include subtitle-show-animation;
+      &.space {
+        padding-inline: 1.5em;
+      }
 
       svg {
         width: 1.5ch;
@@ -142,21 +102,6 @@
           fill: var(--font-color);
         }
       }
-    }
-  }
-
-  @include subtitle-show-keyframes;
-
-  @keyframes flare {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    40% {
-      transform: translateX(100%);
-    }
-    100% {
-      transform: translateX(100%);
     }
   }
 

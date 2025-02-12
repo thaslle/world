@@ -1,5 +1,5 @@
 import { useGLTF } from '@react-three/drei'
-import { Mesh, MeshStandardMaterial } from 'three'
+import { Mesh } from 'three'
 
 import { Collectible } from './collectible'
 import { Pick } from './pick'
