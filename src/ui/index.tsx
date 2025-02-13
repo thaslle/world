@@ -29,7 +29,7 @@ export const UI = () => {
     let timer: ReturnType<typeof setTimeout>
 
     if (status === 'explore')
-      timer = setTimeout(() => setStatus('finished'), 10000)
+      timer = setTimeout(() => setStatus('finished'), 60000)
 
     if (status === 'learn') timer = setTimeout(() => setShowLearn(true), 3000)
     if (status === 'find') setShowLearn(false)
