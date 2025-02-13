@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Vector3, MathUtils, Clock, Group, Vector2 } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useKeyboardControls } from '@react-three/drei'
@@ -23,7 +23,7 @@ import { Shadow } from './shadow'
 import { Camera } from './camera'
 
 const START_POSITION = {
-  start: { x: 109.6, y: 15, z: 79.57 },
+  start: { x: 109.6, y: 13, z: 79.57 },
   default: { x: 44.3, y: 8.5, z: 89.7 },
   rock: { x: 51.84, y: 6.5, z: -4.44 },
   water: { x: 73.35, y: 5, z: 120.64 },
@@ -53,9 +53,8 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     JUMP_FORCE,
     GRAVITY_SCALE,
     WAITING_TIME,
-    MOUSE_X_THRESHOLD,
+    MOUSE_VEL_THRESHOLD,
     MOUSE_Y_THRESHOLD,
-    MOUSE_RUN_THRESHOLD,
     POSITION_X,
     POSITION_Y,
     POSITION_Z,
@@ -67,9 +66,8 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     JUMP_FORCE: { value: 3.8, min: 0.2, max: 12, step: 0.1 },
     GRAVITY_SCALE: { value: 1.5, min: 0.2, max: 12, step: 0.1 },
     WAITING_TIME: { value: 10.0, min: 0.1, max: 30, step: 0.1 },
-    MOUSE_X_THRESHOLD: { value: 0.1, min: 0.01, max: 0.8, step: 0.1 },
+    MOUSE_VEL_THRESHOLD: { value: 0.1, min: 0.01, max: 0.8, step: 0.1 },
     MOUSE_Y_THRESHOLD: { value: 0.4, min: 0.1, max: 0.8, step: 0.1 },
-    MOUSE_RUN_THRESHOLD: { value: 1.5, min: 0.1, max: 10.0, step: 0.1 },
 
     POSITION_X: {
       value: START_POSITION[playerStartPosition].x,
@@ -118,6 +116,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
 
   const terrainLoaded = useStore((state) => state.terrainLoaded)
   const characterState = useStore((state) => state.characterState)
+  const status = useStore((state) => state.status)
   const setCharacterState = useStore((state) => state.setCharacterState)
   const setCollected = useStore((state) => state.setCollected)
 
@@ -127,6 +126,18 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
 
   const [, get] = useKeyboardControls()
   const isClicking = useRef(false)
+
+  const [releasePlayer, setReleasePlayer] = useState(false)
+
+  // Release player to start moving
+  useEffect(() => {
+    if (status === 'wait' || status === 'loading') return
+
+    const delayPlayer = setTimeout(() => setReleasePlayer(true), 1000)
+    return () => {
+      clearTimeout(delayPlayer)
+    }
+  }, [status])
 
   // Enable control by mouse or touch events
   useEffect(() => {
@@ -152,7 +163,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     }
   }, [])
 
-  useFrame(({ clock, mouse }) => {
+  useFrame(({ clock, pointer }) => {
     if (
       !playerRef.current ||
       !characterRef.current ||
@@ -167,16 +178,9 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     const generalElapsedTime = clock.getElapsedTime()
 
     // Clean the movement variables
-    mouseVel.x = 0
-    mouseVel.y = 0
-
-    rotVel.x = 0
-    rotVel.y = 0
-    rotVel.z = 0
-
-    vel.current.x = 0
-    vel.current.y = 0
-    vel.current.z = 0
+    mouseVel.set(0, 0)
+    rotVel.set(0, 0, 0)
+    vel.current.set(0, 0, 0)
 
     // This reference is used to store whether the player is moving forwards or backwards
     movement.current.w = 0
@@ -185,25 +189,24 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     curVel.current = vec3(playerRef.current.linvel())
 
     if (isClicking.current) {
-      console.log(mouse)
-      if (Math.abs(mouse.x) > MOUSE_X_THRESHOLD) mouseVel.x = -mouse.x
-      if (Math.abs(mouse.y) > MOUSE_Y_THRESHOLD) mouseVel.y = mouse.y
+      const yPointer = pointer.y + MOUSE_Y_THRESHOLD
+      if (Math.abs(pointer.x) > MOUSE_VEL_THRESHOLD) mouseVel.x = -pointer.x
+      if (Math.abs(yPointer) > MOUSE_VEL_THRESHOLD) mouseVel.y = yPointer
     }
 
     // If the player is running
     const MOVEMENT_SPEED =
-      get()[Controls.run] ||
-      Math.abs(mouseVel.x) > MOUSE_RUN_THRESHOLD ||
-      Math.abs(mouseVel.y) > MOUSE_RUN_THRESHOLD
-        ? RUN_SPEED
-        : WALK_SPEED
+      get()[Controls.run] || isClicking.current ? RUN_SPEED : WALK_SPEED
 
     // Moving forward
-    if (get()[Controls.forward] || mouseVel.y > MOUSE_Y_THRESHOLD) {
+    if (get()[Controls.forward] || mouseVel.y > MOUSE_VEL_THRESHOLD) {
       vel.current.z += MOVEMENT_SPEED
 
       movement.current.x = 1
       movement.current.w = 1 // Moving forwards or backwards
+
+      // Make movement smoother with mouse
+      if (isClicking.current) vel.current.z *= Math.abs(pointer.y) * 0.4
 
       // Player is facing away from the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -212,11 +215,14 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
         0.3,
       )
     }
-    if (get()[Controls.backward] || mouseVel.y < -MOUSE_Y_THRESHOLD) {
+    if (get()[Controls.backward] || mouseVel.y < -MOUSE_VEL_THRESHOLD) {
       vel.current.z -= MOVEMENT_SPEED
 
       movement.current.x = -1
       movement.current.w = 1 // Moving forwards or backwards
+
+      // Make movement smoother with mouse
+      if (isClicking.current) vel.current.z *= Math.abs(pointer.y) * 0.4
 
       // Player facing the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -229,19 +235,21 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     // Enable the player to rotate without any lateral movement
     const isMovingZ = Math.abs(vel.current.z) >= MOVEMENT_SPEED
 
-    if (get()[Controls.left] || mouseVel.x > MOUSE_X_THRESHOLD) {
+    if (get()[Controls.left] || mouseVel.x > MOUSE_VEL_THRESHOLD) {
       if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y += ROTATION_SPEED * movement.current.x
 
       // Make movement smoother with mouse
-      if (isClicking.current) rotVel.y *= Math.abs(mouse.x)
+      if (isClicking.current) rotVel.y *= Math.abs(pointer.x)
     }
-    if (get()[Controls.right] || mouseVel.x < -MOUSE_Y_THRESHOLD) {
+    if (get()[Controls.right] || mouseVel.x < -MOUSE_VEL_THRESHOLD) {
       if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
 
       rotVel.y -= ROTATION_SPEED * movement.current.x
-      if (isClicking.current) rotVel.y *= Math.abs(mouse.x)
+
+      // Make movement smoother with mouse
+      if (isClicking.current) rotVel.y *= Math.abs(pointer.x)
     }
 
     playerRef.current.setAngvel(rotVel, true)
@@ -351,7 +359,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
           ref={playerRef}
           position={[POSITION_X, POSITION_Y, POSITION_Z]}
           rotation={startRotation}
-          type={FIXED ? 'fixed' : 'dynamic'}
+          type={FIXED || !releasePlayer ? 'fixed' : 'dynamic'}
           collisionGroups={settings.groupPlayer}
           name="player"
           onCollisionEnter={(e) => {

@@ -1,0 +1,68 @@
+.volume {
+  vertical-align: baseline;
+  justify-self: start;
+  font-size: 1.75rem;
+
+  opacity: 0;
+  transform: translate(-1rem, -100%);
+
+  animation: 0.5s cubic-bezier(0.75, -0.5, 0, 1.75) 1.2s forwards 1 normal
+    volumeShow;
+
+  .toggle {
+    all: unset;
+    display: grid;
+    place-items: center;
+    pointer-events: visible;
+    width: 1.36em;
+    height: 1.36em;
+    padding: 0.3em;
+    background-color: var(--font-background);
+    border-radius: 3em;
+    clip-path: inset(0 round 3em);
+    box-sizing: border-box;
+    cursor: var(--cursor), auto;
+
+    svg {
+      width: 0.76em;
+      height: 0.76em;
+
+      path {
+        fill: var(--font-color);
+      }
+
+      g.sound,
+      g.mute {
+        transform-origin: center;
+        transition: all var(--transition-time) var(--transition-ease);
+      }
+      g.sound {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    &.enabled svg {
+      g.mute {
+        transform: scale(0);
+        opacity: 0;
+      }
+      g.sound {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  }
+
+  @keyframes volumeShow {
+    0% {
+      opacity: 0;
+      transform: translate(-1rem, -100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-1rem, -1rem);
+    }
+  }
+}
+

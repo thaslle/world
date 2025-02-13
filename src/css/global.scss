@@ -61,6 +61,8 @@ canvas {
   --font-family: 'Quicksand', Arial, Helvetica, sans-serif;
   --font-button: 'JetBrains Mono', 'Courier New', Courier, 'Lucida Console',
     monospace;
+
+  --cursor: url('/images/cursor.svg');
 }
 
 html {
@@ -74,5 +76,7 @@ body {
   letter-spacing: -0.01em;
   color: var(--font-color);
   background-color: var(--bg-color);
+
+  cursor: var(--cursor), auto;
 }
 

@@ -4,6 +4,7 @@ import { Learn } from './learn'
 import { Collected } from './collected'
 import { Message } from './message'
 import { Image } from './image'
+import { Sound } from './sound'
 
 import { useStore } from '~/hooks/use-store'
 import { useAudio } from '~/hooks/use-audio'
@@ -30,7 +31,7 @@ export const UI = () => {
     if (status === 'explore')
       timer = setTimeout(() => setStatus('finished'), 10000)
 
-    if (status === 'learn') timer = setTimeout(() => setShowLearn(true), 2000)
+    if (status === 'learn') timer = setTimeout(() => setShowLearn(true), 3000)
     if (status === 'find') setShowLearn(false)
 
     return () => {
@@ -41,7 +42,10 @@ export const UI = () => {
   return (
     <div className={s.ui}>
       <div className={s.top}>
-        <Collected collected={collected} />
+        {status !== 'wait' && status !== 'loading' && <Sound />}
+        {status !== 'wait' && status !== 'loading' && status !== 'learn' && (
+          <Collected collected={collected} />
+        )}
       </div>
 
       <div className={s.bottom}>
@@ -57,8 +61,8 @@ export const UI = () => {
           <Message>Quase lá! Só mais uma concha!</Message>
         )}
 
-        {status === 'find' && (
-          <Message>
+        {status === 'find' && collected === 0 && (
+          <Message delay={1200}>
             {`Encontre ${settings.collectiblesNeeded} concha${settings.collectiblesNeeded > 1 && 's'} na praia ao redor da ilha`}
           </Message>
         )}

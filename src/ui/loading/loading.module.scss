@@ -102,7 +102,7 @@
       border-radius: 3em;
       clip-path: inset(0 round 3em);
       transform: scale(0);
-      cursor: pointer;
+      cursor: var(--cursor), auto;
 
       .words {
         display: flex;

@@ -40,10 +40,17 @@ export const Learn = () => {
   }
 
   useEffect(() => {
-    window.addEventListener('keydown', downHandler)
+    // End tutorial when mouse is clicked
+    const onMouseDown = () => setStatus('find')
+
+    window.addEventListener('keydown', downHandler) // keyboard
+    document.addEventListener('mousedown', onMouseDown) // click
+    document.addEventListener('touchstart', onMouseDown) // touch
 
     return () => {
       window.removeEventListener('keydown', downHandler)
+      document.removeEventListener('mousedown', onMouseDown)
+      document.removeEventListener('touchstart', onMouseDown)
     }
   }, [keyboardMap, message])
 

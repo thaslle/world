@@ -3,7 +3,12 @@
   font-weight: bold;
   vertical-align: baseline;
   justify-self: end;
-  transform: translate(1rem, -1rem);
+
+  opacity: 0;
+  transform: translate(1rem, -100%);
+
+  animation: 0.5s cubic-bezier(0.75, -0.5, 0, 1.75) 1.2s forwards 1 normal
+    collectedShow;
 
   .wrapper {
     padding: 0.08em;
@@ -49,6 +54,17 @@
       background-size: 60%;
       background-color: #fbddce;
       border-radius: 100%;
+    }
+  }
+
+  @keyframes collectedShow {
+    0% {
+      opacity: 0;
+      transform: translate(1rem, -100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(1rem, -1rem);
     }
   }
 }

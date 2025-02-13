@@ -1,4 +1,5 @@
-import { Suspense, useEffect, useState } from 'react'
+import { clsx } from 'clsx'
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Stats, KeyboardControls, AdaptiveDpr } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
@@ -14,10 +15,13 @@ import { FrameLoop } from './components/frameloop'
 import { KeyboardMap } from './utils/keyboard-map'
 import { useStore } from './hooks/use-store'
 
+import s from './ui/ui.module.scss'
+
 function App() {
   const showDebug = useStore((state) => state.debug)
   const showPhysics = useStore((state) => state.physics)
   const frameloop = useStore((state) => state.frameloop)
+  const ready = useStore((state) => state.ready)
 
   return (
     <>
@@ -27,20 +31,22 @@ function App() {
         <Debug />
         <Leva hidden={!showDebug} />
         <KeyboardControls map={KeyboardMap()}>
-          <Canvas
-            camera={{ position: [3, 3, 3], fov: 35 }}
-            frameloop={frameloop}
-            shadows
-          >
-            {showDebug && <Stats />}
+          <div className={clsx(s.transition, { [s.show]: ready })}>
+            <Canvas
+              camera={{ position: [30, 30, 30], fov: 35 }}
+              frameloop={frameloop}
+              shadows
+            >
+              {showDebug && <Stats />}
 
-            <AdaptiveDpr pixelated />
+              <AdaptiveDpr pixelated />
 
-            <Physics debug={showPhysics}>
-              <Experience />
-            </Physics>
-          </Canvas>
-          <UI />
+              <Physics debug={showPhysics}>
+                <Experience />
+              </Physics>
+            </Canvas>
+            <UI />
+          </div>
           <AudioControl />
         </KeyboardControls>
       </Suspense>
