@@ -12,7 +12,7 @@ export const mainVertexShader = {
   search: `#include <fog_vertex>`,
   replace: `
       #include <fog_vertex>
-      vPositionW = worldPosition.xyz;
+      vPositionW = (modelMatrix * vec4(position, 1.0)).xyz;
       vPositionM = position.xyz;
       `,
 }

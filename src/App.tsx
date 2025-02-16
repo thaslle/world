@@ -1,7 +1,12 @@
 import { clsx } from 'clsx'
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Stats, KeyboardControls, AdaptiveDpr } from '@react-three/drei'
+import {
+  Stats,
+  KeyboardControls,
+  AdaptiveDpr,
+  PerformanceMonitor,
+} from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { Leva } from 'leva'
 
@@ -22,6 +27,7 @@ function App() {
   const showPhysics = useStore((state) => state.physics)
   const frameloop = useStore((state) => state.frameloop)
   const ready = useStore((state) => state.ready)
+  const setQuality = useStore((state) => state.setQuality)
 
   return (
     <>
@@ -40,6 +46,11 @@ function App() {
               {showDebug && <Stats />}
 
               <AdaptiveDpr pixelated />
+              <PerformanceMonitor
+                onChange={
+                  ({ factor }) => setQuality(factor * (5.0 - 1.0) + 1.0) // from 1 to 5
+                }
+              />
 
               <Physics debug={showPhysics}>
                 <Experience />

@@ -21,5 +21,6 @@ export const settings = {
   groupLevel: interactionGroups(1),
   groupCamera: interactionGroups(2, [3]),
   groupKnots: interactionGroups(3, [1, 2]),
+  highQuality: 3,
 }
 

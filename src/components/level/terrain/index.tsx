@@ -20,6 +20,8 @@ import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from './shaders/fragment.glsl'
 
 export function Terrain(props: GroupProps) {
+  const quality = useStore((state) => state.quality)
+
   const {
     GROUND_BASE_COLOR,
     GRASS_BASE_COLOR,
@@ -49,6 +51,8 @@ export function Terrain(props: GroupProps) {
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
+      uQuality: { value: quality },
+      uHighQuality: { value: settings.highQuality },
       uLightPosition: { value: settings.directionalLight.position },
       uLightColor: { value: settings.directionalLight.color },
       uLightIntensity: { value: settings.directionalLight.intensity },
@@ -77,6 +81,11 @@ export function Terrain(props: GroupProps) {
     materialRef.current.uniforms.uRockColor.value = ROCK_COLOR
     materialRef.current.uniforms.uOceanColor.value = OCEAN_COLOR
   }, [GROUND_COLOR, GRASS_COLOR, ROCK_COLOR, SNOW_COLOR, OCEAN_COLOR])
+
+  useEffect(() => {
+    if (!materialRef.current) return
+    materialRef.current.uniforms.uQuality.value = quality
+  }, [quality])
 
   // Geometry
   const { nodes } = useGLTF('/models/terrain.glb')

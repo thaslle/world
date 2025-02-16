@@ -34,6 +34,8 @@ export const Rocks = () => {
   rockMaterial.onBeforeCompile = (shader) => {
     rockMaterial.userData.shader = shader
 
+    if (!shader) return
+
     shader.uniforms.uTime = { value: 0.0 }
     shader.uniforms.uWaterHeight = { value: settings.waterHeight }
 

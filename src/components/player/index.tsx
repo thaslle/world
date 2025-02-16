@@ -97,6 +97,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
 
   const rotVel = new Vector3()
   const mouseVel = new Vector2()
+  const newPointer = new Vector2()
   const vel = useRef(new Vector3())
   const curVel = useRef(new Vector3())
   const playerinTheAir = useRef(true)
@@ -181,6 +182,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     mouseVel.set(0, 0)
     rotVel.set(0, 0, 0)
     vel.current.set(0, 0, 0)
+    newPointer.set(0, 0)
 
     // This reference is used to store whether the player is moving forwards or backwards
     movement.current.w = 0
@@ -189,9 +191,13 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
     curVel.current = vec3(playerRef.current.linvel())
 
     if (isClicking.current) {
-      const yPointer = pointer.y + MOUSE_Y_THRESHOLD
-      if (Math.abs(pointer.x) > MOUSE_VEL_THRESHOLD) mouseVel.x = -pointer.x
-      if (Math.abs(yPointer) > MOUSE_VEL_THRESHOLD) mouseVel.y = yPointer
+      newPointer.y = Math.pow(Math.min(pointer.y * 2, 1), 3) + MOUSE_Y_THRESHOLD
+      newPointer.x = Math.pow(pointer.x, 3)
+
+      if (Math.abs(newPointer.x) > MOUSE_VEL_THRESHOLD)
+        mouseVel.x = -newPointer.x
+      if (Math.abs(newPointer.y) > MOUSE_VEL_THRESHOLD)
+        mouseVel.y = newPointer.y
     }
 
     // If the player is running
@@ -206,7 +212,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       movement.current.w = 1 // Moving forwards or backwards
 
       // Make movement smoother with mouse
-      if (isClicking.current) vel.current.z *= Math.abs(pointer.y) * 0.4
+      if (isClicking.current) vel.current.z *= Math.abs(newPointer.y) * 0.4
 
       // Player is facing away from the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -222,7 +228,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       movement.current.w = 1 // Moving forwards or backwards
 
       // Make movement smoother with mouse
-      if (isClicking.current) vel.current.z *= Math.abs(pointer.y) * 0.4
+      if (isClicking.current) vel.current.z *= Math.abs(newPointer.y) * 0.4
 
       // Player facing the camera
       characterRef.current.rotation.y = MathUtils.lerp(
@@ -241,7 +247,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       rotVel.y += ROTATION_SPEED * movement.current.x
 
       // Make movement smoother with mouse
-      if (isClicking.current) rotVel.y *= Math.abs(pointer.x)
+      if (isClicking.current && newPointer.x) rotVel.y *= Math.abs(newPointer.x)
     }
     if (get()[Controls.right] || mouseVel.x < -MOUSE_VEL_THRESHOLD) {
       if (!isMovingZ) vel.current.z += MOVEMENT_SPEED * 0.5 * movement.current.x
@@ -249,7 +255,7 @@ export const Player: React.FC<PlayerProps> = ({ playerRef }) => {
       rotVel.y -= ROTATION_SPEED * movement.current.x
 
       // Make movement smoother with mouse
-      if (isClicking.current) rotVel.y *= Math.abs(pointer.x)
+      if (isClicking.current && newPointer.x) rotVel.y *= Math.abs(newPointer.x)
     }
 
     playerRef.current.setAngvel(rotVel, true)

@@ -26,6 +26,7 @@ type Store = {
   ready: boolean
   debug: boolean
   physics: boolean
+  quality: number // 1 to 5
   frameloop: FrameloopProps
   terrainLoaded: boolean
   terrainSize: number
@@ -40,6 +41,7 @@ type Store = {
   lastCollectedPosition: CollectiblePositionsProps
   status: StatusProps
   setReady: (ready: boolean) => void
+  setQuality: (quality: number) => void
   setFrameloop: (frameloop: FrameloopProps) => void
   setCharacterState: (characterState: string) => void
   setCollected: (id: number) => void
@@ -52,6 +54,7 @@ export const useStore = create<Store>((set) => ({
   ready: false,
   debug: false,
   physics: false,
+  quality: 5,
   frameloop: 'always',
   terrainLoaded: false,
   terrainSize: settings.terrainSize,
@@ -71,6 +74,10 @@ export const useStore = create<Store>((set) => ({
   setReady: (ready) =>
     set({
       ready,
+    }),
+  setQuality: (quality) =>
+    set({
+      quality,
     }),
   setFrameloop: (frameloop) =>
     set({

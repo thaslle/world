@@ -13,6 +13,7 @@ import { settings } from '~/config/settings'
 export const Experience = () => {
   const playerRef = useRef<RapierRigidBody>(null)
   const ready = useStore((state) => state.ready)
+  const quality = useStore((state) => state.quality)
 
   return (
     ready && (
@@ -26,7 +27,7 @@ export const Experience = () => {
         />
 
         <Level />
-        <Grass playerRef={playerRef} />
+        {quality > settings.highQuality && <Grass playerRef={playerRef} />}
         <Player playerRef={playerRef} />
         <Assets />
       </>

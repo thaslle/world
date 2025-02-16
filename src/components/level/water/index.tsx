@@ -5,6 +5,7 @@ import * as THREE from 'three'
 
 import { useControls } from 'leva'
 
+import { useStore } from '~/hooks/use-store'
 import { settings } from '~/config/settings'
 
 import vertexShader from './shaders/vertex.glsl'
@@ -24,6 +25,8 @@ declare global {
 const WaterMaterial = shaderMaterial(
   {
     uTime: 0,
+    uQuality: 1,
+    uHighQuality: settings.highQuality,
     uColorNear: new THREE.Vector3(),
     uColorFar: new THREE.Vector3(),
     uFogColor: new THREE.Color(settings.fog.color),
@@ -37,6 +40,8 @@ const WaterMaterial = shaderMaterial(
 extend({ WaterMaterial })
 
 export const Water = () => {
+  const quality = useStore((state) => state.quality)
+
   const { COLOR_BASE_NEAR, COLOR_BASE_FAR } = useControls('Water', {
     COLOR_BASE_NEAR: { value: '#2eF7FF', label: 'NEAR' },
     COLOR_BASE_FAR: { value: '#1DFFE1', label: 'FAR' },
@@ -54,6 +59,11 @@ export const Water = () => {
     materialRef.current.uniforms.uColorNear.value = COLOR_NEAR
     materialRef.current.uniforms.uColorFar.value = COLOR_FAR
   }, [COLOR_NEAR, COLOR_FAR])
+
+  useEffect(() => {
+    if (!materialRef.current) return
+    materialRef.current.uniforms.uQuality.value = quality
+  }, [quality])
 
   useFrame(({ clock }) => {
     if (!materialRef.current || !meshRef.current) return

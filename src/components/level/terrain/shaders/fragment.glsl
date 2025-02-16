@@ -4,6 +4,8 @@ precision mediump float;
 
 // Uniforms for light and camera
 uniform float uTime;
+uniform float uQuality;
+uniform float uHighQuality;
 uniform vec3 uGroundColor;
 uniform vec3 uGrassColor;
 uniform vec3 uSnowColor;
@@ -29,6 +31,7 @@ varying vec3 csm_vNormalW;
 #include "../../../../utils/shaders/materials/sand.glsl"
 #include "../../../../utils/shaders/materials/rock.glsl"
 
+
 void main()
 {
 
@@ -36,60 +39,104 @@ void main()
     //Darken color by depth
     float heightFactor = smoothstep(5.1, 1.2, csm_vPositionW.y);
     vec3 baseColor = mix(uGroundColor, uGroundColor * 0.8, heightFactor);
-
-    float vnoise = noise(csm_vUv * 50.0);
-    float vsnoise = snoise(csm_vUv * 800.0);
-    float vfbm = fbm(csm_vUv * 60.0);
-
-    //Sand texture
-    //baseColor = sand(csm_vUv, baseColor);
-    baseColor = sand(baseColor, vnoise, vsnoise, vfbm);
-    
-    // Read the vertex color
-    vec3 color = csm_vColor.rgb;
-    
-    // Apply custom color rules based on vertex color
-    // Red Vertex Color
-
-    // Rock texture
-    vec3 baseRockColor = rock(csm_vUv, uRockColor, vsnoise);
-
-    float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
-    baseColor = mix(baseColor, baseRockColor, rockBlendFactor);
-
-    // Blue Vertex Color
-    float colorGB = min(color.g + color.b, 1.0);
-    
-    // Green Vertex Color
-    // Compute the blend factor based on the green channel (color.g)
-    float grassBlendFactor = smoothstep(0.1, 0.2, colorGB);
-
-    // Grass texture
-    vec3 baseGrassColor = grass(uGrassColor, vnoise, vsnoise, vfbm);
-
-    // Threshold for grass texture effect
-    float grassThreshold = smoothstep(0.0, 0.6, colorGB);
+    vec3 finalColor = vec3(1.0);
 
 
-    // Generate noise for edge effect
-    float edgeNoise = snoise(csm_vUv * 100.0);
-    
-    float baseEdge = mix(0.0, mix(edgeNoise, 1.0, grassThreshold), grassThreshold);
-    baseEdge = smoothstep(0.3, 0.7, baseEdge);
+    if(uQuality > uHighQuality) {
 
-    // Blend between base color and grass color based on the edge effect and grass blend factor
-    baseColor = mix(baseColor, baseGrassColor, baseEdge * grassBlendFactor);
+        float vnoise = noise(csm_vUv * 50.0);
+        float vsnoise = snoise(csm_vUv * 800.0);
+        float vfbm = fbm(csm_vUv * 60.0);
 
-    // Ocean Bottom
-    float vignette = length(csm_vUv - 0.5) * 1.5;
-    vec3 vignetteFactor = smoothstep(0.3, 0.9, vec3(vignette));
-    
-    float oceanFactor = smoothstep(0.8, 0.0, csm_vPositionW.y);
-    baseColor = mix(baseColor, uOceanColor, oceanFactor * min(vignetteFactor + 0.3, 1.0));
+        //Sand texture
+        //baseColor = sand(csm_vUv, baseColor);
+        baseColor = sand(baseColor, vnoise, vsnoise, vfbm);
+        
+        // Read the vertex color
+        vec3 color = csm_vColor.rgb;
+        
+        // Apply custom color rules based on vertex color
+        // Red Vertex Color
 
-    float shadowIntensity = 0.3;
-    vec3 shadowedColor = baseColor * getShadowMask();
-    vec3 finalColor = mix(baseColor, shadowedColor, shadowIntensity);
+        // Rock texture
+        vec3 baseRockColor = rock(csm_vUv, uRockColor, vsnoise);
+
+        float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
+        baseColor = mix(baseColor, baseRockColor, rockBlendFactor);
+
+        // Blue Vertex Color
+        float colorGB = min(color.g + color.b, 1.0);
+        
+        // Green Vertex Color
+        // Compute the blend factor based on the green channel (color.g)
+        float grassBlendFactor = smoothstep(0.1, 0.2, colorGB);
+
+        // Grass texture
+        vec3 baseGrassColor = grass(uGrassColor, vnoise, vsnoise, vfbm);
+
+        // Threshold for grass texture effect
+        float grassThreshold = smoothstep(0.0, 0.6, colorGB);
+
+
+        // Generate noise for edge effect
+        float edgeNoise = snoise(csm_vUv * 100.0);
+        
+        float baseEdge = mix(0.0, mix(edgeNoise, 1.0, grassThreshold), grassThreshold);
+        baseEdge = smoothstep(0.3, 0.7, baseEdge);
+
+        // Blend between base color and grass color based on the edge effect and grass blend factor
+        baseColor = mix(baseColor, baseGrassColor, baseEdge * grassBlendFactor);
+
+        // Ocean Bottom
+        float vignette = length(csm_vUv - 0.5) * 1.5;
+        vec3 vignetteFactor = smoothstep(0.3, 0.9, vec3(vignette));
+        
+        float oceanFactor = smoothstep(0.8, 0.0, csm_vPositionW.y);
+        baseColor = mix(baseColor, uOceanColor, oceanFactor * min(vignetteFactor + 0.3, 1.0));
+
+        float shadowIntensity = 0.3;
+        vec3 shadowedColor = baseColor * getShadowMask();
+        finalColor = mix(baseColor, shadowedColor, shadowIntensity);
+    } else {
+        // Read the vertex color
+        vec3 color = csm_vColor.rgb;
+        
+        // Apply custom color rules based on vertex color
+        // Red Vertex Color
+
+        // Rock texture
+        float rockBlendFactor = smoothstep(0.1, 0.2, color.r);
+        baseColor = mix(baseColor, uRockColor, rockBlendFactor);
+
+        // Blue Vertex Color
+        float colorGB = min(color.g + color.b, 1.0);
+        
+        // Green Vertex Color
+        // Compute the blend factor based on the green channel (color.g)
+        float grassBlendFactor = smoothstep(0.1, 0.2, colorGB);
+
+        // Threshold for grass texture effect
+        float grassThreshold = smoothstep(0.0, 0.6, colorGB);
+
+
+        // Generate noise for edge effect
+        // float edgeNoise = snoise(csm_vUv * 100.0);
+        
+        // float baseEdge = mix(0.0, mix(edgeNoise, 1.0, grassThreshold), grassThreshold);
+        // baseEdge = smoothstep(0.3, 0.7, baseEdge);
+
+        // Blend between base color and grass color based on the edge effect and grass blend factor
+        baseColor = mix(baseColor, uGrassColor, grassBlendFactor);
+
+        // Ocean Bottom
+        float vignette = length(csm_vUv - 0.5) * 1.5;
+        vec3 vignetteFactor = smoothstep(0.3, 0.9, vec3(vignette));
+        
+        float oceanFactor = smoothstep(0.8, 0.0, csm_vPositionW.y);
+        baseColor = mix(baseColor, uOceanColor, oceanFactor * min(vignetteFactor + 0.3, 1.0));
+
+        finalColor = baseColor;
+    }
 
     // Modify the y position based on sine function, oscillating up and down over time
     float sineOffset = sin(uTime * 1.2) * 0.1;  // 1.2 controls the speed, 0.1 controls the amplitude

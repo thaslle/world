@@ -16,10 +16,8 @@ export const Learn = () => {
   const keyboardMap = KeyboardMap()
 
   const downHandler = ({ key, code }: { key: string; code: string }) => {
-    const keyPressed = code === 'Space' ? code : key
-
     keyboardMap.forEach((control) => {
-      if (control.keys.includes(keyPressed)) {
+      if (control.keys.includes(key) || control.keys.includes(code)) {
         switch (control.name) {
           case Controls.forward:
           case Controls.backward:
