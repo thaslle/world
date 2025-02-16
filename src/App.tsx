@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import {
   Stats,
@@ -29,6 +29,21 @@ function App() {
   const ready = useStore((state) => state.ready)
   const setQuality = useStore((state) => state.setQuality)
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // If mobile, we are only showing the click and drag message
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+
+    // Run on initial render and every resize event
+    handleResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   return (
     <>
       <Loading />
@@ -48,7 +63,8 @@ function App() {
               <AdaptiveDpr pixelated />
               <PerformanceMonitor
                 onChange={
-                  ({ factor }) => setQuality(factor * (5.0 - 1.0) + 1.0) // from 1 to 5
+                  ({ factor }) =>
+                    setQuality(isMobile ? factor * (5.0 - 1.0) + 1.0 : 5) // from 1 to 5
                 }
               />
 
