@@ -4,8 +4,7 @@ To celebrate my wife’s 30th birthday, I created a special project that combine
 
 In this interactive 3D experience, my wife is the main character on a quest to find her birthday gift. Throughout the game, she follows clues and collects items, each one bringing her closer to discovering the ultimate surprise.
 
-
-https://github.com/user-attachments/assets/d84d47ce-e935-4194-91fe-82bebe5fdbd6
+https://github.com/user-attachments/assets/05634580-e523-4902-ad24-86387b826620
 
 Play it [here](https://maria30.vercel.app/). (_use "." and "," to access the debug options._)
 
